@@ -11,11 +11,6 @@ setup(
     license="GPLv3",
     keywords="TODO",
     url="https://github.com/stheid/ TODO",
-    entry_points={
-        'console_scripts': [
-            'fuzz_proj = fuzzer.exec.runner:main',
-        ]
-    },
     install_requires=open('requirements.txt').read(),
     classifiers=[
         "Programming Language :: Python :: 3",

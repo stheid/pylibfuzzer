@@ -4,5 +4,5 @@ fuzzer:
     - AddByteMutator
     - DeleteByteMutator
     - SubstituteByteMutator
-  fitness: cov_fittness
+  fitness: cov_fitness
   seed: 1

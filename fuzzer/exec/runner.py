@@ -1,17 +1,29 @@
+import importlib
+
+import click
 import yaml
 
 
-def main(conf='fuzzer.yaml'):
-    # TODO read yaml
-    # create fuzzer with from configuration
-    # select mutators if fuzzer mutation-based and model exists
-
+@click.command()
+@click.option('--conf', default='fuzzer.yaml', help='Fuzzer configuration file.')
+def main(conf):
     with open(conf, 'r') as stream:
         try:
-            conf = yaml.safe_load(stream)
+            config = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
             print(exc)
-    print(conf)
+
+    fuzzer_conf = config.get('fuzzer')
+
+    # fuzzer class
+    clsname = fuzzer_conf.pop('cls')
+    module = importlib.import_module('fuzzer.algos')
+    cls = getattr(module, clsname)
+
+    # fuzzerparams
+    fuzzer = cls(**fuzzer_conf)
+
+    return fuzzer
 
 
 if __name__ == '__main__':
