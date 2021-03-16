@@ -1,0 +1,8 @@
+fuzzer:
+  cls: HillClimbFuzzer
+  mutators:
+    - AddByteMutator
+    - DeleteByteMutator
+    - SubstituteByteMutator
+  fitness: cov_fittness
+  seed: 1
