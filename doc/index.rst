@@ -15,10 +15,10 @@ Welcome to PyLibFuzzer's documentation!
    :titlesonly:
    :caption: API:
 
-   api/fuzzer.algos
-   api/fuzzer.mutators
-   api/fuzzer.fitness
-   api/fuzzer.exec
+   api/pylibfuzzer.algos
+   api/pylibfuzzer.mutators
+   api/pylibfuzzer.fitness
+   api/pylibfuzzer.exec
 
 
 Indices and tables

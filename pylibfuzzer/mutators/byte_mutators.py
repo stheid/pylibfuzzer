@@ -1,4 +1,4 @@
-from fuzzer.mutators.base import Mutator
+from .base import Mutator
 
 
 class SubstituteByteMutator(Mutator):

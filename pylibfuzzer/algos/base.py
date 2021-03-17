@@ -1,8 +1,8 @@
 import importlib
 from typing import Optional, Union, Callable
 
-from fuzzer.fitness import cov_fitness
-from fuzzer.mutators import SubstituteByteMutator, AddByteMutator, DeleteByteMutator
+from pylibfuzzer.fitness import cov_fitness
+from pylibfuzzer.mutators import SubstituteByteMutator, AddByteMutator, DeleteByteMutator
 
 
 class BaseFuzzer:

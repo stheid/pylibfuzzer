@@ -3,8 +3,8 @@ from typing import Optional, Callable, Union
 
 import numpy as np
 
-from fuzzer.algos.base import MutationBasedFuzzer
-from fuzzer.fitness import cov_fitness
+from pylibfuzzer.algos.base import MutationBasedFuzzer
+from pylibfuzzer.fitness import cov_fitness
 
 
 class HillClimbFuzzer(MutationBasedFuzzer):
