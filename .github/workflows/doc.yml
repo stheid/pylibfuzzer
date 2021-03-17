@@ -1,9 +1,7 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - master
+  push
 
 jobs:
   build:
@@ -12,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Install dev requirements
-        run: sudo pip install -r requirements.dev
+        run: sudo pip install -r requirements_dev.txt
       # Standard drop-in approach that should work for most people.
       - uses: ammaraskar/sphinx-action@master
         with:
