@@ -58,6 +58,6 @@ class MutationBasedFuzzer(BaseFuzzer):
         if mutators is None:
             mutators = [SubstituteByteMutator(seed), AddByteMutator(seed), DeleteByteMutator(seed)]
         else:
-            module = importlib.import_module('fuzzer.mutators')
+            module = importlib.import_module('pylibfuzzer.mutators')
             mutators = [getattr(module, mut)(seed) for mut in mutators]
         self.mutators = [mut.mutate for mut in mutators]
