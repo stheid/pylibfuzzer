@@ -11,12 +11,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+      - name: Install dev requirements
+        run: sudo pip install -r requirements.dev
       # Standard drop-in approach that should work for most people.
       - uses: ammaraskar/sphinx-action@master
         with:
           docs-folder: "doc/"
-      - name: Install dev requirements
-        run: sudo pip install -r requirements.dev
       - name: Commit documentation changes
         run: |
           git clone https://github.com/ammaraskar/sphinx-action-test.git --branch gh-pages --single-branch gh-pages
