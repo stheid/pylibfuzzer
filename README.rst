@@ -1,6 +1,6 @@
-==========================
-OpenModelica Microgrid Gym
-==========================
+===========
+PyLibFuzzer
+===========
 
 | |license| |doc|
 
