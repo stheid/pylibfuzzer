@@ -14,7 +14,7 @@ def main(conf='fuzzer.yml'):
 
     # fuzzer class
     clsname = fuzzer_conf.pop('cls')
-    module = importlib.import_module('fuzzer.algos')
+    module = importlib.import_module('pylibfuzzer.algos')
     cls = getattr(module, clsname)
 
     # fuzzerparams
