@@ -1,12 +1,9 @@
 import importlib
 
-import click
 import yaml
 
 
-@click.command()
-@click.option('--conf', default='fuzzer.yml', help='Fuzzer configuration file.')
-def main(conf):
+def main(conf='fuzzer.yml'):
     with open(conf, 'r') as stream:
         try:
             config = yaml.safe_load(stream)
