@@ -9,11 +9,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - name: Install dev requirements
-        run: sudo pip install -r requirements_dev.txt
       # Standard drop-in approach that should work for most people.
       - uses: ammaraskar/sphinx-action@master
         with:
+          pre-build-command: "sudo pip install -r requirements_dev.txt"
           docs-folder: "doc/"
       - name: Commit documentation changes
         run: |
