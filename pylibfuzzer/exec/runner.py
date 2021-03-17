@@ -5,7 +5,7 @@ import yaml
 
 
 @click.command()
-@click.option('--conf', default='fuzzer.yaml', help='Fuzzer configuration file.')
+@click.option('--conf', default='fuzzer.yml', help='Fuzzer configuration file.')
 def main(conf):
     with open(conf, 'r') as stream:
         try:
