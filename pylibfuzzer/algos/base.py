@@ -1,5 +1,5 @@
 import importlib
-from typing import Optional, Union, Callable
+from typing import Optional, Union, Callable, List
 
 from pylibfuzzer.fitness import cov_fitness
 from pylibfuzzer.mutators import SubstituteByteMutator, AddByteMutator, DeleteByteMutator
@@ -24,7 +24,7 @@ class BaseFuzzer:
         """
         pass
 
-    def create_inputs(self) -> list[bytes]:
+    def create_inputs(self) -> List[bytes]:
         """
         create new input from internal model
 
@@ -34,7 +34,7 @@ class BaseFuzzer:
         """
         pass
 
-    def observe(self, fuzzing_result: list[bytes]):
+    def observe(self, fuzzing_result: List[bytes]):
         """
         gets execution results of the last input batch passed to the PUT.
 
@@ -53,7 +53,7 @@ class BaseFuzzer:
 
 
 class MutationBasedFuzzer(BaseFuzzer):
-    def __init__(self, mutators: list[str] = None, fitness: Optional[Union[Callable, str]] = None, seed=None):
+    def __init__(self, mutators: List[str] = None, fitness: Optional[Union[Callable, str]] = None, seed=None):
         super().__init__(fitness)
         if mutators is None:
             mutators = [SubstituteByteMutator(seed), AddByteMutator(seed), DeleteByteMutator(seed)]
