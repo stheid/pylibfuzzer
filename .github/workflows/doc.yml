@@ -15,6 +15,8 @@ jobs:
       - uses: ammaraskar/sphinx-action@master
         with:
           docs-folder: "doc/"
+      - name: Install dev requirements
+        run: sudo pip install -r requirements.dev
       - name: Commit documentation changes
         run: |
           git clone https://github.com/ammaraskar/sphinx-action-test.git --branch gh-pages --single-branch gh-pages
