@@ -19,7 +19,7 @@ class HillClimbFuzzer(MutationBasedFuzzer):
             with open(file, 'rb') as f:
                 self.batch.append(f.read())
 
-    def create_input(self) -> list[bytes]:
+    def create_inputs(self) -> list[bytes]:
         if self.batch:
             return self.batch
         mutate = self.rng.choice(self.mutators, 1)

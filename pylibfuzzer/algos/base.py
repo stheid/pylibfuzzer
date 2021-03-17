@@ -24,7 +24,7 @@ class BaseFuzzer:
         """
         pass
 
-    def create_input(self) -> list[bytes]:
+    def create_inputs(self) -> list[bytes]:
         """
         create new input from internal model
 
@@ -42,6 +42,14 @@ class BaseFuzzer:
         :return:
         """
         pass
+
+    def is_done(self) -> bool:
+        """
+        returns true iff the fuzzer wants to terminate execution.
+
+        :return:
+        """
+        return False
 
 
 class MutationBasedFuzzer(BaseFuzzer):

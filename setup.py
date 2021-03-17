@@ -13,7 +13,12 @@ setup(
     url="https://github.com/stheid/pylibfuzzer",
     install_requires=open('requirements.txt').read(),
     classifiers=[
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.9',
+        'Development Status :: 2 - Pre-Alpha',
+        'Operating System :: POSIX :: Linux',
+        'Topic :: Security',
+        'Topic :: Software Development :: Bug Tracking',
+        'Framework :: Sphinx'
     ]
 )

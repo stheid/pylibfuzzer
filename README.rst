@@ -10,6 +10,8 @@ PyLibFuzzer
 .. |doc| image:: https://img.shields.io/badge/doc-success-success
     :target: https://stheid.github.io/pylibfuzzer
 
+This project is merely intended for prototyping and used in together with libfuzzer to develop
+machine learning based fuzzers that can be automatically evaluated on fuzzbench.
 
 * Free software: GNU General Public License v3
 * Documentation: https://stheid.github.io/pylibfuzzer
@@ -20,8 +22,7 @@ Installation
 
 ::
 
-  $ git clone https://github.com/stheid/pylibfuzzer.git
-  $ pip install .
+  $ pip install git+git://github.com/stheid/pylibfuzzer.git
 
 
 Getting started
