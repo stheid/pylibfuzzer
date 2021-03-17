@@ -1,5 +1,5 @@
 from glob import glob
-from typing import Optional, Callable, Union
+from typing import Optional, Callable, Union, List
 
 import numpy as np
 
@@ -8,7 +8,7 @@ from pylibfuzzer.fitness import cov_fitness
 
 
 class HillClimbFuzzer(MutationBasedFuzzer):
-    def __init__(self, mutators: list[str] = None, fitness: Optional[Union[Callable, str]] = None, seed=None):
+    def __init__(self, mutators: List[str] = None, fitness: Optional[Union[Callable, str]] = None, seed=None):
         super().__init__(mutators, fitness, seed)
         self.rng = np.random.default_rng(seed)  # type: np.random.Generator
         self.best_so_far = None
@@ -19,7 +19,7 @@ class HillClimbFuzzer(MutationBasedFuzzer):
             with open(file, 'rb') as f:
                 self.batch.append(f.read())
 
-    def create_inputs(self) -> list[bytes]:
+    def create_inputs(self) -> List[bytes]:
         if self.batch:
             return self.batch
         mutate = self.rng.choice(self.mutators, 1)
@@ -27,8 +27,8 @@ class HillClimbFuzzer(MutationBasedFuzzer):
         self.batch.append(mutate(self.best_so_far))
         return self.batch
 
-    def observe(self, fuzzing_result: list[bytes]):
-        batch = self.batch + self.best_so_far
+    def observe(self, fuzzing_result: List[bytes]):
+        batch = self.batch + [self.best_so_far]
         self.batch = []
 
         self.best_so_far = max(batch, key=cov_fitness)

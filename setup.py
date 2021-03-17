@@ -15,6 +15,7 @@ setup(
     classifiers=[
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.8',
         'Development Status :: 2 - Pre-Alpha',
         'Operating System :: POSIX :: Linux',
         'Topic :: Security',
