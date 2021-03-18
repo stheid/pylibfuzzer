@@ -12,15 +12,17 @@ class HillClimbFuzzer(MutationBasedFuzzer):
         super().__init__(mutators, fitness, seed)
         self.rng = np.random.default_rng(seed)  # type: np.random.Generator
         self.best_so_far = None
+        self.initialized = False
         self.batch = []
 
     def is_initialized(self) -> bool:
-        return self.best_so_far is not None
+        return self.initialized
 
     def load_seed(self, path):
         for file in glob(path + "/*"):
             with open(file, 'rb') as f:
                 self.batch.append(f.read())
+        self.initialized = True
 
     def create_inputs(self) -> List[bytes]:
         super().create_inputs()
