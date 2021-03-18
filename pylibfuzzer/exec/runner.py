@@ -1,9 +1,10 @@
 import importlib
+from subprocess import Popen, PIPE
 
 import yaml
 
 
-def main(conf='fuzzer.yml'):
+def main(conf='fuzzer.yml', command=('/usr/bin/cat',), seed_path=None):
     with open(conf, 'r') as stream:
         try:
             config = yaml.safe_load(stream)
@@ -20,7 +21,21 @@ def main(conf='fuzzer.yml'):
     # fuzzerparams
     fuzzer = cls(**fuzzer_conf)
 
-    return fuzzer
+    proc = Popen(command, stdin=PIPE, stdout=PIPE)
+
+    fuzzer.load_seed(seed_path)
+
+    while not fuzzer.done():
+        batch = fuzzer.create_inputs()
+        results = []
+        for data in batch:
+            with open('file.dat', 'wb') as f:
+                f.write(data)
+            proc.stdin.write(b'file.dat\n')
+            proc.stdin.flush()
+            results.append(proc.stdout.readline())
+        fuzzer.observe(results)
+        print(results)
 
 
 if __name__ == '__main__':

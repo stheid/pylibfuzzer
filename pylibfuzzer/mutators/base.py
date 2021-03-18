@@ -7,3 +7,11 @@ class Mutator:
 
     def mutate(self, b: bytearray) -> bytearray:
         pass
+
+
+class SequenceMutator(Mutator):
+    def pos(self, seq):
+        length = len(seq)
+        if length == 0:
+            return None
+        return self.rng.integers(0, length)
