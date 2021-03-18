@@ -18,7 +18,7 @@ class HillClimbFuzzer(MutationBasedFuzzer):
         return self.best_so_far is not None
 
     def load_seed(self, path):
-        for file in glob(path + "*"):
+        for file in glob(path + "/*"):
             with open(file, 'rb') as f:
                 self.batch.append(f.read())
 
