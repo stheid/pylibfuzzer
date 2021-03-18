@@ -1,4 +1,3 @@
-from glob import glob
 from typing import Optional, Callable, Union, List
 
 import numpy as np
@@ -11,16 +10,7 @@ class HillClimbFuzzer(MutationBasedFuzzer):
         super().__init__(mutators, fitness, seed)
         self.rng = np.random.default_rng(seed)  # type: np.random.Generator
         self.best_so_far = None
-        self.batch = []
-
-    def load_seed(self, path):
-        if path is None:
-            self.batch.append(b'')
-        else:
-            for file in glob(path + "/*"):
-                with open(file, 'rb') as f:
-                    self.batch.append(f.read())
-        self._initialized = True
+        self.best_fittness = float('-inf')
 
     def create_inputs(self) -> List[bytes]:
         self._check_initialization()
@@ -32,7 +22,11 @@ class HillClimbFuzzer(MutationBasedFuzzer):
         return self.batch
 
     def observe(self, fuzzing_result: List[bytes]):
-        batch = self.batch + [self.best_so_far]
+        batch = self.batch
+        fitnesses = [self.fitness(res) for res in fuzzing_result]
         self.batch = []
 
-        self.best_so_far = max(batch, key=self.fitness)
+        fittest = max(range(len(fitnesses)), key=lambda i: fitnesses[i])
+        if best_fitness := fitnesses[fittest] > self.best_fittness:
+            self.best_fittness = best_fitness
+            self.best_so_far = batch[fittest]
