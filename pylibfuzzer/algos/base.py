@@ -12,7 +12,7 @@ class BaseFuzzer:
         elif isinstance(fitness, Callable):
             self.fitness = fitness
         else:
-            module = importlib.import_module('fuzzer.fitness')
+            module = importlib.import_module('pylibfuzzer.fitness')
             self.fitness = getattr(module, fitness)
 
     def load_seed(self, path):
