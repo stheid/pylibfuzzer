@@ -15,6 +15,15 @@ class BaseFuzzer:
             module = importlib.import_module('pylibfuzzer.fitness')
             self.fitness = getattr(module, fitness)
 
+    def is_initialized(self) -> bool:
+        """
+        Checks whether the fuzzer implementation is initialized.
+        Must be overwritten by fuzzers that need initialization
+
+        :return:
+        """
+        return True
+
     def load_seed(self, path):
         """
         loads all files in the seed to the model
@@ -32,7 +41,10 @@ class BaseFuzzer:
 
         :return: list of files as bytes
         """
-        pass
+        if not self.is_initialized():
+            raise RuntimeError(
+                'please call load_seed() before creating the first input to initialize the internal state')
+        return []
 
     def observe(self, fuzzing_result: List[bytes]):
         """

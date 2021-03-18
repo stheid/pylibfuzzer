@@ -14,15 +14,19 @@ class HillClimbFuzzer(MutationBasedFuzzer):
         self.best_so_far = None
         self.batch = []
 
+    def is_initialized(self) -> bool:
+        return self.best_so_far is not None
+
     def load_seed(self, path):
         for file in glob(path + "*"):
             with open(file, 'rb') as f:
                 self.batch.append(f.read())
 
     def create_inputs(self) -> List[bytes]:
+        super().create_inputs()
         if self.batch:
             return self.batch
-        mutate = self.rng.choice(self.mutators, 1)
+        mutate = self.rng.choice(self.mutators, 1)[0]
 
         self.batch.append(mutate(self.best_so_far))
         return self.batch
