@@ -41,14 +41,13 @@ class Node:
         self.tree_trace = self.node_trace + (sum([child.tree_trace for child in self.children], Counter()))
         for child in self.children:
             child.parent = self
-        self.n = 0
-        self._n = 0
+        self.n = 1
 
     def append_child(self, node: 'Node'):
         self.children.append(node)
         node.parent = self
-        self.tree_trace += node.node_trace
-        self.n += 1
+        self.tree_trace = self.tree_trace + node.node_trace
+        self.n = self.n + 1
 
     @property
     def n(self):
@@ -62,7 +61,7 @@ class Node:
         self._n += diff
 
         if self.parent is not None:
-            self.parent.n += diff
+            self.parent.n = self.parent.n + diff
 
     @property
     def tree_trace(self) -> Counter:
@@ -70,13 +69,13 @@ class Node:
 
     @tree_trace.setter
     def tree_trace(self, trace: Counter):
-        if not hasattr(self, '_n'):
+        if not hasattr(self, '_tree_trace'):
             self._tree_trace = Counter()
         diff = trace - self._tree_trace
-        self._tree_trace += diff
+        self._tree_trace = self._tree_trace + diff
 
         if self.parent is not None:
-            self.parent.tree_trace += diff
+            self.parent.tree_trace = self.parent.tree_trace + diff
 
     def best_node(self) -> 'Node':
         try:
@@ -92,12 +91,11 @@ class Node:
             return 0
         min_ = min(self.parent.tree_trace.values())
         rare_branches = {k for k, v in self.parent.tree_trace.items() if v == min_}
-
+        added_by_node = len(rare_branches & self.node_trace.keys())
         try:
-            return len(rare_branches & self.node_trace.keys()) / self.n + (self.c *
-                                                                           np.log(self.parent.n) / self.n) ** .5
+            return added_by_node / self.n + (self.c * np.log(self.parent.n) / self.n) ** .5
         except ZeroDivisionError:
-            if len(rare_branches & self.node_trace.keys()) == 0:
+            if added_by_node == 0:
                 return 0
             return float('inf')
 
@@ -108,7 +106,7 @@ class Node:
         return "".join(return_string)
 
     def __repr__(self):
-        return f"'{self.input.decode()}': \t{self.n} {dict(self.node_trace)}; {dict(self.tree_trace)}; {self.score:.2f}"
+        return f"'{self.input.decode()}': \t{self.n - 1} {dict(self.node_trace)}; {dict(self.tree_trace)}; {self.score:.2f}"
 
 
 if __name__ == '__main__':
@@ -122,16 +120,20 @@ if __name__ == '__main__':
                   c=['ch'])
 
     # root node
-    tree = Node(b'', None, [Node(i, t) for i, t in seed])
+    tree = Node(b'', None)
+    [tree.append_child(Node(i, t)) for i, t in seed]
+    print(tree)
 
     while True:
         try:
-            print(tree)
             curr = tree.best_node()
-            print(f'\nnext: {curr!r}\n')
+            print(f'\nnext: {curr!r}')
 
             # mutate x
-            mutated = childs[curr.input.decode()].pop(0)
-            curr.append_child(Node(*results[mutated]))
+            mutated = Node(*results[childs[curr.input.decode()].pop(0)])
+            print(f'adding: {mutated!r}\n')
+            curr.append_child(mutated)
+
+            print(tree)
         except IndexError:
             break
