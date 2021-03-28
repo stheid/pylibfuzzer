@@ -1,3 +1,4 @@
+import logging
 from collections import Counter
 from typing import Optional, List
 
@@ -47,7 +48,30 @@ class Node:
         self.children.append(node)
         node.parent = self
         self.tree_trace = self.tree_trace + node.node_trace
+        # increment the nodes count since it has been selected as seed in the previous round
         self.n = self.n + 1
+
+    def best_node(self) -> 'Node':
+        try:
+            best_ancestors = [c.best_node() for c in self.children]
+            return max([self] + best_ancestors, key=lambda x: x.score)
+        except ValueError:
+            return self
+
+    @property
+    def score(self):
+        # number of rare branches covered
+        if self.parent is None:
+            return 0
+        min_ = min(self.parent.tree_trace.values())
+        rare_branches = {k for k, v in self.parent.tree_trace.items() if v == min_}
+        added_by_node = len(rare_branches & self.node_trace.keys())
+        try:
+            return added_by_node / self.n + (self.c * np.log(self.parent.n) / self.n) ** .5
+        except ZeroDivisionError:
+            if added_by_node == 0:
+                return 0
+            return float('inf')
 
     @property
     def n(self):
@@ -72,32 +96,10 @@ class Node:
         if not hasattr(self, '_tree_trace'):
             self._tree_trace = Counter()
         diff = trace - self._tree_trace
-        self._tree_trace = self._tree_trace + diff
+        self._tree_trace += diff
 
         if self.parent is not None:
             self.parent.tree_trace = self.parent.tree_trace + diff
-
-    def best_node(self) -> 'Node':
-        try:
-            best_ancestors = [c.best_node() for c in self.children]
-            return max([self] + best_ancestors, key=lambda x: x.score)
-        except ValueError:
-            return self
-
-    @property
-    def score(self):
-        # number of rare branches covered
-        if self.parent is None:
-            return 0
-        min_ = min(self.parent.tree_trace.values())
-        rare_branches = {k for k, v in self.parent.tree_trace.items() if v == min_}
-        added_by_node = len(rare_branches & self.node_trace.keys())
-        try:
-            return added_by_node / self.n + (self.c * np.log(self.parent.n) / self.n) ** .5
-        except ZeroDivisionError:
-            if added_by_node == 0:
-                return 0
-            return float('inf')
 
     def __str__(self, depth=1):
         return_string = [repr(self)]
@@ -118,6 +120,8 @@ if __name__ == '__main__':
     childs = dict(x=['xd', 'xe'],
                   xd=['xf', 'xk'],
                   c=['ch'])
+
+    logging.basicConfig(level=logging.DEBUG)
 
     # root node
     tree = Node(b'', None)
