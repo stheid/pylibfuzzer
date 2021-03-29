@@ -42,19 +42,24 @@ class Node:
         self.tree_trace = self.node_trace + (sum([child.tree_trace for child in self.children], Counter()))
         for child in self.children:
             child.parent = self
-        self.n = 1
+        self.n = 0
 
-    def append_child(self, node: 'Node'):
-        self.children.append(node)
-        node.parent = self
-        self.tree_trace = self.tree_trace + node.node_trace
+    def append_child(self, nodes: List['Node']):
+        self.children.extend(nodes)
+        for node in nodes:
+            node.parent = self
+        self.tree_trace = self.tree_trace + sum([node.node_trace for node in nodes], Counter())
         # increment the nodes count since it has been selected as seed in the previous round
-        self.n = self.n + 1
+
+        if self.parent is not None:
+            self.n = self.n + 1
 
     def best_node(self) -> 'Node':
         try:
-            best_ancestors = [c.best_node() for c in self.children]
-            return max([self] + best_ancestors, key=lambda x: x.score)
+            locally_best = max([self] + self.children, key=lambda x: x.score)
+            if locally_best is not self:
+                return locally_best.best_node()
+            return self
         except ValueError:
             return self
 
@@ -70,7 +75,7 @@ class Node:
             return added_by_node / self.n + (self.c * np.log(self.parent.n) / self.n) ** .5
         except ZeroDivisionError:
             if added_by_node == 0:
-                return 0
+                return 1
             return float('inf')
 
     @property
@@ -108,7 +113,7 @@ class Node:
         return "".join(return_string)
 
     def __repr__(self):
-        return f"'{self.input.decode()}': \t{self.n - 1} {dict(self.node_trace)}; {dict(self.tree_trace)}; {self.score:.2f}"
+        return f"'{self.input.decode()}': \t{self.n} {dict(self.node_trace)}; {dict(self.tree_trace)}; {self.score:.2f}"
 
 
 if __name__ == '__main__':
@@ -118,14 +123,14 @@ if __name__ == '__main__':
                    xe=(b'xe', Counter({'b₀': 1, 'b₂': 1})),
                    xf=(b'xf', Counter({'b₀': 1, 'b₃': 1})))
     childs = dict(x=['xd', 'xe'],
-                  xd=['xf', 'xk'],
+                  xd=['xf'],
                   c=['ch'])
 
     logging.basicConfig(level=logging.DEBUG)
 
     # root node
     tree = Node(b'', None)
-    [tree.append_child(Node(i, t)) for i, t in seed]
+    [tree.append_child([Node(i, t)]) for i, t in seed]
     print(tree)
 
     while True:
@@ -134,7 +139,7 @@ if __name__ == '__main__':
             print(f'\nnext: {curr!r}')
 
             # mutate x
-            mutated = Node(*results[childs[curr.input.decode()].pop(0)])
+            mutated = [Node(*results[child]) for child in childs[curr.input.decode()]]
             print(f'adding: {mutated!r}\n')
             curr.append_child(mutated)
 
