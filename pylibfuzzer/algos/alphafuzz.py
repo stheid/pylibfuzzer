@@ -1,6 +1,6 @@
 import logging
 from collections import Counter
-from typing import Optional, List
+from typing import Optional, List, Tuple, Union
 
 import numpy as np
 
@@ -54,14 +54,14 @@ class Node:
         if self.parent is not None:
             self.n = self.n + 1
 
-    def best_node(self) -> 'Node':
+    def best_node(self, return_score=False) -> Union['Node', Tuple['Node', float]]:
         try:
-            locally_best = max([self] + self.children, key=lambda x: x.score)
-            if locally_best is not self:
-                return locally_best.best_node()
-            return self
+            best_child = max(self.children, key=lambda x: x.score)
+            best_in_subtree = best_child.best_node(return_score=True)
+            node_score = max([(self, self.score), best_in_subtree], key=lambda x: x[1])
         except ValueError:
-            return self
+            node_score = (self, self.score)
+        return node_score if return_score else node_score[0]
 
     @property
     def score(self):
@@ -106,6 +106,26 @@ class Node:
         if self.parent is not None:
             self.parent.tree_trace = self.parent.tree_trace + diff
 
+    def to_tikz(self, depth=1):
+        if depth == 1:
+            result = [r"""
+        \begin{forest}
+            for tree={l=1.8cm,s sep=3cm,draw,shape=circle,minimum size=.8cm}"""]
+        else:
+            result = []
+        result += ['[', ', pin='.join([
+            f"\\footnotesize'{self.input.decode()}'",
+            f'8:{{$\\{{{set(self.node_trace) or ""}\\}}$}}'.replace("'", ""),
+            f'0:{{$\\{{{dict(self.tree_trace)}\\}}$}}'.replace("'", ""),
+            f'-8:{{$n={self.n}$}}'])]
+        for child in self.children:
+            result.extend(["\n", child.to_tikz(depth + 1)])
+        result += [']']
+
+        if depth == 1:
+            result.extend(["\n", r"\end{forest}"])
+        return ''.join(result)
+
     def __str__(self, depth=1):
         return_string = [repr(self)]
         for child in self.children:
@@ -117,11 +137,11 @@ class Node:
 
 
 if __name__ == '__main__':
-    seed = [(b'x', Counter({'b₀': 1})), (b'c', Counter({'b₅': 1}))]
-    results = dict(xd=(b'xd', Counter({'b₀': 1, 'b₁': 1})),
-                   ch=(b'ch', Counter({'b₅': 1, 'b₇': 1})),
-                   xe=(b'xe', Counter({'b₀': 1, 'b₂': 1})),
-                   xf=(b'xf', Counter({'b₀': 1, 'b₃': 1})))
+    seed = [(b'x', Counter({'b_0': 1})), (b'c', Counter({'b_5': 1}))]
+    results = dict(xd=(b'xd', Counter({'b_0': 1, 'b_1': 1})),
+                   ch=(b'ch', Counter({'b_5': 1, 'b_7': 1})),
+                   xe=(b'xe', Counter({'b_0': 1, 'b_2': 1})),
+                   xf=(b'xf', Counter({'b_0': 1, 'b_3': 1})))
     childs = dict(x=['xd', 'xe'],
                   xd=['xf'],
                   c=['ch'])
@@ -129,9 +149,9 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
     # root node
-    tree = Node(b'', None)
+    tree = Node(b' ', None)
     [tree.append_child([Node(i, t)]) for i, t in seed]
-    print(tree)
+    print(tree.to_tikz())
 
     while True:
         try:
@@ -143,6 +163,6 @@ if __name__ == '__main__':
             print(f'adding: {mutated!r}\n')
             curr.append_child(mutated)
 
-            print(tree)
+            print(tree.to_tikz())
         except IndexError:
             break
