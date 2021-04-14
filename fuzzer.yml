@@ -6,3 +6,11 @@ fuzzer:
     - SubstituteByteMutator
   fitness: cov_fitness
   seed: 1
+
+dispatcher:
+  type: Socket
+  cmd: [ './libpng_read_fuzzer', '-oracle=1', '-fork=1' ]
+  addr: '/tmp/libfuzzer.sock'
+
+seed_files:
+  - 'seed.png'

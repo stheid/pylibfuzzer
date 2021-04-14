@@ -1,56 +1,60 @@
 import importlib
-import os
-from subprocess import Popen, PIPE
-from time import sleep
+import logging
 
+import click
 import yaml
 
+logging.basicConfig(level=logging.INFO)
 
-def main(conf='fuzzer.yml', command=('./libpng_read_fuzzer', '-oracle=1', '-fork=1'), seed_path='seed.png'):
-    with open(conf, 'r') as stream:
-        try:
-            config = yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            print(exc)
 
-    fuzzer_conf = config.get('fuzzer')
+@click.command()
+@click.option('--conf', default='fuzzer.yml', help='configuration yaml')
+def main(conf):
+    Runner(conf).run()
 
-    # fuzzer class
-    clsname = fuzzer_conf.pop('cls')
-    module = importlib.import_module('pylibfuzzer.algos')
-    cls = getattr(module, clsname)
 
-    # fuzzerparams
-    fuzzer = cls(**fuzzer_conf)
+class Runner:
+    def __init__(self, conf):
+        # read config
+        with open(conf, 'r') as stream:
+            try:
+                config = yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
 
-    proc = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    # clear all output in an non-blocking manner
-    os.set_blocking(proc.stderr.fileno(), False)
-    sleep(1)
-    proc.stderr.read()
-    os.set_blocking(proc.stderr.fileno(), True)
-    fuzzer.load_seed(seed_path)
+        # |FUZZER|
+        fuzzer_conf = config.get('fuzzer')
 
-    while not fuzzer.done():
-        batch = fuzzer.create_inputs()
-        results = []
-        for data in batch:
-            with open('file', 'wb') as f:
-                f.write(data)
-            proc.stdin.write(b'file\n')
-            proc.stdin.flush()
-            # record result line
-            line = proc.stderr.readline()
-            while True:
-                try:
-                    fuzzer.fitness(line)
-                    break
-                except Exception:
-                    line = proc.stderr.readline()
-            results.append(line)
+        # fuzzer class
+        clsname = fuzzer_conf.pop('cls')
+        module = importlib.import_module('pylibfuzzer.algos')
+        cls = getattr(module, clsname)
 
-        fuzzer.observe(results)
-        print(results)
+        # create fuzzer
+        self.fuzzer = cls(**fuzzer_conf)
+
+        # |DISPATCHER|
+        dispatcher_cfg = config.get('dispatcher')
+
+        # dispatcher class
+        clsname = dispatcher_cfg.pop('type') + 'Dispatcher'
+        module = importlib.import_module('pylibfuzzer.exec.dispatcher')
+        cls = getattr(module, clsname)
+
+        # create fuzzer
+        self.dispatcher = cls(self, **dispatcher_cfg)
+
+        # |SEED FILES|
+        self.seedfiles = config.get('seed_files', [])
+
+    def run(self):
+        # execute the main loop
+        self.fuzzer.load_seed(self.seedfiles)
+
+        with self.dispatcher as cmd:
+            while not self.fuzzer.done():
+                batch = self.fuzzer.create_inputs()
+                self.fuzzer.observe([cmd.post(data) for data in batch])
 
 
 if __name__ == '__main__':
