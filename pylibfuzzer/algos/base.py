@@ -78,14 +78,15 @@ class MutationBasedFuzzer(BaseFuzzer):
         self.mutators = [mut.mutate for mut in mutators]
         self.batch = []
 
-    def load_seed(self, path):
-        if path is None:
+    def load_seed(self, seedfiles):
+        if seedfiles is None:
             self.batch.append(b'')
-        elif isfile(path):
-            with open(path, 'rb') as f:
-                self.batch.append(f.read())
-        else:
-            for file in glob(path + "/*"):
-                with open(file, 'rb') as f:
+        for path in seedfiles:
+            if isfile(path):
+                with open(path, 'rb') as f:
                     self.batch.append(f.read())
-        self._initialized = True
+            else:
+                for file in glob(path + "/*"):
+                    with open(file, 'rb') as f:
+                        self.batch.append(f.read())
+            self._initialized = True

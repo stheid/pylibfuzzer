@@ -1,56 +1,81 @@
 import importlib
-import os
-from subprocess import Popen, PIPE
-from time import sleep
+import logging
+from datetime import datetime
 
+import click
 import yaml
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
-def main(conf='fuzzer.yml', command=('./libpng_read_fuzzer', '-oracle=1', '-fork=1'), seed_path='seed.png'):
-    with open(conf, 'r') as stream:
-        try:
-            config = yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            print(exc)
 
-    fuzzer_conf = config.get('fuzzer')
+@click.command()
+@click.option('--conf', default='fuzzer.yml', help='configuration yaml')
+def main(conf):
+    Runner(conf).run()
 
-    # fuzzer class
-    clsname = fuzzer_conf.pop('cls')
-    module = importlib.import_module('pylibfuzzer.algos')
-    cls = getattr(module, clsname)
 
-    # fuzzerparams
-    fuzzer = cls(**fuzzer_conf)
+class Runner:
+    def __init__(self, conf):
+        self.i = 0
 
-    proc = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    # clear all output in an non-blocking manner
-    os.set_blocking(proc.stderr.fileno(), False)
-    sleep(1)
-    proc.stderr.read()
-    os.set_blocking(proc.stderr.fileno(), True)
-    fuzzer.load_seed(seed_path)
+        # read config
+        with open(conf, 'r') as stream:
+            try:
+                config = yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
 
-    while not fuzzer.done():
-        batch = fuzzer.create_inputs()
-        results = []
-        for data in batch:
-            with open('file', 'wb') as f:
-                f.write(data)
-            proc.stdin.write(b'file\n')
-            proc.stdin.flush()
-            # record result line
-            line = proc.stderr.readline()
-            while True:
-                try:
-                    fuzzer.fitness(line)
-                    break
-                except Exception:
-                    line = proc.stderr.readline()
-            results.append(line)
+        # |FUZZER|
+        fuzzer_conf = config.get('fuzzer')
 
-        fuzzer.observe(results)
-        print(results)
+        # fuzzer class
+        clsname = fuzzer_conf.pop('cls')
+        module = importlib.import_module('pylibfuzzer.algos')
+        cls = getattr(module, clsname)
+
+        # create fuzzer
+        self.fuzzer = cls(**fuzzer_conf)
+
+        # |DISPATCHER|
+        dispatcher_cfg = config.get('dispatcher')
+
+        # dispatcher class
+        clsname = dispatcher_cfg.pop('type') + 'Dispatcher'
+        module = importlib.import_module('pylibfuzzer.exec.dispatcher')
+        cls = getattr(module, clsname)
+
+        # create fuzzer
+        self.dispatcher = cls(self, **dispatcher_cfg)
+
+        # |SEED FILES|
+        self.seedfiles = config.get('seed_files', [])
+
+        # |RUNNER|
+        runner_conf = {**dict(time_budget=None, limit=None), **config.get('runner', dict())}
+        self.time_budget = runner_conf['time_budget']
+        self.limit = runner_conf['limit']
+
+    def run(self):
+        # execute the main loop
+        self.fuzzer.load_seed(self.seedfiles)
+
+        with self.dispatcher as cmd:
+            while not (self.fuzzer.done() or self.timeout or self.overiter):
+                logger.info('Creating input number %d ', self.i)
+                batch = self.fuzzer.create_inputs()
+                self.i += len(batch)
+                self.fuzzer.observe([cmd.post(bytes(data)) for data in batch])
+
+    @property
+    def timeout(self):
+        if not hasattr(self, '__start_time'):
+            self.__start_time = datetime.now()
+        return self.time_budget and (datetime.now() - self.__start_time).seconds >= self.time_budget
+
+    @property
+    def overiter(self):
+        return self.limit and self.i >= self.limit
 
 
 if __name__ == '__main__':

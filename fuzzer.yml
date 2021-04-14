@@ -6,3 +6,18 @@ fuzzer:
     - SubstituteByteMutator
   fitness: cov_fitness
   seed: 1
+
+dispatcher:
+  # dispatches libfuzzer command and handles communication of new fuzzing files
+  # and fuzz results to and from the libfuzzer command
+  type: Socket
+  cmd: [ './libpng_read_fuzzer_sock', '-oracle=1', '-fork=1' ]
+  addr: '/tmp/libfuzzer.sock'
+
+
+seed_files:
+  # paths and files used as seed files for the fuzzer
+  - 'seed.png'
+
+runner:
+  limit: 100000
