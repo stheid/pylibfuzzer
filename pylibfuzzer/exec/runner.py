@@ -1,9 +1,11 @@
 import importlib
 import logging
+from datetime import datetime
 
 import click
 import yaml
 
+logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
@@ -15,6 +17,8 @@ def main(conf):
 
 class Runner:
     def __init__(self, conf):
+        self.i = 0
+
         # read config
         with open(conf, 'r') as stream:
             try:
@@ -47,14 +51,31 @@ class Runner:
         # |SEED FILES|
         self.seedfiles = config.get('seed_files', [])
 
+        # |RUNNER|
+        runner_conf = {**dict(time_budget=None, limit=None), **config.get('runner', dict())}
+        self.time_budget = runner_conf['time_budget']
+        self.limit = runner_conf['limit']
+
     def run(self):
         # execute the main loop
         self.fuzzer.load_seed(self.seedfiles)
 
         with self.dispatcher as cmd:
-            while not self.fuzzer.done():
+            while not (self.fuzzer.done() or self.timeout or self.overiter):
+                logger.info('Creating input number %d ', self.i)
                 batch = self.fuzzer.create_inputs()
-                self.fuzzer.observe([cmd.post(data) for data in batch])
+                self.i += len(batch)
+                self.fuzzer.observe([cmd.post(bytes(data)) for data in batch])
+
+    @property
+    def timeout(self):
+        if not hasattr(self, '__start_time'):
+            self.__start_time = datetime.now()
+        return self.time_budget and (datetime.now() - self.__start_time).seconds >= self.time_budget
+
+    @property
+    def overiter(self):
+        return self.limit and self.i >= self.limit
 
 
 if __name__ == '__main__':
