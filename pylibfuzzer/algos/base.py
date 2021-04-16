@@ -1,7 +1,7 @@
 import importlib
-from glob import glob
-from os.path import isfile
 from typing import Optional, Union, Callable, List
+
+import numpy as np
 
 from pylibfuzzer.fitness import cov_fitness
 from pylibfuzzer.mutators import SubstituteByteMutator, AddByteMutator, DeleteByteMutator
@@ -70,6 +70,7 @@ class BaseFuzzer:
 class MutationBasedFuzzer(BaseFuzzer):
     def __init__(self, mutators: List[str] = None, fitness: Optional[Union[Callable, str]] = None, seed=None):
         super().__init__(fitness)
+        self.rng = np.random.default_rng(seed)  # type: np.random.Generator
         if mutators is None:
             mutators = [SubstituteByteMutator(seed), AddByteMutator(seed), DeleteByteMutator(seed)]
         else:
@@ -79,14 +80,9 @@ class MutationBasedFuzzer(BaseFuzzer):
         self.batch = []
 
     def load_seed(self, seedfiles):
-        if seedfiles is None:
-            self.batch.append(b'')
+        self._initialized = True
+        if not seedfiles:
+            self.batch = [b'']
         for path in seedfiles:
-            if isfile(path):
-                with open(path, 'rb') as f:
-                    self.batch.append(f.read())
-            else:
-                for file in glob(path + "/*"):
-                    with open(file, 'rb') as f:
-                        self.batch.append(f.read())
-            self._initialized = True
+            with open(path, 'rb') as f:
+                self.batch.append(f.read())

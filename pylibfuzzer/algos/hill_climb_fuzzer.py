@@ -8,7 +8,6 @@ from pylibfuzzer.algos.base import MutationBasedFuzzer
 class HillClimbFuzzer(MutationBasedFuzzer):
     def __init__(self, mutators: List[str] = None, fitness: Optional[Union[Callable, str]] = None, seed=None):
         super().__init__(mutators, fitness, seed)
-        self.rng = np.random.default_rng(seed)  # type: np.random.Generator
         self.best_so_far = None
         self.best_fittness = float('-inf')
 

@@ -1,6 +1,8 @@
 import importlib
 import logging
 from datetime import datetime
+from glob import glob
+from os.path import isfile
 
 import click
 import yaml
@@ -17,6 +19,7 @@ def main(conf):
 
 class Runner:
     def __init__(self, conf):
+        self._seed_files = []
         self.i = 0
 
         # read config
@@ -49,7 +52,7 @@ class Runner:
         self.dispatcher = cls(self, **dispatcher_cfg)
 
         # |SEED FILES|
-        self.seedfiles = config.get('seed_files', [])
+        self.seed_files = config.get('seed_files')
 
         # |RUNNER|
         runner_conf = {**dict(time_budget=None, limit=None), **config.get('runner', dict())}
@@ -58,7 +61,7 @@ class Runner:
 
     def run(self):
         # execute the main loop
-        self.fuzzer.load_seed(self.seedfiles)
+        self.fuzzer.load_seed(self.seed_files)
 
         with self.dispatcher as cmd:
             while not (self.fuzzer.done() or self.timeout or self.overiter):
@@ -66,6 +69,19 @@ class Runner:
                 batch = self.fuzzer.create_inputs()
                 self.i += len(batch)
                 self.fuzzer.observe([cmd.post(bytes(data)) for data in batch])
+
+    @property
+    def seed_files(self):
+        return self._seed_files
+
+    @seed_files.setter
+    def seed_files(self, paths):
+        if paths:
+            for path in paths:
+                if isfile(path):
+                    self._seed_files.append(path)
+                else:
+                    self._seed_files.extend(glob(path + "/*", recursive=True))
 
     @property
     def timeout(self):
