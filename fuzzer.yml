@@ -1,5 +1,5 @@
 fuzzer:
-  cls: HillClimbFuzzer
+  cls: AlphaFuzz
   mutators:
     - AddByteMutator
     - DeleteByteMutator

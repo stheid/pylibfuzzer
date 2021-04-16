@@ -12,18 +12,32 @@ class AlphaFuzz(MutationBasedFuzzer):
         super().__init__()
 
         # root node
-        self.tree = None
+        self.tree = None  # type: Optional[Node]
         # currently expanded and evaluated node
         self.curr = None
 
-    def load_seed(self, path):
-        pass
+    def load_seed(self, seedfiles):
+        if not seedfiles:
+            seedfiles = [b'']
+
+        self.tree = Node(b' ', None)
         # create seed root and append seed inputs as children
+        for file in seedfiles:
+            c = Node(file)
+            tree.append_child([c])
+            self.batch.append(c)
 
     def create_inputs(self) -> List[bytes]:
+        self._check_initialization()
+        if self.batch:
+            return self.batch
         # ask root for "best_scoring"
-        # mutate
-        pass
+        c = self.tree.best_node()
+
+        mutate = self.rng.choice(self.mutators, 1)[0]
+
+        self.batch.append(mutate(bytearray(c.input)))
+        return self.batch
 
     def observe(self, fuzzing_result: List[bytes]):
         # create new node with input and coverage information
