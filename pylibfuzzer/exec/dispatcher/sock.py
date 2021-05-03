@@ -27,6 +27,9 @@ class SocketDispatcher:
             except ConnectionRefusedError:
                 # wait and retry
                 sleep(.1)
+            except FileNotFoundError:
+                print('Server (libfuzzer) not yet started. Retrying in 1s...')
+                sleep(1)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         return self.sock.__exit__(exc_type, exc_val, exc_tb)

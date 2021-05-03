@@ -3,9 +3,13 @@ import logging
 from datetime import datetime
 from glob import glob
 from os.path import isfile
+from typing import Callable, Any
 
 import click
 import yaml
+
+from pylibfuzzer.algos.base import BaseFuzzer
+from pylibfuzzer.obs_extraction import BaseExtractor
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -38,7 +42,7 @@ class Runner:
         cls = getattr(module, clsname)
 
         # create fuzzer
-        self.fuzzer = cls(**fuzzer_conf)
+        self.fuzzer = cls(**fuzzer_conf)  # type: BaseFuzzer
 
         # |DISPATCHER|
         dispatcher_cfg = config.get('dispatcher')
@@ -47,6 +51,16 @@ class Runner:
         clsname = dispatcher_cfg.pop('type') + 'Dispatcher'
         module = importlib.import_module('pylibfuzzer.exec.dispatcher')
         cls = getattr(module, clsname)
+
+        module = importlib.import_module('pylibfuzzer.obs_extraction')
+        clsname = (dispatcher_cfg.pop('obs_extractor') + 'Extractor')
+        extractor = getattr(module, clsname)()  # type: BaseExtractor
+        self.obs = extractor.extract_obs  # type: Callable[[bytes],Any]
+
+        # validate Extractor types
+        if extractor.__class__ not in self.fuzzer.supported_extractors:
+            raise RuntimeError(
+                f'{self.fuzzer} and {extractor} are not compatible. Please check your configuration file.')
 
         # create fuzzer
         self.dispatcher = cls(self, **dispatcher_cfg)
@@ -68,7 +82,7 @@ class Runner:
                 logger.info('Creating input number %d ', self.i)
                 batch = self.fuzzer.create_inputs()
                 self.i += len(batch)
-                self.fuzzer.observe([cmd.post(bytes(data)) for data in batch])
+                self.fuzzer.observe([self.obs(cmd.post(bytes(data))) for data in batch])
 
     @property
     def seed_files(self):

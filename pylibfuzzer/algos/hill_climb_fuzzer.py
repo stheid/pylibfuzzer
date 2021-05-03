@@ -1,11 +1,12 @@
 from typing import Optional, Callable, Union, List
 
-import numpy as np
-
 from pylibfuzzer.algos.base import MutationBasedFuzzer
+from pylibfuzzer.obs_extraction import CovStrExtractor
 
 
 class HillClimbFuzzer(MutationBasedFuzzer):
+    supported_extractors = [CovStrExtractor]
+
     def __init__(self, mutators: List[str] = None, fitness: Optional[Union[Callable, str]] = None, seed=None):
         super().__init__(mutators, fitness, seed)
         self.best_so_far = None
@@ -20,7 +21,7 @@ class HillClimbFuzzer(MutationBasedFuzzer):
         self.batch.append(mutate(bytearray(self.best_so_far)))
         return self.batch
 
-    def observe(self, fuzzing_result: List[bytes]):
+    def observe(self, fuzzing_result: list):
         batch = self.batch
         fitnesses = [self.fitness(res) for res in fuzzing_result]
         self.batch = []

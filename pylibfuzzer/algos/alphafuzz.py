@@ -1,15 +1,18 @@
 import logging
 from collections import Counter
-from typing import Optional, List, Tuple, Union
+from typing import Optional, List, Tuple, Union, Callable
 
 import numpy as np
 
 from pylibfuzzer.algos.base import MutationBasedFuzzer
+from pylibfuzzer.obs_extraction import PcVectorExtractor
 
 
 class AlphaFuzz(MutationBasedFuzzer):
-    def __init__(self):
-        super().__init__()
+    supported_extractors = [PcVectorExtractor]
+
+    def __init__(self, mutators: List[str] = None, fitness: Optional[Union[Callable, str]] = None, seed=None):
+        super().__init__(mutators, fitness, seed)
 
         # root node
         self.tree = None  # type: Optional[Node]
@@ -17,15 +20,18 @@ class AlphaFuzz(MutationBasedFuzzer):
         self.curr = None
 
     def load_seed(self, seedfiles):
+        self._initialized = True
+
         if not seedfiles:
             seedfiles = [b'']
 
         self.tree = Node(b' ', None)
         # create seed root and append seed inputs as children
+        self.curr = self.tree
         for file in seedfiles:
-            c = Node(file)
-            tree.append_child([c])
-            self.batch.append(c)
+            with open(file, 'rb') as f:
+                input = f.read()
+            self.batch.append(input)
 
     def create_inputs(self) -> List[bytes]:
         self._check_initialization()
@@ -39,19 +45,23 @@ class AlphaFuzz(MutationBasedFuzzer):
         self.batch.append(mutate(bytearray(c.input)))
         return self.batch
 
-    def observe(self, fuzzing_result: List[bytes]):
+    def observe(self, fuzzing_result: List[np.ndarray]):
         # create new node with input and coverage information
         # add es child of self.curr
-        pass
+        for input, result in zip(self.batch, fuzzing_result):
+            cov_set = set(np.nonzero(result)[0])
+            self.tree.append_child([Node(input, cov_set)])
+        self.batch = []
 
 
 class Node:
     c = 2
 
-    def __init__(self, input: bytes, trace: Optional[Counter] = None, children: Optional[List['Node']] = None):
+    def __init__(self, input: bytes, trace: Optional[Union[Counter, set]] = None,
+                 children: Optional[List['Node']] = None):
         self.input = input
         self.parent = None
-        self.node_trace = trace or Counter()  # type: Counter
+        self.node_trace = Counter(trace) or Counter()  # type: Counter
         self.children = children or []  # type: List['Node']
         self.tree_trace = self.node_trace + (sum([child.tree_trace for child in self.children], Counter()))
         for child in self.children:

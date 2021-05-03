@@ -1,19 +1,18 @@
 fuzzer:
-  cls: HillClimbFuzzer
+  cls: AlphaFuzz
   mutators:
     - AddByteMutator
     - DeleteByteMutator
     - SubstituteByteMutator
-  fitness: cov_fitness
   seed: 1
 
 dispatcher:
   # dispatches libfuzzer command and handles communication of new fuzzing files
   # and fuzz results to and from the libfuzzer command
   type: Socket
-  cmd: [ './libpng_read_fuzzer', '-oracle=1', '-fork=1' ]
+  cmd: [ './jsoncpp_fuzzer', '-oracle=1', '-fork=1' ]
   addr: '/tmp/libfuzzer.sock'
-  obs_extractor: CovStr
+  obs_extractor: PcVector
 
 
 seed_files:

@@ -1,5 +1,2 @@
-import re
-
-
-def cov_fitness(s: bytes) -> int:
-    return int(re.search(r'cov:\s*(\d+)', s.decode())[1])
+def cov_fitness(d: dict) -> int:
+    return d['cov']

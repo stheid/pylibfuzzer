@@ -8,6 +8,8 @@ from pylibfuzzer.mutators import SubstituteByteMutator, AddByteMutator, DeleteBy
 
 
 class BaseFuzzer:
+    supported_extractors = []
+
     def __init__(self, fitness: Optional[Union[Callable, str]] = None):
         if fitness is None:
             self.fitness = cov_fitness

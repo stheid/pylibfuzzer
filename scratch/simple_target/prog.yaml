@@ -1,0 +1,13 @@
+data:
+  x: I
+  b: I
+  c: I
+  k: b
+
+main: x<4
+  a: b==x
+  b: x>c
+    c: c>5
+      d: c>20
+        e: c>30
+    f: k>c
