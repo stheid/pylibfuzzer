@@ -1,3 +1,4 @@
+from collections import Counter
 from itertools import zip_longest
 from random import choice, choices
 from typing import List, Tuple, Union, Dict
@@ -16,6 +17,7 @@ class PrototypePCFGGenFuzzer(BaseFuzzer):
         super().__init__()
         self.model = PCFG(pcfg_file)
         self.batch = None
+        self.total_cov = Counter()
 
     def load_seed(self, path):
         self._initialized = True
@@ -26,9 +28,17 @@ class PrototypePCFGGenFuzzer(BaseFuzzer):
 
     def observe(self, fuzzing_result: List[np.ndarray]):
         for i, res in enumerate(fuzzing_result):
-            cov = sum(res)
-            if cov > 2000:
-                print(self.batch[i].decode())
+            # we only look at whether a branch is covered, not how often
+            cov = set(*np.nonzero(res))
+
+            # get number of times a specific branch has been covered in the past
+            covs_so_far = np.array([self.total_cov.get(b, 0) for b in cov])
+
+            score = np.sum(np.exp(-covs_so_far))
+
+            self.total_cov.update(cov)
+
+            print(f'{score:.4f}')
 
 
 class PCFG:
