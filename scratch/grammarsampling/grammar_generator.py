@@ -52,12 +52,12 @@ def parse_rules(rules: Union[dict, list]) -> Dict[Tuple, Tuple[float, float]]:
     else:
         iter_ = zip_longest(rules, (1.,), fillvalue=1)
 
-    d = dict()
+    dictionary = dict()
     for rule, count in iter_:
         for rule_ in parse_symbols(rule):
             has_not_multi_nts = np.clip(2 - len([elem for elem in rule_ if isinstance(elem, str)]), 0, 1)
-            d[rule_] = (count, has_not_multi_nts)
-    return d
+            dictionary[rule_] = (count, has_not_multi_nts)
+    return dictionary
 
 
 def parse_symbols(rule: str) -> Tuple[Union[str, bytes]]:

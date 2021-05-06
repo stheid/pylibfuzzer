@@ -1,10 +1,6 @@
 fuzzer:
-  cls: AlphaFuzz
-  mutators:
-    - AddByteMutator
-    - DeleteByteMutator
-    - SubstituteByteMutator
-  seed: 1
+  cls: PrototypePCFGGenFuzzer
+  pcfg_file: json.yml
 
 dispatcher:
   # dispatches libfuzzer command and handles communication of new fuzzing files
@@ -13,11 +9,6 @@ dispatcher:
   cmd: [ './jsoncpp_fuzzer', '-oracle=1', '-fork=1' ]
   addr: '/tmp/libfuzzer.sock'
   obs_extractor: PcVector
-
-
-seed_files:
-  # paths and files used as seed files for the fuzzer
-  - 'seed.json'
 
 runner:
   limit: 100
