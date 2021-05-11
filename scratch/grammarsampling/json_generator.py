@@ -38,8 +38,10 @@ def main(gram: str, node: str):
         # and a hard mask that will only allow certain rules (the ones that do not have more than one non-terminal)
         # alpha may be any value between 0 and 1 to mix between the masked and unmasked distribution
         alpha = 1 if len(symbols) < 1000 else 0
-        soft_mask = (alpha, 1 - alpha) @ \
-                    np.reshape(np.hstack((np.ones_like(weights[:, 1]) + 1e-7, weights[:, 1])),  (-1, 2)).T
+        soft_mask = (
+                (alpha, 1 - alpha) @
+                np.hstack((np.ones_like(weights[:, 1]) + 1e-7, weights[:, 1])).reshape((-1, 2)).T
+        )
 
         weights = weights[:, 0] * soft_mask
         weights = weights / weights.sum(axis=0)
@@ -55,7 +57,7 @@ def main(gram: str, node: str):
 # if(has_not_multi_nts ==1) input return of parse_symbols
 
 
-def parse_rules(rules: Union[dict, list]) -> Dict[Union[str, bytes], Tuple[float, float]]:
+def parse_rules(rules: Union[dict, list]) -> Dict[Tuple, Tuple[float, float]]:
     if isinstance(rules, dict):
         iter_ = rules.items()
     else:
@@ -66,7 +68,7 @@ def parse_rules(rules: Union[dict, list]) -> Dict[Union[str, bytes], Tuple[float
         for rule_ in parse_symbols(rule):
             has_not_multi_nts = np.clip(2 - len([elem for elem in rule_ if isinstance(elem, str)]), 0, 1)
             dictionary[rule_] = (count, has_not_multi_nts)
-    return dictionary
+    return dictionary # noqa: parse_symbols is a generator and rule_ is indeed a tuple!
 
 
 def parse_symbols(rule: str) -> Tuple[Union[str, bytes]]:
