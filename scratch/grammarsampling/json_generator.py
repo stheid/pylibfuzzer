@@ -9,8 +9,8 @@ import yaml
 
 @click.command()
 @click.option('--gram', default='gram.yml', help='file providing the grammar')
-@click.option('--start', default='json', help='non-terminal to start with')
-def main(gram: str, start: str):
+@click.option('--node', default='json', help='non-terminal to start with')
+def main(gram: str, node: str):
     with open(gram, 'r') as f:
         try:
             grammar = yaml.safe_load(f)
@@ -18,11 +18,16 @@ def main(gram: str, start: str):
             print(exc)
 
     grammar = {k: parse_rules(rules) for k, rules in grammar.items()}
+    # in dictionary grammar, all strings are rules and terminals are bytes
+    # each rule or terminal is key and its value is (count,num)
 
-    symbols = list(parse_symbols(start))[-1]
+    symbols = list(parse_symbols(node))[-1]
+
     # TODO: counting the number of non-terminals and so on is very inefficient.
+    # replace by function list_of_non_terminals
     while any([isinstance(symb, str) for symb in symbols]):
         # select first non-terminal
+        # TODO: change choice, because it is inefficient
         idx, nt = choice([(i, x) for i, x in enumerate(symbols) if isinstance(x, str)])
 
         # select random rule to expand
@@ -34,7 +39,7 @@ def main(gram: str, start: str):
         # alpha may be any value between 0 and 1 to mix between the masked and unmasked distribution
         alpha = 1 if len(symbols) < 1000 else 0
         soft_mask = (alpha, 1 - alpha) @ \
-                    np.hstack((np.ones_like(weights[:, 1]) + 1e-7, weights[:, 1])).reshape((-1, 2)).T
+                    np.reshape(np.hstack((np.ones_like(weights[:, 1]) + 1e-7, weights[:, 1])),  (-1, 2)).T
 
         weights = weights[:, 0] * soft_mask
         weights = weights / weights.sum(axis=0)
@@ -45,8 +50,12 @@ def main(gram: str, start: str):
 
     print(b''.join(symbols).decode())
 
+# function which returns a list of non-terminals of the input-node
+# def list_of_non_terminals(node: Dict[Tuple, Tuple[float, float]]) -> List[str]:
+# if(has_not_multi_nts ==1) input return of parse_symbols
 
-def parse_rules(rules: Union[dict, list]) -> Dict[Tuple, Tuple[float, float]]:
+
+def parse_rules(rules: Union[dict, list]) -> Dict[Union[str, bytes], Tuple[float, float]]:
     if isinstance(rules, dict):
         iter_ = rules.items()
     else:
@@ -63,6 +72,7 @@ def parse_rules(rules: Union[dict, list]) -> Dict[Tuple, Tuple[float, float]]:
 def parse_symbols(rule: str) -> Tuple[Union[str, bytes]]:
     elements = rule.split()
     if len(elements) == 3 and '.' == elements[1]:
+        # to consider e.g. '"\u0020" . "\u07FF"': 1 in the grammar-file
         try:
             expanded = range(ord(elements[0][1:-1]), ord(elements[2][1:-1]) + 1)
         except TypeError:
@@ -70,7 +80,7 @@ def parse_symbols(rule: str) -> Tuple[Union[str, bytes]]:
                              ord(elements[2][1:-1].encode().decode('unicode-escape')) + 1)
         for elem in expanded:
             try:
-                yield chr(elem).encode(),
+                yield chr(elem).encode(),  # wegen diesem komma ist es ein tuple
             except UnicodeEncodeError:
                 pass
     else:
@@ -79,6 +89,8 @@ def parse_symbols(rule: str) -> Tuple[Union[str, bytes]]:
             if isinstance(elem, str) and elem.startswith('"') and elem.endswith('"'):
                 try:
                     elem = elem[1:-1].encode().decode('unicode-escape').encode()
+                    # without decode('unicode-escape').encode would you get \u0020 in output
+                    # removes "" and encode it
                 except UnicodeDecodeError:
                     elem = elem.encode()
             new_elems.append(elem)
