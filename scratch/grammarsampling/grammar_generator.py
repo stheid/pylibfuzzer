@@ -19,6 +19,8 @@ def main(gram: str, start: str):
 
     grammar = {k: parse_rules(rules) for k, rules in grammar.items()}
 
+    export(grammar)
+
     symbols = list(parse_symbols(start))[-1]
     # TODO: counting the number of non-terminals and so on is very inefficient.
     while any([isinstance(symb, str) for symb in symbols]):
@@ -57,7 +59,7 @@ def parse_rules(rules: Union[dict, list]) -> Dict[Tuple, Tuple[float, float]]:
         for rule_ in parse_symbols(rule):
             has_not_multi_nts = np.clip(2 - len([elem for elem in rule_ if isinstance(elem, str)]), 0, 1)
             dictionary[rule_] = (count, has_not_multi_nts)
-    return dictionary
+    return dictionary  # noqa: parse_symbols is an generator generating tuples
 
 
 def parse_symbols(rule: str) -> Tuple[Union[str, bytes]]:
@@ -83,6 +85,20 @@ def parse_symbols(rule: str) -> Tuple[Union[str, bytes]]:
                     elem = elem.encode()
             new_elems.append(elem)
         yield tuple(new_elems)
+
+
+def export(grammar):
+    with open('out.yml', 'w') as f:
+        yaml.dump(dict(startSymbol='json',
+                       prodRules={k: [
+                           dict(substitution=[
+                               dict(
+                                   type=("terminal" if isinstance(elem, str) else 'nonterminal'),
+                                   value=(elem if isinstance(elem, str) else str(elem, "utf-8"))) for elem in sub],
+                               # the weight
+                               weight=weights[0])
+                           for sub, weights in rule.items()
+                       ] for k, rule in grammar.items()}), f)
 
 
 if __name__ == '__main__':
