@@ -68,6 +68,15 @@ class BaseFuzzer:
         """
         return False
 
+    def close(self):
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
 
 class MutationBasedFuzzer(BaseFuzzer):
     def __init__(self, mutators: List[str] = None, fitness: Optional[Union[Callable, str]] = None, seed=None):

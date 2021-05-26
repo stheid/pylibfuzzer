@@ -77,7 +77,7 @@ class Runner:
         # execute the main loop
         self.fuzzer.load_seed(self.seed_files)
 
-        with self.dispatcher as cmd:
+        with self.dispatcher as cmd, self.fuzzer:
             while not (self.fuzzer.done() or self.timeout or self.overiter):
                 logger.info('Creating input number %d ', self.i)
                 batch = self.fuzzer.create_inputs()
