@@ -1,14 +1,14 @@
 from typing import Optional, Callable, Union, List
 
 from pylibfuzzer.algos.base import MutationBasedFuzzer
-from pylibfuzzer.obs_extraction import CovStrExtractor
+from pylibfuzzer.obs_extraction import CfgRewardExtractor, CovStrRewardExtractor
 
 
 class HillClimbFuzzer(MutationBasedFuzzer):
-    supported_extractors = [CovStrExtractor]
+    supported_extractors = [CovStrRewardExtractor, CfgRewardExtractor]
 
-    def __init__(self, mutators: List[str] = None, fitness: Optional[Union[Callable, str]] = None, seed=None):
-        super().__init__(mutators, fitness, seed)
+    def __init__(self, mutators: List[str] = None, seed=None):
+        super().__init__(mutators, seed)
         self.best_so_far = None
         self.best_fittness = float('-inf')
 
@@ -21,12 +21,11 @@ class HillClimbFuzzer(MutationBasedFuzzer):
         self.batch.append(mutate(bytearray(self.best_so_far)))
         return self.batch
 
-    def observe(self, fuzzing_result: list):
+    def observe(self, rewards: list):
         batch = self.batch
-        fitnesses = [self.fitness(res) for res in fuzzing_result]
         self.batch = []
 
-        fittest = max(range(len(fitnesses)), key=lambda i: fitnesses[i])
-        if best_fitness := fitnesses[fittest] > self.best_fittness:
+        fittest = max(range(len(rewards)), key=lambda i: rewards[i])
+        if best_fitness := rewards[fittest] > self.best_fittness:
             self.best_fittness = best_fitness
             self.best_so_far = batch[fittest]

@@ -89,11 +89,11 @@ def parse_symbols(rule: str) -> Tuple[Union[str, bytes]]:
 
 def export(grammar):
     with open('out.yml', 'w') as f:
-        yaml.dump(dict(startSymbol='json',
-                       prodRules={k: [
+        yaml.dump(dict(startSymbol=dict(value='json'),
+                       prodRules_={k: [
                            dict(substitution=[
                                dict(
-                                   type=("terminal" if isinstance(elem, str) else 'nonterminal'),
+                                   type=("terminal" if isinstance(elem, bytes) else 'nonterminal'),
                                    value=(elem if isinstance(elem, str) else str(elem, "utf-8"))) for elem in sub],
                                # the weight
                                weight=weights[0])

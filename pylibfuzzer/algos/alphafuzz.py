@@ -11,8 +11,8 @@ from pylibfuzzer.obs_extraction import PcVectorExtractor
 class AlphaFuzz(MutationBasedFuzzer):
     supported_extractors = [PcVectorExtractor]
 
-    def __init__(self, mutators: List[str] = None, fitness: Optional[Union[Callable, str]] = None, seed=None):
-        super().__init__(mutators, fitness, seed)
+    def __init__(self, mutators: List[str] = None, seed=None):
+        super().__init__(mutators, seed)
 
         # root node
         self.tree = None  # type: Optional[Node]

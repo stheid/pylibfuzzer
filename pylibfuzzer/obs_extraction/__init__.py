@@ -1,5 +1,8 @@
 from .base import BaseExtractor
-from .cov_str import CovStrExtractor
+from .cfg_reward import CfgRewardExtractor
+from .cov_str import CovStrExtractor, CovStrRewardExtractor
 from .pc_vec import PcVectorExtractor
+from .raw import RawExtractor
 
-__all__ = ['BaseExtractor', 'PcVectorExtractor', 'CovStrExtractor']
+__all__ = ['BaseExtractor', 'PcVectorExtractor', 'CovStrExtractor', 'CovStrRewardExtractor', 'RawExtractor',
+           'CfgRewardExtractor']

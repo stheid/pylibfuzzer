@@ -1,0 +1,16 @@
+fuzzer:
+  cls: MCTSFuzzer
+  max_iterations: 1000
+  grammar: grammar.yaml
+
+dispatcher:
+  # dispatches libfuzzer command and handles communication of new fuzzing files
+  # and fuzz results to and from the libfuzzer command
+  type: Socket
+  # binary created using "./bazelisk-linux-amd64 build //:jazzer_release" in https://github.com/fmeum/jazzer-oracle
+  cmd: [ './jazzer', '-oracle=1', '--cp=examples_deploy.jar', '--target_class=com.example.FastJsonFuzzer' ]
+  addr: '/tmp/libfuzzer.sock'
+  obs_extractor: CfgReward
+
+runner:
+  limit: 1000
