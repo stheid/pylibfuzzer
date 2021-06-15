@@ -39,7 +39,6 @@ class MCTSFuzzer(BaseFuzzer):
         return [self.algo.createInput()]
 
     def observe(self, fuzzing_result: List[float]):
-        logger.info('obtained reward %.6f', fuzzing_result[0])
         self.algo.observe(fuzzing_result[0])
         # TODO efficiently check logs for errors
         with open("ailibs.log") as f:

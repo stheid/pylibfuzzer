@@ -1,7 +1,7 @@
 fuzzer:
-  cls: MCTSFuzzer
-  max_iterations: 1000
-  grammar: grammar.yaml
+  cls: HillClimbFuzzer
+  #max_iterations: 1000
+  #grammar: grammar.yaml
 
 dispatcher:
   # dispatches libfuzzer command and handles communication of new fuzzing files
@@ -12,5 +12,11 @@ dispatcher:
   addr: '/tmp/libfuzzer.sock'
   obs_extractor: CfgReward
 
+
+seed_files:
+  # paths and files used as seed files for the fuzzer
+  - 'seeds'
+
+
 runner:
-  limit: 1000
+  limit: 10

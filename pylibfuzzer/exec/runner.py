@@ -3,9 +3,9 @@ import logging
 from datetime import datetime
 from glob import glob
 from os.path import isfile
-from typing import Callable, Any
 
 import click
+import pandas as pd
 import yaml
 
 from pylibfuzzer.algos.base import BaseFuzzer
@@ -77,15 +77,20 @@ class Runner:
         # execute the main loop
         self.fuzzer.load_seed(self.seed_files)
 
+        all_results = []
         with self.dispatcher as cmd, self.fuzzer:
             while not (self.fuzzer.done() or self.timeout or self.overiter):
                 logger.info('Creating input number %d ', self.i)
                 batch = self.fuzzer.create_inputs()
                 self.i += len(batch)
                 results = [self.extract(cmd.post(bytes(data))) for data in batch]
+                all_results.extend(results)
                 if isinstance(self.extract, RewardExtractor):
-                    print(results)
+                    logger.info('rewards: %s', results)
                 self.fuzzer.observe(results)
+
+        if isinstance(self.extract, RewardExtractor):
+            pd.Series(all_results).plot().get_figure().savefig('rewards.png')
 
     @property
     def seed_files(self):
