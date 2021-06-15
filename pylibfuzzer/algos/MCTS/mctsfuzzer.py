@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import List
 
@@ -5,11 +6,13 @@ import jpype
 import jpype.imports
 
 from pylibfuzzer.algos.base import BaseFuzzer
-from pylibfuzzer.obs_extraction import CfgRewardExtractor
+from pylibfuzzer.obs_extraction.base import RewardExtractor
+
+logger = logging.getLogger(__name__)
 
 
 class MCTSFuzzer(BaseFuzzer):
-    supported_extractors = [CfgRewardExtractor]
+    supported_extractors = [RewardExtractor]
 
     def __init__(self, max_iterations=2, grammar='grammar.yaml'):
         super().__init__()
@@ -36,6 +39,7 @@ class MCTSFuzzer(BaseFuzzer):
         return [self.algo.createInput()]
 
     def observe(self, fuzzing_result: List[float]):
+        logger.info('obtained reward %.6f', fuzzing_result[0])
         self.algo.observe(fuzzing_result[0])
         # TODO efficiently check logs for errors
         with open("ailibs.log") as f:

@@ -3,22 +3,13 @@ from typing import Optional, Union, Callable, List
 
 import numpy as np
 
-from pylibfuzzer.fitness import cov_fitness
 from pylibfuzzer.mutators import SubstituteByteMutator, AddByteMutator, DeleteByteMutator
 
 
 class BaseFuzzer:
     supported_extractors = []
 
-    def __init__(self, fitness: Optional[Union[Callable, str]] = None):
-        if fitness is None:
-            self.fitness = cov_fitness
-        elif isinstance(fitness, Callable):
-            self.fitness = fitness
-        else:
-            module = importlib.import_module('pylibfuzzer.fitness')
-            self.fitness = getattr(module, fitness)
-
+    def __init__(self):
         self._initialized = False
 
     def _check_initialization(self):
@@ -79,8 +70,8 @@ class BaseFuzzer:
 
 
 class MutationBasedFuzzer(BaseFuzzer):
-    def __init__(self, mutators: List[str] = None, fitness: Optional[Union[Callable, str]] = None, seed=None):
-        super().__init__(fitness)
+    def __init__(self, mutators: List[str] = None, seed=None):
+        super().__init__()
         self.rng = np.random.default_rng(seed)  # type: np.random.Generator
         if mutators is None:
             mutators = [SubstituteByteMutator(seed), AddByteMutator(seed), DeleteByteMutator(seed)]
