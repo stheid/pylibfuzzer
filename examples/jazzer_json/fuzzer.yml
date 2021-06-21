@@ -1,6 +1,6 @@
 fuzzer:
   cls: MCTSFuzzer
-  max_iterations: 1000
+  max_iterations: 100000
   grammar: grammar.yaml
 
 dispatcher:
@@ -13,4 +13,4 @@ dispatcher:
   obs_extractor: CfgReward
 
 runner:
-  limit: 1000
+  limit: 100000

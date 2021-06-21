@@ -4,7 +4,7 @@ from typing import Optional, List, Tuple, Union, Callable
 
 import numpy as np
 
-from pylibfuzzer.algos.base import MutationBasedFuzzer
+from pylibfuzzer.input_generators.base import MutationBasedFuzzer
 from pylibfuzzer.obs_extraction import PcVectorExtractor
 
 

@@ -6,11 +6,11 @@ from typing import List, Tuple, Union, Dict
 import numpy as np
 import yaml
 
-from pylibfuzzer.algos.base import BaseFuzzer
+from pylibfuzzer.input_generators.base import BaseFuzzer
 from pylibfuzzer.obs_extraction import PcVectorExtractor
 
 
-class PrototypePCFGGenFuzzer(BaseFuzzer):
+class DummyPCFGGenFuzzer(BaseFuzzer):
     supported_extractors = [PcVectorExtractor]
 
     def __init__(self, pcfg_file):

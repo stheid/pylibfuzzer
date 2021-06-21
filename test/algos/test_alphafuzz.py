@@ -1,6 +1,6 @@
 from collections import Counter
 
-from pylibfuzzer.algos.alphafuzz import Node
+from pylibfuzzer.input_generators.alphafuzz import Node
 
 
 def test_score():

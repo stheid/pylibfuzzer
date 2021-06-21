@@ -33,7 +33,7 @@ class PipeDispatcher:
         line = self.proc.stderr.readline()
         while True:
             try:
-                self.runner.fuzzer.fitness(line)
+                self.runner.extract(line)
                 break
             except Exception:
                 line = self.proc.stderr.readline()

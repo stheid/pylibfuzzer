@@ -5,12 +5,13 @@ from glob import glob
 from os.path import isfile
 
 import click
-import pandas as pd
+import tensorflow as tf
 import yaml
 
-from pylibfuzzer.algos.base import BaseFuzzer
+from pylibfuzzer.input_generators.base import BaseFuzzer
 from pylibfuzzer.obs_extraction import BaseExtractor
 from pylibfuzzer.obs_extraction.base import RewardExtractor
+from pylibfuzzer.util.timer import timer
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -39,11 +40,11 @@ class Runner:
 
         # fuzzer class
         clsname = fuzzer_conf.pop('cls')
-        module = importlib.import_module('pylibfuzzer.algos')
+        module = importlib.import_module('pylibfuzzer.input_generators')
         cls = getattr(module, clsname)
 
         # create fuzzer
-        self.fuzzer = cls(**fuzzer_conf)  # type: BaseFuzzer
+        self.input_generator = cls(**fuzzer_conf)  # type: BaseFuzzer
 
         # |DISPATCHER|
         dispatcher_cfg = config.get('dispatcher')
@@ -58,9 +59,9 @@ class Runner:
         self.extract = getattr(module, clsname)()  # type: BaseExtractor
 
         # validate Extractor types
-        if not any((isinstance(self.extract, extr) for extr in self.fuzzer.supported_extractors)):
+        if not any((isinstance(self.extract, extr) for extr in self.input_generator.supported_extractors)):
             raise RuntimeError(
-                f'{self.fuzzer} and {self.extract} are not compatible. Please check your configuration file.')
+                f'{self.input_generator} and {self.extract} are not compatible. Please check your configuration file.')
 
         # create fuzzer
         self.dispatcher = cls(self, **dispatcher_cfg)
@@ -72,25 +73,46 @@ class Runner:
         runner_conf = {**dict(time_budget=None, limit=None), **config.get('runner', dict())}
         self.time_budget = runner_conf['time_budget']
         self.limit = runner_conf['limit']
+        self.do_warmup = runner_conf.get('warmup', True)
+
+        self.summarywriter = tf.summary.create_file_writer(f'logs/{datetime.now().strftime("%Y.%m.%d-%H:%M:%S")}')
 
     def run(self):
         # execute the main loop
-        self.fuzzer.load_seed(self.seed_files)
+        self.input_generator.load_seed(self.seed_files)
 
-        all_results = []
-        with self.dispatcher as cmd, self.fuzzer:
-            while not (self.fuzzer.done() or self.timeout or self.overiter):
+        with self.dispatcher as cmd, self.input_generator, self.summarywriter.as_default():
+            while not (self.input_generator.done() or self.timeout or self.overiter):
+                # create inputs
                 logger.info('Creating input number %d ', self.i)
-                batch = self.fuzzer.create_inputs()
-                self.i += len(batch)
-                results = [self.extract(cmd.post(bytes(data))) for data in batch]
-                all_results.extend(results)
-                if isinstance(self.extract, RewardExtractor):
-                    logger.info('rewards: %s', results)
-                self.fuzzer.observe(results)
+                with timer() as elapsed:
+                    batch = self.input_generator.create_inputs()
 
-        if isinstance(self.extract, RewardExtractor):
-            pd.Series(all_results).plot().get_figure().savefig('rewards.png')
+                batchsize = len(batch)
+                tf.summary.scalar('time/create-input', elapsed() / batchsize, step=self.i)
+                for j, file in enumerate(batch):
+                    tf.summary.scalar('input/length', len(file), step=self.i + j)
+
+                # execute inputs
+                if self.do_warmup:
+                    # if warmup is enabled the first input will be executed twice on the PUT,
+                    # to warm up the jazzer and get more consistent coverage infromation
+                    cmd.post(batch[0])
+                    self.do_warmup = False
+
+                results = []
+                for data in batch:
+                    with timer() as elapsed:
+                        results.append(self.extract(cmd.post(data)))
+                    tf.summary.scalar('time/exec-put', elapsed(), step=self.i)
+
+                # send observed result to input generator
+                if isinstance(self.extract, RewardExtractor):
+                    for j, reward in enumerate(results):
+                        tf.summary.scalar('reward', reward, self.i + j)
+                self.i += batchsize
+
+                self.input_generator.observe(results)
 
     @property
     def seed_files(self):

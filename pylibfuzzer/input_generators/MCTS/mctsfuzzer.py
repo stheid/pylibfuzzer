@@ -5,7 +5,7 @@ from typing import List
 import jpype
 import jpype.imports
 
-from pylibfuzzer.algos.base import BaseFuzzer
+from pylibfuzzer.input_generators.base import BaseFuzzer
 from pylibfuzzer.obs_extraction.base import RewardExtractor
 
 logger = logging.getLogger(__name__)
@@ -36,14 +36,15 @@ class MCTSFuzzer(BaseFuzzer):
         self._initialized = True
 
     def create_inputs(self) -> List[bytes]:
-        return [self.algo.createInput()]
+        return [bytes(self.algo.createInput())]
 
-    def observe(self, fuzzing_result: List[float]):
-        self.algo.observe(fuzzing_result[0])
+    def observe(self, rewards: List[float]):
+        # TODO the MCTS currently aims to minimize loss, hence we have to give it a negative reward
+        self.algo.observe(-rewards[0])
         # TODO efficiently check logs for errors
-        with open("ailibs.log") as f:
-            if 'ERROR' in f.read():
-                raise RuntimeError('AILibs reported an Error')
+        # with open("ailibs.log") as f:
+        #    if 'ERROR' in f.read():
+        #        raise RuntimeError('AILibs reported an Error')
 
     def close(self):
         self.algo.join()

@@ -50,4 +50,5 @@ class CfgRewardExtractor(BaseExtractor, RewardExtractor):
         :return: observation similar to openAI gym
         """
         covered_branches = set(np.nonzero(np.fromiter((stru[0] for stru in iter_unpack('B', b)), int, len(b)))[0])
-        return sum((self.ranks.get(self.inv_mapping.get(i, None), 0) for i in covered_branches))
+        reward = sum((self.ranks.get(self.inv_mapping.get(i, None), 0) for i in covered_branches))
+        return reward

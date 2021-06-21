@@ -1,6 +1,6 @@
 from typing import Optional, Callable, Union, List
 
-from pylibfuzzer.algos.base import MutationBasedFuzzer
+from pylibfuzzer.input_generators.base import MutationBasedFuzzer
 from pylibfuzzer.obs_extraction import CfgRewardExtractor, CovStrRewardExtractor
 
 
