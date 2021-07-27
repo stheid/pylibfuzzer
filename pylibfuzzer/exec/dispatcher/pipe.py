@@ -2,6 +2,7 @@ import logging
 import os
 from subprocess import Popen, PIPE
 from time import sleep
+from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ class PipeDispatcher:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
-    def post(self, data: bytes) -> bytes:
+    def post(self, data: bytes) -> List[bytes]:
         with open('file', 'wb') as f:
             f.write(data)
         self.proc.stdin.write(b'file\n')
@@ -38,4 +39,4 @@ class PipeDispatcher:
             except Exception:
                 line = self.proc.stderr.readline()
         logger.info(line)
-        return line
+        return [line]

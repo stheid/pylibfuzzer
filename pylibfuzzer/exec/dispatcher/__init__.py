@@ -1,4 +1,4 @@
 from .pipe import PipeDispatcher
-from .sock import SocketDispatcher
+from .sock import SocketDispatcher, SocketMultiDispatcher
 
-__all__ = ['SocketDispatcher', 'PipeDispatcher']
+__all__ = ['PipeDispatcher', 'SocketDispatcher', 'SocketMultiDispatcher']

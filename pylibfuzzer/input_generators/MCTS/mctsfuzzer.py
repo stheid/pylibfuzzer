@@ -1,4 +1,5 @@
 import logging
+from glob import glob
 from pathlib import Path
 from typing import List
 
@@ -14,12 +15,15 @@ logger = logging.getLogger(__name__)
 class MCTSFuzzer(BaseFuzzer):
     supported_extractors = [RewardExtractor]
 
-    def __init__(self, max_iterations=2, grammar='grammar.yaml'):
+    def __init__(self, max_iterations=2, grammar='grammar.yaml', path_cutoff_length=20):
         super().__init__()
 
         # noinspection PyUnresolvedReferences
         # startJVM is the right function
-        jpype.startJVM(classpath=[str(Path(__file__).parent / "test_starlib_mcts-1.0-SNAPSHOT-all.jar")])
+        jars = glob(str(Path(__file__).parent / '*mcts*.jar'))
+        if len(jars) != 1:
+            raise RuntimeWarning('Please provide one and only one mcts backend library for the MCTS fuzzer')
+        jpype.startJVM(classpath=[str(Path(__file__).parent / jars[0])])
         jpype.imports.registerDomain("isml.aidev")
 
         # noinspection PyUnresolvedReferences
@@ -31,7 +35,7 @@ class MCTSFuzzer(BaseFuzzer):
         # noinspection PyUnresolvedReferences
         from isml.aidev import Algorithm
 
-        self.algo = Algorithm(max_iterations, grammar)
+        self.algo = Algorithm(max_iterations, grammar, path_cutoff_length)
 
         self._initialized = True
 

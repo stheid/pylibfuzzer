@@ -36,7 +36,7 @@ def main(gram: str, start: str):
         # alpha may be any value between 0 and 1 to mix between the masked and unmasked distribution
         alpha = 1 if len(symbols) < 1000 else 0
         soft_mask = (alpha, 1 - alpha) @ \
-                    np.hstack((np.ones_like(weights[:, 1]) + 1e-7, weights[:, 1])).reshape((-1, 2)).T
+                    np.hstack((np.ones_like(weights[:, 1]), weights[:, 1] + 1e-7)).reshape((-1, 2)).T
 
         weights = weights[:, 0] * soft_mask
         weights = weights / weights.sum(axis=0)
@@ -96,7 +96,8 @@ def export(grammar):
                                    type=("terminal" if isinstance(elem, bytes) else 'nonterminal'),
                                    value=(elem if isinstance(elem, str) else str(elem, "utf-8"))) for elem in sub],
                                # the weight
-                               weight=weights[0])
+                               weight=weights[0],
+                               is_extending=not bool(weights[1]))
                            for sub, weights in rule.items()
                        ] for k, rule in grammar.items()}), f)
 

@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 @click.command()
-@click.option('--conf', default='fuzzer.yml', help='configuration yaml')
+@click.option('--conf', default='experiment.yml', help='configuration yaml')
 def main(conf):
     Runner(conf).run()
 
