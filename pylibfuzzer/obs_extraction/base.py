@@ -1,4 +1,7 @@
+from struct import iter_unpack
 from typing import Any, List
+
+import numpy as np
 
 
 class BaseExtractor:
@@ -22,6 +25,18 @@ class BaseExtractor:
         """
         return self.extract_obs(bs[0])
 
-class RewardExtractor:
+
+class RewardMixin:
     def extract_obs(self, b: bytes) -> float:
         pass
+
+
+class CovVectorMixin:
+    def __init__(self):
+        self.total_coverage = set()
+
+    def to_coverage_vec_and_record(self, b: bytes) -> set:
+        covered_branches = set(map(int,
+                                   np.nonzero(np.fromiter((stru[0] for stru in iter_unpack('B', b)), int, len(b)))[0]))
+        self.total_coverage.update(covered_branches)
+        return covered_branches

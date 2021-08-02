@@ -1,17 +1,17 @@
 import json
 import shelve
-from struct import iter_unpack
 from typing import List
 
 import networkx as nx
 import numpy as np
 from tqdm import tqdm
 
-from pylibfuzzer.obs_extraction.base import BaseExtractor, RewardExtractor
+from pylibfuzzer.obs_extraction.base import BaseExtractor, RewardMixin, CovVectorMixin
 
 
-class CfgRewardExtractor(BaseExtractor, RewardExtractor):
+class CfgRewardExtractor(BaseExtractor, RewardMixin, CovVectorMixin):
     def __init__(self, path='controlflowgraph.json'):
+        super().__init__()
         with shelve.open(f'{__class__}.cache') as s:
             if 'graph' not in s or 'inv_mapping' not in s:
                 with open(path) as f:
@@ -55,9 +55,25 @@ class CfgRewardExtractor(BaseExtractor, RewardExtractor):
         :param b:
         :return: observation similar to openAI gym
         """
-        covered_branches = set(np.nonzero(np.fromiter((stru[0] for stru in iter_unpack('B', b)), int, len(b)))[0])
+        covered_branches = self.to_coverage_vec_and_record(b)
         reward = sum((self.ranks.get(self.inv_mapping.get(i, None), 0) for i in covered_branches))
         return reward
 
     def extract_multi_obs(self, bs: List[bytes]) -> float:
         return np.array([self.extract_obs(b) for b in bs]).mean()
+
+
+class DirectedCFGRewardExtractor(CfgRewardExtractor):
+    def __init__(self, path='controlflowgraph.json'):
+        super().__init__(path='controlflowgraph.json')
+        self.goal = 548
+
+    def extract_obs(self, b: bytes) -> float:
+        """
+
+        :param b:
+        :return: observation similar to openAI gym
+        """
+        covered_branches = self.to_coverage_vec_and_record(b)
+        reward = sum((self.ranks.get(self.inv_mapping.get(i, None), 0) for i in covered_branches))
+        return reward

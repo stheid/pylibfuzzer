@@ -1,15 +1,11 @@
-from struct import iter_unpack
-
-import numpy as np
-
-from pylibfuzzer.obs_extraction.base import BaseExtractor
+from pylibfuzzer.obs_extraction.base import BaseExtractor, CovVectorMixin
 
 
-class PcVectorExtractor(BaseExtractor):
-    def extract_obs(self, b: bytes) -> np.ndarray:
+class PcVectorExtractor(BaseExtractor, CovVectorMixin):
+    def extract_obs(self, b: bytes) -> set:
         """
 
         :param b:
         :return: observation similar to openAI gym
         """
-        return np.fromiter((stru[0] for stru in iter_unpack('B', b)), int, len(b))
+        return self.to_coverage_vec_and_record(b)

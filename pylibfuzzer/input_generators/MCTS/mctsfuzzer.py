@@ -7,13 +7,13 @@ import jpype
 import jpype.imports
 
 from pylibfuzzer.input_generators.base import BaseFuzzer
-from pylibfuzzer.obs_extraction.base import RewardExtractor
+from pylibfuzzer.obs_extraction.base import RewardMixin
 
 logger = logging.getLogger(__name__)
 
 
 class MCTSFuzzer(BaseFuzzer):
-    supported_extractors = [RewardExtractor]
+    supported_extractors = [RewardMixin]
 
     def __init__(self, max_iterations=2, grammar='grammar.yaml', path_cutoff_length=20):
         super().__init__()
@@ -36,13 +36,27 @@ class MCTSFuzzer(BaseFuzzer):
         from isml.aidev import Algorithm
 
         self.algo = Algorithm(max_iterations, grammar, path_cutoff_length)
-
+        self.batch = []
+        self.seedfiles_consumed = True
         self._initialized = True
 
+    def load_seed(self, seedfiles):
+        for file in seedfiles:
+            with open(file, 'rb') as f:
+                input = f.read()
+            self.batch.append(input)
+            self.seedfiles_consumed = False
+
     def create_inputs(self) -> List[bytes]:
+        if self.batch:
+            return [self.batch.pop(0)]
+        self.seedfiles_consumed = True
         return [bytes(self.algo.createInput())]
 
     def observe(self, rewards: List[float]):
+        if not self.seedfiles_consumed:
+            return
+
         # TODO the MCTS currently aims to minimize loss, hence we have to give it a negative reward
         self.algo.observe(-rewards[0])
         # TODO efficiently check logs for errors

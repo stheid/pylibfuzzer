@@ -1,4 +1,5 @@
 import importlib
+import json
 import logging
 from datetime import datetime
 from glob import glob
@@ -9,8 +10,7 @@ import tensorflow as tf
 import yaml
 
 from pylibfuzzer.input_generators.base import BaseFuzzer
-from pylibfuzzer.obs_extraction import BaseExtractor
-from pylibfuzzer.obs_extraction.base import RewardExtractor
+from pylibfuzzer.obs_extraction.base import BaseExtractor, RewardMixin, CovVectorMixin
 from pylibfuzzer.util.timer import timer
 
 logger = logging.getLogger(__name__)
@@ -96,23 +96,28 @@ class Runner:
                 # execute inputs
                 if self.do_warmup:
                     # if warmup is enabled the first input will be executed twice on the PUT,
-                    # to warm up the jazzer and get more consistent coverage infromation
+                    # to warm up the jazzer and get more consistent coverage information
                     cmd.post(batch[0])
                     self.do_warmup = False
 
                 results = []
                 for data in batch:
+                    logger.info('Executing input number %d ', self.i)
                     with timer() as elapsed:
                         results.append(self.extract(cmd.post(data)))
                     tf.summary.scalar('time/exec-put', elapsed(), step=self.i)
 
                 # send observed result to input generator
-                if isinstance(self.extract, RewardExtractor):
+                if isinstance(self.extract, RewardMixin):
                     for j, reward in enumerate(results):
                         tf.summary.scalar('reward', reward, self.i + j)
                 self.i += batchsize
 
                 self.input_generator.observe(results)
+
+            if isinstance(self.extract, CovVectorMixin):
+                with open('cov.json', 'w') as f:
+                    json.dump(list(self.extract.total_coverage), f)
 
     @property
     def seed_files(self):

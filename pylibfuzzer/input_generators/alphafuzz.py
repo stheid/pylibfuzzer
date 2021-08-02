@@ -1,6 +1,6 @@
 import logging
 from collections import Counter
-from typing import Optional, List, Tuple, Union, Callable
+from typing import Optional, List, Tuple, Union
 
 import numpy as np
 
@@ -45,11 +45,10 @@ class AlphaFuzz(MutationBasedFuzzer):
         self.batch.append(mutate(bytearray(c.input)))
         return self.batch
 
-    def observe(self, fuzzing_result: List[np.ndarray]):
+    def observe(self, fuzzing_result: List[set]):
         # create new node with input and coverage information
         # add es child of self.curr
-        for input, result in zip(self.batch, fuzzing_result):
-            cov_set = set(np.nonzero(result)[0])
+        for input, cov_set in zip(self.batch, fuzzing_result):
             self.tree.append_child([Node(input, cov_set)])
         self.batch = []
 
