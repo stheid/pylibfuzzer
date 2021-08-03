@@ -3,13 +3,16 @@ import json
 import logging
 from datetime import datetime
 from glob import glob
-from os.path import isfile
+from os.path import isfile, basename
+from pathlib import Path
 
 import click
+import hiyapyco
 import tensorflow as tf
 import yaml
 
 from pylibfuzzer.input_generators.base import BaseFuzzer
+from pylibfuzzer.obs_extraction import DirectedCFGRewardExtractor
 from pylibfuzzer.obs_extraction.base import BaseExtractor, RewardMixin, CovVectorMixin
 from pylibfuzzer.util.timer import timer
 
@@ -19,21 +22,28 @@ logging.basicConfig(level=logging.INFO)
 
 @click.command()
 @click.option('--conf', default='experiment.yml', help='configuration yaml')
-def main(conf):
-    Runner(conf).run()
+@click.option('--log_suff', default='', help='logging folder suffix')
+def main(conf, log_suff):
+    Runner(conf, log_suff).run()
 
 
 class Runner:
-    def __init__(self, conf):
+    def __init__(self, conf, suffix):
         self._seed_files = []
         self.i = 0
 
         # read config
-        with open(conf, 'r') as stream:
-            try:
-                config = yaml.safe_load(stream)
-            except yaml.YAMLError as exc:
-                print(exc)
+        try:
+            config = hiyapyco.load(*conf.split(','), method=hiyapyco.METHOD_MERGE, usedefaultyamlloader=True)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+        confignames = ';'.join([basename(c) for c in conf.split(',')])
+        self.logdir = f'logs/{datetime.now().strftime("%Y.%m.%d-%H:%M:%S.%f")} ' + (suffix or confignames)
+        self.summarywriter = tf.summary.create_file_writer(self.logdir)
+        with open(Path(self.logdir) / confignames, 'w') as f:
+            # the exporting needs to take place before elements are poped out below
+            yaml.dump(config, f)
 
         # |FUZZER|
         fuzzer_conf = config.get('fuzzer')
@@ -50,13 +60,14 @@ class Runner:
         dispatcher_cfg = config.get('dispatcher')
 
         # dispatcher class
-        clsname = dispatcher_cfg.pop('type') + 'Dispatcher'
         module = importlib.import_module('pylibfuzzer.exec.dispatcher')
+        clsname = dispatcher_cfg.pop('type') + 'Dispatcher'
         cls = getattr(module, clsname)
 
+        extractor_cfg = config.get('obs_extractor')
         module = importlib.import_module('pylibfuzzer.obs_extraction')
-        clsname = (dispatcher_cfg.pop('obs_extractor') + 'Extractor')
-        self.extract = getattr(module, clsname)()  # type: BaseExtractor
+        clsname = (extractor_cfg.pop('type') + 'Extractor')
+        self.extract = getattr(module, clsname)(**extractor_cfg)  # type: BaseExtractor
 
         # validate Extractor types
         if not any((isinstance(self.extract, extr) for extr in self.input_generator.supported_extractors)):
@@ -74,8 +85,7 @@ class Runner:
         self.time_budget = runner_conf['time_budget']
         self.limit = runner_conf['limit']
         self.do_warmup = runner_conf.get('warmup', True)
-
-        self.summarywriter = tf.summary.create_file_writer(f'logs/{datetime.now().strftime("%Y.%m.%d-%H:%M:%S")}')
+        self.rewards = []
 
     def run(self):
         # execute the main loop
@@ -111,13 +121,22 @@ class Runner:
                 if isinstance(self.extract, RewardMixin):
                     for j, reward in enumerate(results):
                         tf.summary.scalar('reward', reward, self.i + j)
+                        self.rewards.append(reward)
                 self.i += batchsize
-
                 self.input_generator.observe(results)
 
+            result = dict()
+
             if isinstance(self.extract, CovVectorMixin):
-                with open('cov.json', 'w') as f:
-                    json.dump(list(self.extract.total_coverage), f)
+                result['total cov'] = list(self.extract.total_coverage)
+            if isinstance(self.extract, DirectedCFGRewardExtractor):
+                result['has_covered_goal'] = self.extract.goal in self.extract.total_coverage
+            if isinstance(self.extract, RewardMixin):
+                result['rewards'] = self.rewards
+                result['max_reward'] = max(self.rewards)
+
+            with open(Path(self.logdir) / 'result.json', 'w') as f:
+                json.dump(result, f)
 
     @property
     def seed_files(self):

@@ -1,7 +1,8 @@
 numpy~=1.20.1
 PyYAML~=5.3.1
 setuptools~=54.2.0
-click~=7.1.2
+click~=8.0.1
 networkx
 tensorboard~=2.5
 tensorflow~=2.5
+hiyapyco~=0.4.16
