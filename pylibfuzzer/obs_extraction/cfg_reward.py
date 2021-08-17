@@ -3,6 +3,7 @@ import shelve
 from typing import List
 
 import networkx as nx
+import numexpr as ne
 import numpy as np
 from tqdm import tqdm
 
@@ -10,7 +11,7 @@ from pylibfuzzer.obs_extraction.base import BaseExtractor, RewardMixin, CovVecto
 
 
 class CfgRewardExtractor(BaseExtractor, RewardMixin, CovVectorMixin):
-    def __init__(self, path='controlflowgraph.json', simplify=False):
+    def __init__(self, path='controlflowgraph.json', simplify=False, representatives=True):
         super().__init__()
         with shelve.open(f'{__class__}.cache') as s:
             if 'graph' not in s or 'inv_mapping' not in s:
@@ -18,7 +19,8 @@ class CfgRewardExtractor(BaseExtractor, RewardMixin, CovVectorMixin):
                     d = json.load(f)
 
                 graph = {int(k): set(v['children']) for k, v in d.items()}
-                mapping = {int(k): set(v['jazzerids']) for k, v in d.items() if v['jazzerids']}
+                mapping = {int(k): [v['jazzerids'][0]] if representatives else set(v['jazzerids'])
+                           for k, v in d.items() if v['jazzerids']}
                 s['inv_mapping'] = {jazzer: soot for soot, jazzerids in mapping.items() for jazzer in jazzerids}
                 if simplify:
                     graph = self.simplify_graph(graph, mapping)
@@ -68,11 +70,20 @@ class CfgRewardExtractor(BaseExtractor, RewardMixin, CovVectorMixin):
 
 
 class DirectedCFGRewardExtractor(CfgRewardExtractor):
-    def __init__(self, path='controlflowgraph.json', goal=564, theta=None):
-        super().__init__(path=path)
+    def __init__(self, path='controlflowgraph.json', goal=564, theta=None, simplify=False, use_pr_weigth=False):
+        super().__init__(path=path, simplify=simplify)
+        self.use_pr_weigth = use_pr_weigth
         self.goal = goal
         self.distances = nx.single_target_shortest_path(self.G, self.goal)
-        self.theta = theta if theta is not None else lambda x: np.exp(2 * x)
+        if theta is None:
+            self.theta = lambda x: np.exp(2 * x)
+        elif isinstance(theta, str):
+            self.theta = lambda x: ne.evaluate(theta)
+        elif callable(theta):
+            self.theta = theta
+        else:
+            raise RuntimeError("theta can't be evaluated as a function. Please check the configuration yaml")
+        self.max_reward = self.reward(set(self.inv_mapping.keys()))
 
     def extract_obs(self, b: bytes) -> float:
         """
@@ -81,9 +92,17 @@ class DirectedCFGRewardExtractor(CfgRewardExtractor):
         :return: observation similar to openAI gym
         """
         covered_branches = self.to_coverage_vec_and_record(b)
+        return self.reward(covered_branches) / self.max_reward
+
+    def reward(self, covered_branches: set):
         reward = sum((
-            1 /  # self.ranks.get(self.inv_mapping[i], 0)
-            (self.theta(len(self.distances.get(
-                self.inv_mapping[i], []))) + 1e-10)
+            (self.ranks.get(self.inv_mapping[i], 0) if self.use_pr_weigth else 1) /
+            (self.theta(self.get_dist_or_inf(i)) + 1e-10)
             for i in covered_branches if i in self.inv_mapping))
         return reward
+
+    def get_dist_or_inf(self, node):
+        path = self.distances.get(self.inv_mapping[node], None)
+        if path is None:
+            return float('inf')
+        return len(path)
