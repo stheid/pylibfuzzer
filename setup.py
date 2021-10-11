@@ -9,7 +9,7 @@ setup(
     description='Python implementation of test case generation to interface with libfuzzer which will handle the execution',
     long_description=open('README.rst').read(),
     entry_points={'console_scripts': [
-        'pylibfuzzer = pylibfuzzer.exec.runner_sock',
+        'pylibfuzzer = pylibfuzzer.exec.runner',
     ]},
     license='GPLv3',
     keywords='libfuzzer',
