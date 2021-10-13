@@ -2,14 +2,15 @@ from setuptools import setup, find_packages
 
 setup(
     name='pylibfuzzer',
-    version='0.0.1',
+    version='0.0.2',
     packages=find_packages(include=['pylibfuzzer', 'pylibfuzzer.*']),
+    include_package_data=True,
     author='Stefan Heid',
     author_email='stefan.heid@upb.de',
     description='Python implementation of test case generation to interface with libfuzzer which will handle the execution',
     long_description=open('README.rst').read(),
     entry_points={'console_scripts': [
-        'pylibfuzzer = pylibfuzzer.exec.runner',
+        'pylibfuzzer = pylibfuzzer.exec.runner:main ',
     ]},
     license='GPLv3',
     keywords='libfuzzer',

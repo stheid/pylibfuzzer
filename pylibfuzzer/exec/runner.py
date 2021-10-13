@@ -8,6 +8,8 @@ from os.path import isfile
 import click
 import tensorflow as tf
 import yaml
+from dpath import util as dutil
+from dpath.util import MERGE_REPLACE
 
 from pylibfuzzer.input_generators.base import BaseFuzzer
 from pylibfuzzer.obs_extraction.base import BaseExtractor, RewardMixin, CovVectorMixin
@@ -19,12 +21,12 @@ logging.basicConfig(level=logging.INFO)
 
 @click.command()
 @click.option('--conf', default='experiment.yml', help='configuration yaml')
-def main(conf):
-    Runner(conf).run()
+def main(conf, **kwargs):
+    Runner(conf, **kwargs).run()
 
 
 class Runner:
-    def __init__(self, conf):
+    def __init__(self, conf, **kwargs):
         self._seed_files = []
         self.i = 0
 
@@ -34,6 +36,8 @@ class Runner:
                 config = yaml.safe_load(stream)
             except yaml.YAMLError as exc:
                 print(exc)
+
+        config = self.updateconf(config, kwargs)
 
         # |FUZZER|
         fuzzer_conf = config.get('fuzzer')
@@ -141,6 +145,14 @@ class Runner:
     @property
     def overiter(self):
         return self.limit and self.i >= self.limit
+
+    def updateconf(self, config, param):
+        # renest kwargs
+        d = dict()
+        for k, v in param.items():
+            dutil.new(d, k, v)
+
+        return dutil.merge(config, d, flags=MERGE_REPLACE)
 
 
 if __name__ == '__main__':
