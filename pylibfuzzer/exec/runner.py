@@ -130,6 +130,8 @@ class Runner:
     @seed_files.setter
     def seed_files(self, paths):
         if paths:
+            if isinstance(paths, str):
+                paths = [paths]
             for path in paths:
                 if isfile(path):
                     self._seed_files.append(path)
