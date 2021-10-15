@@ -12,6 +12,7 @@ import yaml
 
 import pylibfuzzer.util.dict as dutil
 from pylibfuzzer.input_generators.base import BaseFuzzer
+from pylibfuzzer.obs_extraction import DirectedCFGRewardExtractor
 from pylibfuzzer.obs_extraction.base import BaseExtractor, RewardMixin, CovVectorMixin
 from pylibfuzzer.util.timer import timer
 
@@ -132,6 +133,8 @@ class Runner:
 
             if isinstance(self.extract, CovVectorMixin):
                 result['total cov'] = list(self.extract.total_coverage)
+            if isinstance(self.extract, DirectedCFGRewardExtractor):
+                result['has_covered_goal'] = self.extract.goal in self.extract.total_coverage
             if isinstance(self.extract, RewardMixin):
                 result['rewards'] = self.rewards
                 result['max_reward'] = max(self.rewards)
