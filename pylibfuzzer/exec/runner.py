@@ -4,13 +4,13 @@ import logging
 from datetime import datetime
 from glob import glob
 from os.path import isfile
+from pathlib import Path
 
 import click
 import tensorflow as tf
 import yaml
-from dpath import util as dutil
-from dpath.util import MERGE_REPLACE
 
+import pylibfuzzer.util.dict as dutil
 from pylibfuzzer.input_generators.base import BaseFuzzer
 from pylibfuzzer.obs_extraction.base import BaseExtractor, RewardMixin, CovVectorMixin
 from pylibfuzzer.util.timer import timer
@@ -20,24 +20,34 @@ logging.basicConfig(level=logging.INFO)
 
 
 @click.command()
-@click.option('--conf', default='experiment.yml', help='configuration yaml')
-def main(conf, **kwargs):
-    Runner(conf, **kwargs).run()
+@click.option('--conf', default=['experiment.yml'], multiple=True, help='configuration yaml')
+@click.option('--log_suff', default='', help='logging folder suffix')
+def main(conf, log_suff, **kwargs):
+    Runner(conf, log_suff, **kwargs).run()
 
 
 class Runner:
-    def __init__(self, conf, **kwargs):
+    def __init__(self, configs, suffix, **kwargs):
         self._seed_files = []
         self.i = 0
 
-        # read config
-        with open(conf, 'r') as stream:
-            try:
-                config = yaml.safe_load(stream)
-            except yaml.YAMLError as exc:
-                print(exc)
+        def read_config(conf):
+            with open(conf, 'r') as stream:
+                try:
+                    config = yaml.safe_load(stream)
+                except yaml.YAMLError as exc:
+                    print(exc)
+            return config
 
-        config = self.updateconf(config, kwargs)
+        confs = [read_config(conf) for conf in configs] + [dutil.ravel(kwargs)]
+        config = dutil.mergeall(confs)
+
+        confname = ';'.join(configs)
+        # EXPORTING needs to take place before elements are popd out below
+        self.logdir = f'logs/{datetime.now().strftime("%Y.%m.%d-%H:%M:%S.%f")} ' + (suffix or confname)
+        self.summarywriter = tf.summary.create_file_writer(self.logdir)
+        with open(Path(self.logdir) / confname, 'w') as f:
+            yaml.dump(config, f)
 
         # |FUZZER|
         fuzzer_conf = config.get('fuzzer')
@@ -54,13 +64,14 @@ class Runner:
         dispatcher_cfg = config.get('dispatcher')
 
         # dispatcher class
-        clsname = dispatcher_cfg.pop('type') + 'Dispatcher'
         module = importlib.import_module('pylibfuzzer.exec.dispatcher')
+        clsname = dispatcher_cfg.pop('type') + 'Dispatcher'
         cls = getattr(module, clsname)
 
+        extractor_cfg = config.get('obs_extractor')
         module = importlib.import_module('pylibfuzzer.obs_extraction')
-        clsname = (dispatcher_cfg.pop('obs_extractor') + 'Extractor')
-        self.extract = getattr(module, clsname)()  # type: BaseExtractor
+        clsname = (extractor_cfg.pop('type') + 'Extractor')
+        self.extract = getattr(module, clsname)(**extractor_cfg)  # type: BaseExtractor
 
         # validate Extractor types
         if not any((isinstance(self.extract, extr) for extr in self.input_generator.supported_extractors)):
@@ -78,8 +89,7 @@ class Runner:
         self.time_budget = runner_conf['time_budget']
         self.limit = runner_conf['limit']
         self.do_warmup = runner_conf.get('warmup', True)
-
-        self.summarywriter = tf.summary.create_file_writer(f'logs/{datetime.now().strftime("%Y.%m.%d-%H:%M:%S")}')
+        self.rewards = []
 
     def run(self):
         # execute the main loop
@@ -115,9 +125,11 @@ class Runner:
                 if isinstance(self.extract, RewardMixin):
                     for j, reward in enumerate(results):
                         tf.summary.scalar('reward', reward, self.i + j)
+                        self.rewards.append(reward)
                 self.i += batchsize
-
                 self.input_generator.observe(results)
+
+            result = dict()
 
             if isinstance(self.extract, CovVectorMixin):
                 with open('cov.json', 'w') as f:
@@ -130,6 +142,8 @@ class Runner:
     @seed_files.setter
     def seed_files(self, paths):
         if paths:
+            if isinstance(paths, str):
+                paths = [paths]
             for path in paths:
                 if isfile(path):
                     self._seed_files.append(path)
@@ -145,14 +159,6 @@ class Runner:
     @property
     def overiter(self):
         return self.limit and self.i >= self.limit
-
-    def updateconf(self, config, param):
-        # renest kwargs
-        d = dict()
-        for k, v in param.items():
-            dutil.new(d, k, v)
-
-        return dutil.merge(config, d, flags=MERGE_REPLACE)
 
 
 if __name__ == '__main__':
