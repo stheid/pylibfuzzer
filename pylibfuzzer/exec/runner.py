@@ -12,7 +12,6 @@ import yaml
 
 import pylibfuzzer.util.dict as dutil
 from pylibfuzzer.input_generators.base import BaseFuzzer
-from pylibfuzzer.obs_extraction import DirectedCFGRewardExtractor
 from pylibfuzzer.obs_extraction.base import BaseExtractor, RewardMixin, CovVectorMixin
 from pylibfuzzer.util.timer import timer
 
@@ -43,10 +42,11 @@ class Runner:
         confs = [read_config(conf) for conf in configs] + [dutil.ravel(kwargs)]
         config = dutil.mergeall(confs)
 
+        confname = ';'.join(configs)
         # EXPORTING needs to take place before elements are popd out below
-        self.logdir = f'logs/{datetime.now().strftime("%Y.%m.%d-%H:%M:%S.%f")} ' + (suffix or configs)
+        self.logdir = f'logs/{datetime.now().strftime("%Y.%m.%d-%H:%M:%S.%f")} ' + (suffix or confname)
         self.summarywriter = tf.summary.create_file_writer(self.logdir)
-        with open(Path(self.logdir) / configs, 'w') as f:
+        with open(Path(self.logdir) / confname, 'w') as f:
             yaml.dump(config, f)
 
         # |FUZZER|
@@ -132,15 +132,8 @@ class Runner:
             result = dict()
 
             if isinstance(self.extract, CovVectorMixin):
-                result['total cov'] = list(self.extract.total_coverage)
-            if isinstance(self.extract, DirectedCFGRewardExtractor):
-                result['has_covered_goal'] = self.extract.goal in self.extract.total_coverage
-            if isinstance(self.extract, RewardMixin):
-                result['rewards'] = self.rewards
-                result['max_reward'] = max(self.rewards)
-
-            with open(Path(self.logdir) / 'result.json', 'w') as f:
-                json.dump(result, f)
+                with open('cov.json', 'w') as f:
+                    json.dump(list(self.extract.total_coverage), f)
 
     @property
     def seed_files(self):

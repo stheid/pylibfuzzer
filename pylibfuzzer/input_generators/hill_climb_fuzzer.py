@@ -1,11 +1,11 @@
 from typing import Optional, Callable, Union, List
 
 from pylibfuzzer.input_generators.base import MutationBasedFuzzer
-from pylibfuzzer.obs_extraction import CfgRewardExtractor, CovStrRewardExtractor
+from pylibfuzzer.obs_extraction import CFGRewardExtractor, CovStrRewardExtractor
 
 
 class HillClimbFuzzer(MutationBasedFuzzer):
-    supported_extractors = [CovStrRewardExtractor, CfgRewardExtractor]
+    supported_extractors = [CovStrRewardExtractor, CFGRewardExtractor]
 
     def __init__(self, mutators: List[str] = None, seed=None):
         super().__init__(mutators, seed)

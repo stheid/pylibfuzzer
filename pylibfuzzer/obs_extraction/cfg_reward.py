@@ -10,14 +10,13 @@ from tqdm import tqdm
 from pylibfuzzer.obs_extraction.base import BaseExtractor, RewardMixin, CovVectorMixin
 
 
-class CfgRewardExtractor(BaseExtractor, RewardMixin, CovVectorMixin):
+class CFGRewardExtractor(BaseExtractor, RewardMixin, CovVectorMixin):
     def __init__(self, path='controlflowgraph.json', simplify=False, representatives=True):
         super().__init__()
         with shelve.open(f'{__class__}.cache') as s:
             if 'graph' not in s or 'id_to_node' not in s:
                 with open(path) as f:
                     d = json.load(f)
-
 
                 graph = {int(k): set(v['children']) for k, v in d.items()}
                 mapping = {int(k): [v['jazzerids'][0]] if representatives else set(v['jazzerids'])
@@ -73,7 +72,7 @@ class CfgRewardExtractor(BaseExtractor, RewardMixin, CovVectorMixin):
         return np.array([self.extract_obs(b) for b in bs]).mean()
 
 
-class DirectedCFGRewardExtractor(CfgRewardExtractor):
+class DirectedCFGRewardExtractor(CFGRewardExtractor):
     def __init__(self, path='controlflowgraph.json', goal=564, theta=None, simplify=False, use_pr_weigth=False):
         super().__init__(path=path, simplify=simplify)
         self.use_pr_weigth = use_pr_weigth

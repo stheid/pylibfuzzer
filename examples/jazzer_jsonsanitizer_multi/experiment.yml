@@ -15,12 +15,8 @@ dispatcher:
 
 
 obs_extractor:
-  type: DirectedCFGReward
+  type: CFGReward
   path: controlflowgraph_with-return.json
-  theta: exp(1*x)
-  goal: 564
-  simplify: False
-  use_pr_weigth: False
 
 
 seed_files:
