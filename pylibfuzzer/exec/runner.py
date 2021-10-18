@@ -129,11 +129,11 @@ class Runner:
                     self.do_warmup = False
 
                 results = []
-                for data in batch:
-                    logger.info('Executing input number %d ', self.i)
+                for j, data in enumerate(batch):
+                    logger.info('Executing input number %d ', self.i + j)
                     with timer() as elapsed:
                         results.append(self.pipeline.batch_transform(cmd.post(data)))
-                    tf.summary.scalar('time/exec-put', elapsed(), step=self.i)
+                    tf.summary.scalar('time/exec-put', elapsed(), step=self.i + j)
 
                 # send observed result to input generator
                 if self.pipeline.output_type == Reward:

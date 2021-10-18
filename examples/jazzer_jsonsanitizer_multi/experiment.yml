@@ -17,13 +17,11 @@ dispatcher:
 obs_transformation:
   - type: SocketCoverage
   - type: CFGReward
-    path: controlflowgraph_with-return.json
+    path: icfg.json
 
 
 seed_files:
 # paths and files used as seed files for the fuzzer
-#- seeds
-
 
 runner:
   # + 6 seed files
