@@ -27,7 +27,7 @@ def main(conf, log_suff, **kwargs):
 
 
 class Runner:
-    def __init__(self, configs, suffix, **kwargs):
+    def __init__(self, configs, suffix='', **kwargs):
         self._seed_files = []
         self.i = 0
 
@@ -39,6 +39,8 @@ class Runner:
                     print(exc)
             return config
 
+        if isinstance(configs, str):
+            configs = [configs]
         confs = [read_config(conf) for conf in configs] + [dutil.ravel(kwargs)]
         config = dutil.mergeall(confs)
 
