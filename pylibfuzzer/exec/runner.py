@@ -5,14 +5,16 @@ from datetime import datetime
 from glob import glob
 from os.path import isfile
 from pathlib import Path
+from typing import List
 
 import click
 import tensorflow as tf
 import yaml
 
 import pylibfuzzer.util.dict as dutil
+from pylibfuzzer.exec.dispatcher.base import BaseDispatcher
 from pylibfuzzer.input_generators.base import BaseFuzzer
-from pylibfuzzer.obs_extraction.base import BaseExtractor, RewardMixin, CovVectorMixin
+from pylibfuzzer.obs_transform import Pipeline, Reward
 from pylibfuzzer.util.timer import timer
 
 logger = logging.getLogger(__name__)
@@ -28,6 +30,7 @@ def main(conf, log_suff, **kwargs):
 
 class Runner:
     def __init__(self, configs, suffix='', **kwargs):
+        self.__start_time = datetime.now()
         self._seed_files = []
         self.i = 0
 
@@ -70,18 +73,27 @@ class Runner:
         clsname = dispatcher_cfg.pop('type') + 'Dispatcher'
         cls = getattr(module, clsname)
 
-        extractor_cfg = config.get('obs_extractor')
-        module = importlib.import_module('pylibfuzzer.obs_extraction')
-        clsname = (extractor_cfg.pop('type') + 'Extractor')
-        self.extract = getattr(module, clsname)(**extractor_cfg)  # type: BaseExtractor
+        # create pipeline
+        transformers = config.get('obs_transformation')
+        module = importlib.import_module('pylibfuzzer.obs_transform')
+        pipeline = []
+        for trans_cfg in transformers:
+            clsname = (trans_cfg.pop('type') + 'Transformer')
+            pipeline.append(getattr(module, clsname)(**trans_cfg))
+        self.pipeline = Pipeline(pipeline)
 
-        # validate Extractor types
-        if not any((isinstance(self.extract, extr) for extr in self.input_generator.supported_extractors)):
+        # validate algorithm with pipeline
+        if self.input_generator.obs_type != List[self.pipeline.output_type]:  # noqa
             raise RuntimeError(
-                f'{self.input_generator} and {self.extract} are not compatible. Please check your configuration file.')
+                f'{self.input_generator} and {self.pipeline} are not compatible. Please check your configuration file.')
 
         # create fuzzer
-        self.dispatcher = cls(self, **dispatcher_cfg)
+        self.dispatcher = cls(self, **dispatcher_cfg)  # type: BaseDispatcher
+        if self.dispatcher.interfacetype != self.pipeline.input_type:
+            raise RuntimeError(
+                f'{self.dispatcher.__class__} and {self.pipeline.__class__} are not compatible'
+                f' ({self.dispatcher.interfacetype} != {self.pipeline.input_type}).'
+                f' Please check your configuration file.')
 
         # |SEED FILES|
         self.seed_files = config.get('seed_files')
@@ -120,22 +132,20 @@ class Runner:
                 for data in batch:
                     logger.info('Executing input number %d ', self.i)
                     with timer() as elapsed:
-                        results.append(self.extract(cmd.post(data)))
+                        results.append(self.pipeline.batch_transform(cmd.post(data)))
                     tf.summary.scalar('time/exec-put', elapsed(), step=self.i)
 
                 # send observed result to input generator
-                if isinstance(self.extract, RewardMixin):
+                if self.pipeline.output_type == Reward:
                     for j, reward in enumerate(results):
                         tf.summary.scalar('reward', reward, self.i + j)
                         self.rewards.append(reward)
                 self.i += batchsize
                 self.input_generator.observe(results)
 
-            result = dict()
-
-            if isinstance(self.extract, CovVectorMixin):
+            if hasattr(self.pipeline, 'total_coverage'):
                 with open('cov.json', 'w') as f:
-                    json.dump(list(self.extract.total_coverage), f)
+                    json.dump(list(self.pipeline.total_coverage), f)
 
     @property
     def seed_files(self):
@@ -154,8 +164,6 @@ class Runner:
 
     @property
     def timeout(self):
-        if not hasattr(self, '__start_time'):
-            self.__start_time = datetime.now()
         return self.time_budget and (datetime.now() - self.__start_time).seconds >= self.time_budget
 
     @property

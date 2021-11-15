@@ -7,14 +7,13 @@ import jpype
 import jpype.imports
 
 from pylibfuzzer.input_generators.base import BaseFuzzer
-from pylibfuzzer.obs_extraction.base import RewardMixin
+
+from pylibfuzzer.obs_transform import Reward
 
 logger = logging.getLogger(__name__)
 
 
 class MCTSFuzzer(BaseFuzzer):
-    supported_extractors = [RewardMixin]
-
     def __init__(self, max_iterations=2, grammar='grammar.yaml', path_cutoff_length=20):
         super().__init__()
 
@@ -53,7 +52,7 @@ class MCTSFuzzer(BaseFuzzer):
         self.seedfiles_consumed = True
         return [bytes(self.algo.createInput())]
 
-    def observe(self, rewards: List[float]):
+    def observe(self, rewards: List[Reward]):
         if not self.seedfiles_consumed:
             return
 

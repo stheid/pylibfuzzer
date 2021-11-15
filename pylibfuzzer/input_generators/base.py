@@ -1,5 +1,5 @@
 import importlib
-from typing import Optional, Union, Callable, List
+from typing import List
 
 import numpy as np
 
@@ -67,6 +67,11 @@ class BaseFuzzer:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
+    @property
+    def obs_type(self):
+        # check the input type of the transformer
+        return list(self.observe.__annotations__.values())[0]  # noqa
 
 
 class MutationBasedFuzzer(BaseFuzzer):

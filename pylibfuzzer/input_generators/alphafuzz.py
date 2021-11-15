@@ -5,11 +5,10 @@ from typing import Optional, List, Tuple, Union
 import numpy as np
 
 from pylibfuzzer.input_generators.base import MutationBasedFuzzer
-from pylibfuzzer.obs_extraction import PcVectorExtractor
+from pylibfuzzer.obs_transform import Reward
 
 
 class AlphaFuzz(MutationBasedFuzzer):
-    supported_extractors = [PcVectorExtractor]
 
     def __init__(self, mutators: List[str] = None, seed=None):
         super().__init__(mutators, seed)
@@ -45,7 +44,7 @@ class AlphaFuzz(MutationBasedFuzzer):
         self.batch.append(mutate(bytearray(c.input)))
         return self.batch
 
-    def observe(self, fuzzing_result: List[set]):
+    def observe(self, fuzzing_result: List[Reward]):
         # create new node with input and coverage information
         # add es child of self.curr
         for input, cov_set in zip(self.batch, fuzzing_result):

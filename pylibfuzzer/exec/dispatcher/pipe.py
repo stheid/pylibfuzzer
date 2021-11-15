@@ -4,10 +4,15 @@ from subprocess import Popen, PIPE
 from time import sleep
 from typing import List
 
+from pylibfuzzer.obs_transform import PipeInput
+from .base import BaseDispatcher
+
 logger = logging.getLogger(__name__)
 
 
-class PipeDispatcher:
+class PipeDispatcher(BaseDispatcher):
+    interfacetype = PipeInput
+
     def __init__(self, runner, cmd):
         self.runner = runner
         self.cmd = cmd

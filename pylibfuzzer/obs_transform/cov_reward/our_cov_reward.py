@@ -1,16 +1,15 @@
 import json
 import shelve
-from typing import List
 
 import networkx as nx
 import numexpr as ne
 import numpy as np
 from tqdm import tqdm
 
-from pylibfuzzer.obs_extraction.base import BaseExtractor, RewardMixin, CovVectorMixin
+from pylibfuzzer.obs_transform.pipeline import Transformer, CovSet, Reward
 
 
-class CFGRewardExtractor(BaseExtractor, RewardMixin, CovVectorMixin):
+class CFGRewardTransformer(Transformer):
     def __init__(self, path='controlflowgraph.json', simplify=False, representatives=True):
         super().__init__()
         with shelve.open(f'{__class__}.cache') as s:
@@ -58,21 +57,17 @@ class CFGRewardExtractor(BaseExtractor, RewardMixin, CovVectorMixin):
                 if k in to_:
                     graph[from_] = to_ - {k} | v
 
-    def extract_obs(self, b: bytes) -> float:
+    def __call__(self, data: CovSet) -> Reward:
         """
 
         :param b:
         :return: observation similar to openAI gym
         """
-        covered_branches = self.to_coverage_vec_and_record(b)
-        reward = sum((self.ranks.get(self.id_to_node.get(i, None), 0) for i in covered_branches))
+        reward = sum((self.ranks.get(self.id_to_node.get(i, None), 0) for i in data))
         return reward
 
-    def extract_multi_obs(self, bs: List[bytes]) -> float:
-        return np.array([self.extract_obs(b) for b in bs]).mean()
 
-
-class DirectedCFGRewardExtractor(CFGRewardExtractor):
+class DirectedCFGRewardTransformer(CFGRewardTransformer):
     def __init__(self, path='controlflowgraph.json', goal=564, theta=None, simplify=False, use_pr_weigth=False):
         super().__init__(path=path, simplify=simplify)
         self.use_pr_weigth = use_pr_weigth
@@ -88,14 +83,13 @@ class DirectedCFGRewardExtractor(CFGRewardExtractor):
             raise RuntimeError("theta can't be evaluated as a function. Please check the configuration yaml")
         self.max_reward = self.reward(set(self.id_to_node.keys()))
 
-    def extract_obs(self, b: bytes) -> float:
+    def __call__(self, data: CovSet) -> Reward:
         """
 
         :param b:
         :return: observation similar to openAI gym
         """
-        covered_branches = self.to_coverage_vec_and_record(b)
-        return self.reward(covered_branches) / self.max_reward
+        return self.reward(data) / self.max_reward
 
     def reward(self, covered_branches: set):
         reward = sum((

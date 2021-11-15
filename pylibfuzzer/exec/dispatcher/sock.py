@@ -5,10 +5,15 @@ from subprocess import Popen, DEVNULL
 from time import sleep
 from typing import List
 
+from pylibfuzzer.obs_transform import SocketInput
+from .base import BaseDispatcher
+
 logger = logging.getLogger(__name__)
 
 
-class SocketDispatcher:
+class SocketDispatcher(BaseDispatcher):
+    interfacetype = SocketInput
+
     def __init__(self, runner, cmd, addr):
         self.i = 0
         self.runner = runner
@@ -50,6 +55,8 @@ class SocketDispatcher:
 
 
 class SocketMultiDispatcher(SocketDispatcher):
+    interfacetype = SocketInput
+
     def __init__(self, runner, cmd, addr, mut_reps):
         super().__init__(runner, cmd, addr)
         self.mut_reps = mut_reps

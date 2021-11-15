@@ -14,9 +14,10 @@ dispatcher:
   mut_reps: 9
 
 
-obs_extractor:
-  type: CFGReward
-  path: controlflowgraph_with-return.json
+obs_transformation:
+  - type: SocketCoverage
+  - type: CFGReward
+    path: controlflowgraph_with-return.json
 
 
 seed_files:

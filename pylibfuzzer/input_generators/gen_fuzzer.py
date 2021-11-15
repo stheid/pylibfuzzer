@@ -7,11 +7,10 @@ import numpy as np
 import yaml
 
 from pylibfuzzer.input_generators.base import BaseFuzzer
-from pylibfuzzer.obs_extraction import PcVectorExtractor
+from pylibfuzzer.obs_transform import CovSet
 
 
 class DummyPCFGGenFuzzer(BaseFuzzer):
-    supported_extractors = [PcVectorExtractor]
 
     def __init__(self, pcfg_file):
         super().__init__()
@@ -26,11 +25,8 @@ class DummyPCFGGenFuzzer(BaseFuzzer):
         self.batch = [self.model.gen('json')]
         return self.batch
 
-    def observe(self, fuzzing_result: List[np.ndarray]):
-        for i, res in enumerate(fuzzing_result):
-            # we only look at whether a branch is covered, not how often
-            cov = set(*np.nonzero(res))
-
+    def observe(self, fuzzing_result: List[CovSet]):
+        for i, cov in enumerate(fuzzing_result):
             # get number of times a specific branch has been covered in the past
             covs_so_far = np.array([self.total_cov.get(b, 0) for b in cov])
 
