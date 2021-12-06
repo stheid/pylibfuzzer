@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'PyLibFuzzer'
-copyright = '2021, Stefan Heid, Judith Olszewski'
-author = 'Stefan Heid, Judith Olszewski'
+copyright = '2021, Stefan Heid, Judith Olszewski, Aakash Khatri'
+author = 'Stefan Heid, Judith Olszewski, Aakash Khatri'
 
 # -- General configuration ---------------------------------------------------
 
