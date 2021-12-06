@@ -1,8 +1,5 @@
-pylibfuzzer.obs\_transform package
-===========================
-
-Submodules
-----------
+pylibfuzzer.obs\_transform
+==========================
 
 Module contents
 ---------------

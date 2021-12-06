@@ -1,5 +1,5 @@
-pylibfuzzer.mutators package
-============================
+pylibfuzzer.mutators
+====================
 
 Submodules
 ----------

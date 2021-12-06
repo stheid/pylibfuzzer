@@ -1,8 +1,5 @@
-pylibfuzzer.input\_generators package
-=========================
-
-Submodules
-----------
+pylibfuzzer.input\_generators
+=============================
 
 Module contents
 ---------------

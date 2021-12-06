@@ -1,11 +1,11 @@
-pylibfuzzer.exec package
-========================
+pylibfuzzer.exec
+================
 
 Submodules
 ----------
 
 pylibfuzzer.exec.dispatcher module
-------------------------------
+----------------------------------
 
 .. automodule:: pylibfuzzer.exec.dispatcher
    :members:
