@@ -28,9 +28,8 @@ Installation
 Getting started
 ---------------
 
-.. code-block:: python
+To execute the code one must create the main configuration file, similar to the :code:`experiment.yaml` files in the :code:`examples` folders
 
-    from pylibfuzzer.exec.runner import main
+::
 
-    if __name__ == '__main__':
-        main()
+  $ python -m pylibfuzzer
