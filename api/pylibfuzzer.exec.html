@@ -72,11 +72,103 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="pylibfuzzer-exec-dispatcher-module">
-<h2>pylibfuzzer.exec.dispatcher module<a class="headerlink" href="#pylibfuzzer-exec-dispatcher-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pylibfuzzer.exec.dispatcher">
+<span id="pylibfuzzer-exec-dispatcher-module"></span><h2>pylibfuzzer.exec.dispatcher module<a class="headerlink" href="#module-pylibfuzzer.exec.dispatcher" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pylibfuzzer.exec.dispatcher.PipeDispatcher">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.exec.dispatcher.</code><code class="sig-name descname">PipeDispatcher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">runner</span></em>, <em class="sig-param"><span class="n">cmd</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.exec.dispatcher.PipeDispatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.exec.dispatcher.base.BaseDispatcher</span></code></p>
+<dl class="py attribute">
+<dt id="pylibfuzzer.exec.dispatcher.PipeDispatcher.interfacetype">
+<code class="sig-name descname">interfacetype</code><a class="headerlink" href="#pylibfuzzer.exec.dispatcher.PipeDispatcher.interfacetype" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.obs_transform.pipeline.PipeInput</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.exec.dispatcher.PipeDispatcher.post">
+<code class="sig-name descname">post</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.exec.dispatcher.PipeDispatcher.post" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.exec.dispatcher.SocketDispatcher">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.exec.dispatcher.</code><code class="sig-name descname">SocketDispatcher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">runner</span></em>, <em class="sig-param"><span class="n">cmd</span></em>, <em class="sig-param"><span class="n">addr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.exec.dispatcher.SocketDispatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.exec.dispatcher.base.BaseDispatcher</span></code></p>
+<dl class="py attribute">
+<dt id="pylibfuzzer.exec.dispatcher.SocketDispatcher.interfacetype">
+<code class="sig-name descname">interfacetype</code><a class="headerlink" href="#pylibfuzzer.exec.dispatcher.SocketDispatcher.interfacetype" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.obs_transform.pipeline.SocketInput</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.exec.dispatcher.SocketDispatcher.post">
+<code class="sig-name descname">post</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.exec.dispatcher.SocketDispatcher.post" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.exec.dispatcher.SocketMultiDispatcher">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.exec.dispatcher.</code><code class="sig-name descname">SocketMultiDispatcher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">runner</span></em>, <em class="sig-param"><span class="n">cmd</span></em>, <em class="sig-param"><span class="n">addr</span></em>, <em class="sig-param"><span class="n">mut_reps</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.exec.dispatcher.SocketMultiDispatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.exec.dispatcher.sock.SocketDispatcher</span></code></p>
+<dl class="py attribute">
+<dt id="pylibfuzzer.exec.dispatcher.SocketMultiDispatcher.interfacetype">
+<code class="sig-name descname">interfacetype</code><a class="headerlink" href="#pylibfuzzer.exec.dispatcher.SocketMultiDispatcher.interfacetype" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.obs_transform.pipeline.SocketInput</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.exec.dispatcher.SocketMultiDispatcher.post">
+<code class="sig-name descname">post</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.exec.dispatcher.SocketMultiDispatcher.post" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="pylibfuzzer-exec-runner-module">
-<h2>pylibfuzzer.exec.runner module<a class="headerlink" href="#pylibfuzzer-exec-runner-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pylibfuzzer.exec.runner">
+<span id="pylibfuzzer-exec-runner-module"></span><h2>pylibfuzzer.exec.runner module<a class="headerlink" href="#module-pylibfuzzer.exec.runner" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pylibfuzzer.exec.runner.Runner">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.exec.runner.</code><code class="sig-name descname">Runner</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configs</span></em>, <em class="sig-param"><span class="n">suffix</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.exec.runner.Runner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="pylibfuzzer.exec.runner.Runner.overiter">
+<em class="property">property </em><code class="sig-name descname">overiter</code><a class="headerlink" href="#pylibfuzzer.exec.runner.Runner.overiter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.exec.runner.Runner.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.exec.runner.Runner.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.exec.runner.Runner.seed_files">
+<em class="property">property </em><code class="sig-name descname">seed_files</code><a class="headerlink" href="#pylibfuzzer.exec.runner.Runner.seed_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.exec.runner.Runner.timeout">
+<em class="property">property </em><code class="sig-name descname">timeout</code><a class="headerlink" href="#pylibfuzzer.exec.runner.Runner.timeout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 

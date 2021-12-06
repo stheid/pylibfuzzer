@@ -69,8 +69,110 @@
              
   <div class="section" id="pylibfuzzer-obs-transform">
 <h1>pylibfuzzer.obs_transform<a class="headerlink" href="#pylibfuzzer-obs-transform" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pylibfuzzer.obs_transform">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pylibfuzzer.obs_transform" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pylibfuzzer.obs_transform.CFGRewardTransformer">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.obs_transform.</code><code class="sig-name descname">CFGRewardTransformer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">'icfg.json'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.obs_transform.CFGRewardTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.obs_transform.pipeline.Transformer</span></code></p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="pylibfuzzer.obs_transform.CovSet">
+<code class="sig-prename descclassname">pylibfuzzer.obs_transform.</code><code class="sig-name descname">CovSet</code><a class="headerlink" href="#pylibfuzzer.obs_transform.CovSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>The central part of internal API.</p>
+<p>This represents a generic version of type ‘origin’ with type arguments ‘params’.
+There are two kind of these aliases: user defined and special. The special ones
+are wrappers around builtin collections and ABCs in collections.abc. These must
+have ‘name’ always set. If ‘inst’ is False, then the alias can’t be instantiated,
+this is used by e.g. typing.List and typing.Dict.</p>
+<p>alias of Set[int]</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.obs_transform.DirectedCFGRewardTransformer">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.obs_transform.</code><code class="sig-name descname">DirectedCFGRewardTransformer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">'icfg.json'</span></em>, <em class="sig-param"><span class="n">goal</span><span class="o">=</span><span class="default_value">564</span></em>, <em class="sig-param"><span class="n">theta</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_pr_weigth</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.obs_transform.DirectedCFGRewardTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.obs_transform.cov_reward.our_cov_reward.CFGRewardTransformer</span></code></p>
+<dl class="py method">
+<dt id="pylibfuzzer.obs_transform.DirectedCFGRewardTransformer.get_dist_or_inf">
+<code class="sig-name descname">get_dist_or_inf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id_</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.obs_transform.DirectedCFGRewardTransformer.get_dist_or_inf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.obs_transform.DirectedCFGRewardTransformer.reward">
+<code class="sig-name descname">reward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">covered_branches</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.obs_transform.DirectedCFGRewardTransformer.reward" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.obs_transform.PipeInput">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.obs_transform.</code><code class="sig-name descname">PipeInput</code><a class="headerlink" href="#pylibfuzzer.obs_transform.PipeInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.obs_transform.Pipeline">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.obs_transform.</code><code class="sig-name descname">Pipeline</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pipeline</span></em>, <em class="sig-param"><span class="n">agg</span><span class="o">=</span><span class="default_value">'mean'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.obs_transform.Pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>As Transformers can be stateful, Pipelines can be stateful as well</p>
+<dl class="py method">
+<dt id="pylibfuzzer.obs_transform.Pipeline.batch_transform">
+<code class="sig-name descname">batch_transform</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">observations</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.obs_transform.Pipeline.batch_transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.obs_transform.Pipeline.input_type">
+<em class="property">property </em><code class="sig-name descname">input_type</code><a class="headerlink" href="#pylibfuzzer.obs_transform.Pipeline.input_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.obs_transform.Pipeline.output_type">
+<em class="property">property </em><code class="sig-name descname">output_type</code><a class="headerlink" href="#pylibfuzzer.obs_transform.Pipeline.output_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.obs_transform.Pipeline.transform">
+<code class="sig-name descname">transform</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">observation</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.obs_transform.Pipeline.transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.obs_transform.Pipeline.validate">
+<em class="property">static </em><code class="sig-name descname">validate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pipeline</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.obs_transform.Pipeline.validate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pylibfuzzer.obs_transform.Reward">
+<code class="sig-prename descclassname">pylibfuzzer.obs_transform.</code><code class="sig-name descname">Reward</code><a class="headerlink" href="#pylibfuzzer.obs_transform.Reward" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">builtins.float</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.obs_transform.SimpleRewardTransformer">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.obs_transform.</code><code class="sig-name descname">SimpleRewardTransformer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">offset</span><span class="o">=</span><span class="default_value">100</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.obs_transform.SimpleRewardTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.obs_transform.pipeline.Transformer</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.obs_transform.SocketCoverageTransformer">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.obs_transform.</code><code class="sig-name descname">SocketCoverageTransformer</code><a class="headerlink" href="#pylibfuzzer.obs_transform.SocketCoverageTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.obs_transform.pipeline.Transformer</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.obs_transform.SocketInput">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.obs_transform.</code><code class="sig-name descname">SocketInput</code><a class="headerlink" href="#pylibfuzzer.obs_transform.SocketInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.obs_transform.SparksRewardTransformer">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.obs_transform.</code><code class="sig-name descname">SparksRewardTransformer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">'icfg.json'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.obs_transform.SparksRewardTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.obs_transform.pipeline.Transformer</span></code></p>
+</dd></dl>
+
 </div>
 </div>
 

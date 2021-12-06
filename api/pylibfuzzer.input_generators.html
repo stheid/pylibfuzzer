@@ -69,8 +69,246 @@
              
   <div class="section" id="pylibfuzzer-input-generators">
 <h1>pylibfuzzer.input_generators<a class="headerlink" href="#pylibfuzzer-input-generators" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pylibfuzzer.input_generators">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pylibfuzzer.input_generators" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pylibfuzzer.input_generators.AlphaFuzz">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.input_generators.</code><code class="sig-name descname">AlphaFuzz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mutators</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.AlphaFuzz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.input_generators.base.MutationBasedFuzzer</span></code></p>
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.AlphaFuzz.create_inputs">
+<code class="sig-name descname">create_inputs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.AlphaFuzz.create_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>create new input from internal model</p>
+<p>in most implementations the first couple of inputs from this functions will be the seed files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of files as bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.AlphaFuzz.load_seed">
+<code class="sig-name descname">load_seed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seedfiles</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.AlphaFuzz.load_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads all files in the seed to the model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>paths</strong> – this is actually a list of strings that refers to a file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.AlphaFuzz.observe">
+<code class="sig-name descname">observe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fuzzing_result</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.AlphaFuzz.observe" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets execution results of the last input batch passed to the PUT.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fuzzing_result</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.input_generators.DummyPCFGGenFuzzer">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.input_generators.</code><code class="sig-name descname">DummyPCFGGenFuzzer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pcfg_file</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.DummyPCFGGenFuzzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.input_generators.base.BaseFuzzer</span></code></p>
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.DummyPCFGGenFuzzer.create_inputs">
+<code class="sig-name descname">create_inputs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.DummyPCFGGenFuzzer.create_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>create new input from internal model</p>
+<p>in most implementations the first couple of inputs from this functions will be the seed files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of files as bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.DummyPCFGGenFuzzer.load_seed">
+<code class="sig-name descname">load_seed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.DummyPCFGGenFuzzer.load_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads all files in the seed to the model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>paths</strong> – this is actually a list of strings that refers to a file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.DummyPCFGGenFuzzer.observe">
+<code class="sig-name descname">observe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fuzzing_result</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.DummyPCFGGenFuzzer.observe" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets execution results of the last input batch passed to the PUT.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fuzzing_result</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Set</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.input_generators.HillClimbFuzzer">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.input_generators.</code><code class="sig-name descname">HillClimbFuzzer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mutators</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.HillClimbFuzzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.input_generators.base.MutationBasedFuzzer</span></code></p>
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.HillClimbFuzzer.create_inputs">
+<code class="sig-name descname">create_inputs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.HillClimbFuzzer.create_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>create new input from internal model</p>
+<p>in most implementations the first couple of inputs from this functions will be the seed files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of files as bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.HillClimbFuzzer.observe">
+<code class="sig-name descname">observe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rewards</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.HillClimbFuzzer.observe" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets execution results of the last input batch passed to the PUT.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fuzzing_result</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.input_generators.MCTSFuzzer">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.input_generators.</code><code class="sig-name descname">MCTSFuzzer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">max_iterations</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">grammar</span><span class="o">=</span><span class="default_value">'grammar.yaml'</span></em>, <em class="sig-param"><span class="n">path_cutoff_length</span><span class="o">=</span><span class="default_value">20</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.MCTSFuzzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.input_generators.base.BaseFuzzer</span></code></p>
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.MCTSFuzzer.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.MCTSFuzzer.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.MCTSFuzzer.create_inputs">
+<code class="sig-name descname">create_inputs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.MCTSFuzzer.create_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>create new input from internal model</p>
+<p>in most implementations the first couple of inputs from this functions will be the seed files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of files as bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.MCTSFuzzer.load_seed">
+<code class="sig-name descname">load_seed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seedfiles</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.MCTSFuzzer.load_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads all files in the seed to the model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>paths</strong> – this is actually a list of strings that refers to a file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.MCTSFuzzer.observe">
+<code class="sig-name descname">observe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rewards</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.MCTSFuzzer.observe" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets execution results of the last input batch passed to the PUT.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fuzzing_result</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.input_generators.SparksFuzzer">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.input_generators.</code><code class="sig-name descname">SparksFuzzer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">grammar_path</span></em>, <em class="sig-param"><span class="n">startword</span></em>, <em class="sig-param"><span class="n">population_size</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">elite_fraction</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">survival_rate</span><span class="o">=</span><span class="default_value">0.3</span></em>, <em class="sig-param"><span class="n">crossover_share</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">resample_share</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.SparksFuzzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.input_generators.base.BaseFuzzer</span></code></p>
+<p>This class implements a GA type algorithm. The typical reward implementation of this class is stateful.
+to issue the reevaluation of rewards, we will re execute the inputs on the PUT to ease implementation.</p>
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.SparksFuzzer.create_inputs">
+<code class="sig-name descname">create_inputs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.SparksFuzzer.create_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>create new input from internal model</p>
+<p>in most implementations the first couple of inputs from this functions will be the seed files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of files as bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.SparksFuzzer.load_seed">
+<code class="sig-name descname">load_seed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seedfiles</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.SparksFuzzer.load_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads all files in the seed to the model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>paths</strong> – this is actually a list of strings that refers to a file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.SparksFuzzer.observe">
+<code class="sig-name descname">observe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fuzzing_result</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.SparksFuzzer.observe" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets execution results of the last input batch passed to the PUT.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fuzzing_result</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 

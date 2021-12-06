@@ -71,14 +71,137 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="pylibfuzzer-mutators-base-module">
-<h2>pylibfuzzer.mutators.base module<a class="headerlink" href="#pylibfuzzer-mutators-base-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pylibfuzzer.mutators.base">
+<span id="pylibfuzzer-mutators-base-module"></span><h2>pylibfuzzer.mutators.base module<a class="headerlink" href="#module-pylibfuzzer.mutators.base" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pylibfuzzer.mutators.base.Mutator">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.mutators.base.</code><code class="sig-name descname">Mutator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.base.Mutator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="pylibfuzzer.mutators.base.Mutator.mutate">
+<code class="sig-name descname">mutate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.base.Mutator.mutate" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bytearray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.mutators.base.SequenceMutator">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.mutators.base.</code><code class="sig-name descname">SequenceMutator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.base.SequenceMutator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pylibfuzzer.mutators.base.Mutator" title="pylibfuzzer.mutators.base.Mutator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.mutators.base.Mutator</span></code></a></p>
+<dl class="py method">
+<dt id="pylibfuzzer.mutators.base.SequenceMutator.pos">
+<code class="sig-name descname">pos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seq</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.base.SequenceMutator.pos" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="pylibfuzzer-mutators-byte-mutators-module">
-<h2>pylibfuzzer.mutators.byte_mutators module<a class="headerlink" href="#pylibfuzzer-mutators-byte-mutators-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pylibfuzzer.mutators.byte_mutators">
+<span id="pylibfuzzer-mutators-byte-mutators-module"></span><h2>pylibfuzzer.mutators.byte_mutators module<a class="headerlink" href="#module-pylibfuzzer.mutators.byte_mutators" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pylibfuzzer.mutators.byte_mutators.AddByteMutator">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.mutators.byte_mutators.</code><code class="sig-name descname">AddByteMutator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.byte_mutators.AddByteMutator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pylibfuzzer.mutators.base.SequenceMutator" title="pylibfuzzer.mutators.base.SequenceMutator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.mutators.base.SequenceMutator</span></code></a></p>
+<dl class="py method">
+<dt id="pylibfuzzer.mutators.byte_mutators.AddByteMutator.mutate">
+<code class="sig-name descname">mutate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.byte_mutators.AddByteMutator.mutate" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bytearray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.mutators.byte_mutators.DeleteByteMutator">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.mutators.byte_mutators.</code><code class="sig-name descname">DeleteByteMutator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.byte_mutators.DeleteByteMutator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pylibfuzzer.mutators.base.SequenceMutator" title="pylibfuzzer.mutators.base.SequenceMutator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.mutators.base.SequenceMutator</span></code></a></p>
+<dl class="py method">
+<dt id="pylibfuzzer.mutators.byte_mutators.DeleteByteMutator.mutate">
+<code class="sig-name descname">mutate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.byte_mutators.DeleteByteMutator.mutate" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bytearray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.mutators.byte_mutators.SubstituteByteMutator">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.mutators.byte_mutators.</code><code class="sig-name descname">SubstituteByteMutator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.byte_mutators.SubstituteByteMutator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pylibfuzzer.mutators.base.SequenceMutator" title="pylibfuzzer.mutators.base.SequenceMutator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.mutators.base.SequenceMutator</span></code></a></p>
+<dl class="py method">
+<dt id="pylibfuzzer.mutators.byte_mutators.SubstituteByteMutator.mutate">
+<code class="sig-name descname">mutate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.byte_mutators.SubstituteByteMutator.mutate" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bytearray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-pylibfuzzer.mutators">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pylibfuzzer.mutators" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pylibfuzzer.mutators.AddByteMutator">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.mutators.</code><code class="sig-name descname">AddByteMutator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.AddByteMutator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pylibfuzzer.mutators.base.SequenceMutator" title="pylibfuzzer.mutators.base.SequenceMutator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.mutators.base.SequenceMutator</span></code></a></p>
+<dl class="py method">
+<dt id="pylibfuzzer.mutators.AddByteMutator.mutate">
+<code class="sig-name descname">mutate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.AddByteMutator.mutate" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bytearray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.mutators.DeleteByteMutator">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.mutators.</code><code class="sig-name descname">DeleteByteMutator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.DeleteByteMutator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pylibfuzzer.mutators.base.SequenceMutator" title="pylibfuzzer.mutators.base.SequenceMutator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.mutators.base.SequenceMutator</span></code></a></p>
+<dl class="py method">
+<dt id="pylibfuzzer.mutators.DeleteByteMutator.mutate">
+<code class="sig-name descname">mutate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.DeleteByteMutator.mutate" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bytearray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pylibfuzzer.mutators.SubstituteByteMutator">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.mutators.</code><code class="sig-name descname">SubstituteByteMutator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.SubstituteByteMutator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pylibfuzzer.mutators.base.SequenceMutator" title="pylibfuzzer.mutators.base.SequenceMutator"><code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.mutators.base.SequenceMutator</span></code></a></p>
+<dl class="py method">
+<dt id="pylibfuzzer.mutators.SubstituteByteMutator.mutate">
+<code class="sig-name descname">mutate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.mutators.SubstituteByteMutator.mutate" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bytearray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 
