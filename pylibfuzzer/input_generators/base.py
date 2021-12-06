@@ -23,11 +23,11 @@ class BaseFuzzer:
             raise RuntimeError(
                 'please call load_seed() before creating the first input to initialize the internal state')
 
-    def load_seed(self, path):
+    def load_seed(self, paths: List[str]):
         """
         loads all files in the seed to the model
 
-        :param path:
+        :param paths: this is actually a list of strings that refers to a file
         :return:
         """
         pass

@@ -47,11 +47,14 @@ class PCFG:
         self.grammar = {k: self._parse_rules(rules) for k, rules in grammar.items()}
 
     def gen(self, startword) -> bytes:
-
+        # extracting last element of generator:parse_symbols
         symbols = list(self._parse_symbols(startword))[-1]
         # TODO: counting the number of non-terminals and so on is very inefficient.
         while any([isinstance(symb, str) for symb in symbols]):
-            # select first non-terminal
+            # if its a str, its a non-terminal and if its bytes: terminal
+
+            # selecting random non-terminal for expansion (can also take first non-terminal (str))
+            # TODO: How can we store information about indices for NT to reduce runtime?
             idx, nt = choice([(i, x) for i, x in enumerate(symbols) if isinstance(x, str)])
 
             # select random rule to expand
@@ -69,7 +72,7 @@ class PCFG:
             weights = weights / weights.sum(axis=0)
             sub = choices(rules, weights)[-1]
 
-            # calculate
+            # concatenate old parts of symbols with substitution information from above
             symbols = symbols[:idx] + sub + symbols[idx + 1:]
 
         return b''.join(symbols)

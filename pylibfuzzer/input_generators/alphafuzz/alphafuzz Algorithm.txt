@@ -1,0 +1,40 @@
+score(node):
+  if root:
+    return -inf
+  lcbs = set(argmins(parent.treetrace))
+  sv = |node.node_trace ∩ lcbs|
+  return sv/n + sqrt(c ln(parent.n)/n)
+	    
+mutations(node):
+  until sufficient mutants:
+    create mutant
+	mutant.n = 0
+	mutant.node_trace = execute_on_PUT(mutant)
+	mutant.tree_trace = mutant.node_trace
+    if mutant.node_trace ∩ set(root.tree_trace) ≠ ∅:
+		return mutant
+
+---------
+
+
+for seed in seeds:
+  root.children.add(seed)
+root.tree_trace = ⊌_{child \in root.children} child.node_trace
+
+while time budget:
+  // tree policy -> find input to mutate
+  best = curr = root
+  while curr is inner node:
+    curr = argmax_{node \in curr.children} score(node)
+	best = argmax_{node \in {curr, best}} score(node)
+
+  // simulate
+  new_traces = {}
+  for mutant in mutations(best):
+		best.children.add(mutant)
+  		new_traces ⊌= mutant.node_trace
+	  
+  // update
+  for node in "best and its ancestors":
+    node.n += 1
+	node.tree_trace ⊌= new_traces

@@ -1,0 +1,24 @@
+dispatcher:
+  type: SocketMulti
+  addr: /tmp/libfuzzer.sock
+  cmd:
+    - ./jazzer
+    - -oracle=1
+    - --keep-going=100000
+    - --cp=examples_deploy.jar
+    - --target_class=com.example.JsonSanitizerDenylistFuzzer
+  mut_reps: 0
+fuzzer:
+  cls: MCTSFuzzer
+  grammar: grammar.yaml
+  max_iterations: 20000
+  path_cutoff_length: 10
+obs_extractor:
+  type: DirectedCFGReward
+  goal: 0
+  simplify: false
+  theta: exp(2*x)
+  use_pr_weigth: false
+runner:
+  limit: 20000
+seed_files: null

@@ -36,12 +36,12 @@ class Transformer:
     @property
     def input_type(self):
         # check the input type of the transformer
-        return list(self.__call__.__annotations__.values())[0]
+        return list(self.__call__.__annotations__.values())[0]  # noqa
 
     @property
     def output_type(self):
         # check the output type of the transformer
-        return self.__call__.__annotations__['return']
+        return self.__call__.__annotations__['return']  # noqa
 
 
 class Pipeline:
@@ -96,6 +96,9 @@ class Pipeline:
                 for attr in dir(trans):
                     if attr.startswith('__'):
                         continue  # ignore matic methods
+                    # this will overwrite attributes if they exist already.
+                    # this means if two transformers in a pipeline implement the same attribute
+                    # only the one closer to the end of the pipeline will be available
                     self.contained_attr[attr] = getattr(trans, attr)
         try:
             return self.contained_attr.get(item)

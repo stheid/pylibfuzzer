@@ -41,7 +41,6 @@ class SocketDispatcher(BaseDispatcher):
         return self.sock.__exit__(exc_type, exc_val, exc_tb)
 
     def post(self, data: bytes) -> List[bytes]:
-
         datalen = len(data)
         self.sock.sendall(pack('I', datalen) + data)
         logger.debug('Sent file with %dbytes', datalen)

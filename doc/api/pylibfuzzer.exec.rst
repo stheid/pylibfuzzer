@@ -4,19 +4,19 @@ pylibfuzzer.exec package
 Submodules
 ----------
 
-pylibfuzzer.exec.runner module
+pylibfuzzer.exec.dispatcher module
 ------------------------------
 
-.. automodule:: pylibfuzzer.exec.runner
+.. automodule:: pylibfuzzer.exec.dispatcher
    :members:
    :undoc-members:
    :show-inheritance:
 
 
-Module contents
----------------
+pylibfuzzer.exec.runner module
+------------------------------
 
-.. automodule:: pylibfuzzer.exec
+.. automodule:: pylibfuzzer.exec.runner
    :members:
    :undoc-members:
    :show-inheritance:
