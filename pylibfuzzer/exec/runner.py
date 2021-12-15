@@ -9,8 +9,10 @@ from typing import List
 from uuid import uuid1
 
 import click
+import numpy as np
 import tensorflow as tf
 import yaml
+from tqdm import tqdm
 
 import pylibfuzzer.util.dict as dutil
 from pylibfuzzer.exec.dispatcher.base import BaseDispatcher
@@ -54,6 +56,17 @@ class Runner:
         with open(Path(self.logdir) / confname, 'w') as f:
             yaml.dump(config, f)
 
+        # |RUNNER|
+        runner_conf = config.get('runner', dict())
+        self.time_budget = runner_conf.get('time_budget', None)
+        self.limit = runner_conf.get('limit', None)
+        self.do_warmup = runner_conf.get('warmup', True)
+        loglevel = runner_conf.get('loglevel', logging.WARNING)
+        self.corpusdir = runner_conf.get('corpusdir', None)
+        logging.basicConfig(level=loglevel)
+        logger.debug(config)
+        self.rewards = []
+
         # |FUZZER|
         fuzzer_conf = config.get('fuzzer')
 
@@ -63,6 +76,8 @@ class Runner:
         cls = getattr(module, clsname)
 
         # create fuzzer
+        if 'jazzer_cmd' in fuzzer_conf:
+            fuzzer_conf['jazzer_cmd'] += runner_conf['fuzz_target']
         self.input_generator = cls(**fuzzer_conf)  # type: BaseFuzzer
 
         # |DISPATCHER|
@@ -88,6 +103,8 @@ class Runner:
                 f'{self.input_generator} and {self.pipeline} are not compatible. Please check your configuration file.')
 
         # create fuzzer
+        if 'jazzer_cmd' in dispatcher_cfg:
+            dispatcher_cfg['jazzer_cmd'] += runner_conf['fuzz_target']
         self.dispatcher = cls(self, **dispatcher_cfg)  # type: BaseDispatcher
         if self.dispatcher.interfacetype != self.pipeline.input_type:
             raise RuntimeError(
@@ -98,18 +115,6 @@ class Runner:
         # |SEED FILES|
         self.seed_files = config.get('seed_files')
 
-        # |RUNNER|
-        runner_conf = config.get('runner', dict())
-        self.time_budget = runner_conf.get('time_budget', None)
-        self.limit = runner_conf.get('limit', None)
-        self.do_warmup = runner_conf.get('warmup', True)
-        self.corpusdir = runner_conf.get('corpusdir', None)
-        self.cov_extractor = SocketCoverageTransformer()
-        loglevel = runner_conf.get('loglevel', logging.WARNING)
-        logging.basicConfig(level=loglevel)
-        logger.debug(config)
-        self.rewards = []
-
     def run(self):
         # execute the main loop
         self.input_generator.load_seed(self.seed_files)
@@ -117,14 +122,15 @@ class Runner:
         with self.dispatcher as cmd, self.input_generator, self.summarywriter.as_default():
             while not (self.input_generator.done() or self.timeout or self.overiter):
                 # create inputs
-                logger.info('Creating input number %d ', self.i)
+                logger.info('Creating input batch starting with number %d ', self.i)
                 with timer() as elapsed:
                     batch = self.input_generator.create_inputs()
-
                 batchsize = len(batch)
                 tf.summary.scalar('time/create-input', elapsed() / batchsize, step=self.i)
-                for j, file in enumerate(batch):
-                    tf.summary.scalar('input/length', len(file), step=self.i + j)
+
+                file_sizes = np.array([len(file) for file in batch])
+                tf.summary.scalar('input/length-avg', file_sizes.mean(), step=self.i)
+                tf.summary.scalar('input/length-std', file_sizes.std(), step=self.i)
 
                 # execute inputs
                 if self.do_warmup:
@@ -133,9 +139,10 @@ class Runner:
                     cmd.post(batch[0])
                     self.do_warmup = False
 
+                logger.info('Executing input batch starting with number %d ', self.i)
                 results = []
-                for j, data in enumerate(batch):
-                    logger.info('Executing input number %d ', self.i + j)
+                for j, data in enumerate(tqdm(batch)):
+                    logger.debug('Executing input number %d ', self.i + j)
                     with timer() as elapsed:
                         result = cmd.post(data)
                     tf.summary.scalar('time/exec-put', elapsed(), step=self.i + j)

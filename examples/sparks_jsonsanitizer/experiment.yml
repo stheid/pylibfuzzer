@@ -8,9 +8,9 @@ dispatcher:
   # and fuzz results to and from the libfuzzer command
   type: SocketMulti
   # binary created using "./bazelisk-linux-amd64 build //:jazzer_release" in https://github.com/fmeum/jazzer-oracle
-  cmd: [ '../../bin/jazzer/jazzer', '-oracle=1', '--keep-going=100000', '--cp=examples_deploy.jar', '--target_class=com.example.JsonSanitizerDenylistFuzzer' ]
+  jazzer_cmd: [ '../../bin/jazzer/jazzer', '-oracle=1', '--keep-going=100000']
   addr: '/tmp/libfuzzer.sock'
-  mut_reps: 0
+  mut_reps: 10
 
 
 obs_transformation:
@@ -20,3 +20,4 @@ obs_transformation:
 
 runner:
   limit: 10000
+  fuzz_target: [ '--cp=examples_deploy.jar', '--target_class=com.example.JsonSanitizerDenylistFuzzer' ]

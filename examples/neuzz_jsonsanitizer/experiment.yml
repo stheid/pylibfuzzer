@@ -1,8 +1,11 @@
 fuzzer:
-  cls: MCTSFuzzer
-  max_iterations: 10000
-  grammar: grammar.yaml
-  path_cutoff_length: 10
+  cls: NeuzzFuzzer
+  jazzer_cmd: [ '../../bin/jazzer/jazzer', '--keep-going=100000' ]
+  max_input_len: 2000 # 20 kB
+  initial_dataset_len: 10000
+  n_mutation_candidates: 2
+  network: [ 512 ] # [64,64]
+  epochs: 20
 
 dispatcher:
   # dispatches libfuzzer command and handles communication of new fuzzing files
@@ -11,19 +14,12 @@ dispatcher:
   # binary created using "./bazelisk-linux-amd64 build //:jazzer_release" in https://github.com/fmeum/jazzer-oracle
   jazzer_cmd: [ '../../bin/jazzer/jazzer', '-oracle=1', '--keep-going=100000' ]
   addr: '/tmp/libfuzzer.sock'
-  mut_reps: 9
+  mut_reps: 0
 
 
 obs_transformation:
-  - type: SocketCoverage
-  - type: CFGReward
-    path: icfg.json
-
-
-seed_files:
-# paths and files used as seed files for the fuzzer
+  - type: SocketCovArray
 
 runner:
-  # + 6 seed files
-  limit: 10000
+  limit: 1000000
   fuzz_target: [ '--cp=examples_deploy.jar', '--target_class=com.example.JsonSanitizerDenylistFuzzer' ]

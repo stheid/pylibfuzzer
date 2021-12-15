@@ -1,16 +1,16 @@
-numpy~=1.18.1
+numpy~=1.21.5
 scipy~=1.7.2
 numexpr~=2.7
 PyYAML~=5.3.1
 click~=8.0.1
 networkx~=2.5.1
-tensorboard~=2.6
-tensorflow-cpu~=2.6
+tensorboard~=2.7
+tensorflow~=2.7.0
 jpype1~=1.2
 tqdm~=4.62
 dpath~=2.0
 
 setuptools~=54.2.0
-lark~=0.11.3
+#lark~=0.11.3
 treelib~=1.6.1
 pytest~=6.1.2

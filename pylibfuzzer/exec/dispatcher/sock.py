@@ -14,10 +14,9 @@ logger = logging.getLogger(__name__)
 class SocketDispatcher(BaseDispatcher):
     interfacetype = SocketInput
 
-    def __init__(self, runner, cmd, addr):
+    def __init__(self, runner, jazzer_cmd, addr):
+        super().__init__(runner=runner, jazzer_cmd=jazzer_cmd)
         self.i = 0
-        self.runner = runner
-        self.cmd = cmd
         self.addr = addr
 
     def __enter__(self):
@@ -56,8 +55,8 @@ class SocketDispatcher(BaseDispatcher):
 class SocketMultiDispatcher(SocketDispatcher):
     interfacetype = SocketInput
 
-    def __init__(self, runner, cmd, addr, mut_reps):
-        super().__init__(runner=runner, cmd=cmd, addr=addr)
+    def __init__(self, runner, jazzer_cmd, addr, mut_reps):
+        super().__init__(runner=runner, jazzer_cmd=jazzer_cmd, addr=addr)
         self.mut_reps = mut_reps
 
     def post(self, data: bytes) -> List[bytes]:
