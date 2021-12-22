@@ -1,0 +1,100 @@
+[
+  {
+    "_id": "608bc7fef3f6dc5d8e222817",
+    "tags": [
+      "elit"
+    ],
+    "friends": [
+      {
+        "id": 0,
+        "name": "Emilia Harper"
+      }
+    ],
+    "greeting": "Hello, undefined! You have 2 unread messages.",
+    "favoriteFruit": "banana"
+  },
+  {
+    "_id": "608bc7fe5cbd6a6ae2f2b74e",
+    "tags": [
+      "ea"
+    ],
+    "friends": [
+      {
+        "id": 0,
+        "name": "Newman Weiss"
+      }
+    ],
+    "greeting": "Hello, undefined! You have 4 unread messages.",
+    "favoriteFruit": "strawberry"
+  },
+  {
+    "_id": "608bc7fe3a982f03fb691006",
+    "tags": [
+      "excepteur"
+    ],
+    "friends": [
+      {
+        "id": 0,
+        "name": "Lacy Cleveland"
+      }
+    ],
+    "greeting": "Hello, undefined! You have 9 unread messages.",
+    "favoriteFruit": "apple"
+  },
+  {
+    "_id": "608bc7fed4ce4d4adbcde436",
+    "tags": [
+      "eu"
+    ],
+    "friends": [
+      {
+        "id": 0,
+        "name": "Finley Swanson"
+      }
+    ],
+    "greeting": "Hello, undefined! You have 8 unread messages.",
+    "favoriteFruit": "strawberry"
+  },
+  {
+    "_id": "608bc7feb22d2cf81c607f52",
+    "tags": [
+      "dolor"
+    ],
+    "friends": [
+      {
+        "id": 0,
+        "name": "Lynn French"
+      }
+    ],
+    "greeting": "Hello, undefined! You have 4 unread messages.",
+    "favoriteFruit": "banana"
+  },
+  {
+    "_id": "608bc7fe6886b44e2ad9adfd",
+    "tags": [
+      "ipsum"
+    ],
+    "friends": [
+      {
+        "id": 0,
+        "name": "Kimberley Fuentes"
+      }
+    ],
+    "greeting": "Hello, undefined! You have 7 unread messages.",
+    "favoriteFruit": "apple"
+  },
+  {
+    "_id": "608bc7fe4218d8fecc471c7c",
+    "tags": [
+      "fugiat"
+    ],
+    "friends": [
+      {
+        "id": 0,
+        "name": "Franco Riddle"
+      }
+    ],
+    "greeting": "Hello, undefined! You have 8 unread messages.",
+    "favoriteFruit": "apple"
+  }
+]

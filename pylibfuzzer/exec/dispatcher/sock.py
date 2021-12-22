@@ -78,4 +78,7 @@ class SocketMultiDispatcher(SocketDispatcher):
             res.append(self.sock.recv(len_))
             logger.debug('Recieved result of %dbytes', len_)
             logger.debug(res[-1])
+
+        if len(res) == 0:
+            raise RuntimeError(f'PuT did not return any measurements.\nFile:\n{data}')
         return res

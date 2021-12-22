@@ -1,3 +1,4 @@
+import logging
 from collections import Counter
 
 import numpy as np
@@ -5,6 +6,8 @@ from networkx import Graph
 
 from pylibfuzzer.obs_transform.pipeline import Transformer, CovSet, Reward
 from .util import digraph_from_jgrapht
+
+logger = logging.getLogger(__name__)
 
 
 class SparksRewardTransformer(Transformer):
@@ -32,4 +35,9 @@ class SparksRewardTransformer(Transformer):
         non_one_weights = max(1, len(list(filter(lambda x: x < 1, weights))))
 
         # 1/ nth_root(prod(weights)) to normalize the length of the coverage sequence
-        return 1 / np.prod(weights) ** (1 / non_one_weights)
+        ret = 1 / (np.prod(weights) ** (1 / non_one_weights))
+
+        if np.isnan(ret):
+            logger.warning('calculated NaN reward value. Falling back to 0 reward!')
+            return 0
+        return ret

@@ -18,7 +18,6 @@ from pylibfuzzer.obs_transform import Pipeline, Reward
 from pylibfuzzer.util.timer import timer
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 
 @click.command()
@@ -99,10 +98,13 @@ class Runner:
         self.seed_files = config.get('seed_files')
 
         # |RUNNER|
-        runner_conf = {**dict(time_budget=None, limit=None), **config.get('runner', dict())}
-        self.time_budget = runner_conf['time_budget']
-        self.limit = runner_conf['limit']
+        runner_conf = config.get('runner', dict())
+        self.time_budget = runner_conf.get('time_budget', None)
+        self.limit = runner_conf.get('limit', None)
         self.do_warmup = runner_conf.get('warmup', True)
+        loglevel = runner_conf.get('loglevel', logging.WARNING)
+        logging.basicConfig(level=loglevel)
+        logger.debug(config)
         self.rewards = []
 
     def run(self):

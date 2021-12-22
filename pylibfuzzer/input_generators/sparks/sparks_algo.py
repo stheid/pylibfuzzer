@@ -1,3 +1,4 @@
+import logging
 from copy import deepcopy
 from typing import List
 
@@ -7,6 +8,8 @@ from pylibfuzzer.input_generators.base import BaseFuzzer
 from pylibfuzzer.input_generators.sparks import Grammar
 from pylibfuzzer.input_generators.sparks.individual import Individual
 from pylibfuzzer.obs_transform import Reward
+
+logger = logging.getLogger(__name__)
 
 
 class SparksFuzzer(BaseFuzzer):
@@ -52,6 +55,8 @@ class SparksFuzzer(BaseFuzzer):
             # first iteration, so we need to execute the seedfiles!
             return [i.to_pheno() for i in self.population]
         fitnesses = np.array(self.fitnesses)
+        if np.isnan(fitnesses.sum()):
+            logger.error('fittness contains NaN valuess')
 
         # extract elite
         fitnesses_idx = np.argpartition(fitnesses, self.elite_size)
@@ -60,7 +65,7 @@ class SparksFuzzer(BaseFuzzer):
 
         # sample other parent individuals
         non_elite_fittness = (fitnesses[fitnesses_idx[self.elite_size:]]
-                              / fitnesses[fitnesses_idx[self.elite_size:]].sum())
+                              / (fitnesses[fitnesses_idx[self.elite_size:]].sum()))
         rng = np.random.default_rng()
         other_survivors = rng.choice(none_elite, self.survival_size - self.elite_size, replace=False,
                                      p=non_elite_fittness)

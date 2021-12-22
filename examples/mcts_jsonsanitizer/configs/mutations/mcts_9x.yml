@@ -1,0 +1,8 @@
+fuzzer:
+  max_iterations: 2000
+
+dispatcher:
+  mut_reps: 9
+
+runner:
+  limit: 2000
