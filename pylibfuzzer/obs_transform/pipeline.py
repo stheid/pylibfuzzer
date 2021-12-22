@@ -49,13 +49,9 @@ class Pipeline:
     As Transformers can be stateful, Pipelines can be stateful as well
     """
 
-    def __init__(self, pipeline: List[Transformer], agg='mean'):
+    def __init__(self, pipeline: List[Transformer], agg=np.mean):
         self.validate(pipeline)
-        try:
-            getattr(np.array([]), agg)
-            self.agg = agg
-        except AttributeError:
-            raise RuntimeError(f'numpy.array does not know such an aggregation function {agg}')
+        self.agg = agg
         self.pipeline = pipeline or [Transformer()]  # if pipeline empty, set a dummy transformer
         self.contained_attr = None
 
@@ -86,7 +82,8 @@ class Pipeline:
         return observation
 
     def batch_transform(self, observations: list):
-        return getattr(np.array([self.transform(observation) for observation in observations]), self.agg)()
+        return np.apply_over_axes(self.agg, np.array([self.transform(observation) for observation in observations]),
+                                  axes=[0]).squeeze()
 
     def __getattr__(self, item):
         if self.contained_attr is None:
