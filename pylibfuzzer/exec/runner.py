@@ -63,9 +63,11 @@ class Runner:
         self.do_warmup = runner_conf.get('warmup', True)
         loglevel = runner_conf.get('loglevel', logging.WARNING)
         self.corpusdir = runner_conf.get('corpusdir', None)
+        self.cov_extractor = SocketCoverageTransformer()
         logging.basicConfig(level=loglevel)
         logger.debug(config)
         self.rewards = []
+        fuzz_target = runner_conf.get('fuzz_target', [])
 
         # |FUZZER|
         fuzzer_conf = config.get('fuzzer')
@@ -77,7 +79,7 @@ class Runner:
 
         # create fuzzer
         if 'jazzer_cmd' in fuzzer_conf:
-            fuzzer_conf['jazzer_cmd'] += runner_conf['fuzz_target']
+            fuzzer_conf['jazzer_cmd'] += fuzz_target
         self.input_generator = cls(**fuzzer_conf)  # type: BaseFuzzer
 
         # |DISPATCHER|
@@ -104,7 +106,7 @@ class Runner:
 
         # create fuzzer
         if 'jazzer_cmd' in dispatcher_cfg:
-            dispatcher_cfg['jazzer_cmd'] += runner_conf['fuzz_target']
+            dispatcher_cfg['jazzer_cmd'] += fuzz_target
         self.dispatcher = cls(self, **dispatcher_cfg)  # type: BaseDispatcher
         if self.dispatcher.interfacetype != self.pipeline.input_type:
             raise RuntimeError(

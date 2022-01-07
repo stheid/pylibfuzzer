@@ -1,5 +1,7 @@
+import logging
 import math
 
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras import Sequential, backend as K
 from tensorflow.keras.layers import Dense
@@ -7,6 +9,10 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import MeanIoU
 from tensorflow.keras.losses import BinaryCrossentropy
 from tensorflow.keras.callbacks import LearningRateScheduler
+
+from pylibfuzzer.input_generators.neuzz.dataset import Dataset
+
+logger = logging.getLogger(__name__)
 
 
 # learning rate decay
@@ -16,11 +22,15 @@ def step_decay(epoch, initial_lrate=0.001, drop=0.7, epochs_drop=10.0):
 
 
 class LossHistory(tf.keras.callbacks.Callback):
-    def on_train_begin(self, logs={}):
+    def on_train_begin(self, logs=None):
+        if logs is None:
+            logs = {}
         self.losses = []
         self.lr = []
 
-    def on_epoch_end(self, batch, logs={}):
+    def on_epoch_end(self, batch, logs=None):
+        if logs is None:
+            logs = {}
         self.losses.append(logs.get('loss'))
         self.lr.append(step_decay(len(self.losses)))
         print(step_decay(len(self.losses)))
@@ -43,20 +53,22 @@ class NeuzzModel:
         # todo: validate loss function
         self.model.compile(loss=BinaryCrossentropy(from_logits=True), optimizer=Adam(learning_rate=self.lr),
                            metrics=[MeanIoU(num_classes=num_classes)])
-        self.model.summary()
+
+        self.model.summary(print_fn=logger.info)
 
     @property
     def is_model_created(self):
         return self.model is not None
 
-    def train(self, data, val_data):
+    def train(self, data: Dataset, val_data: Dataset):
+        # reset learning rate on each retraining call
         K.set_value(self.model.optimizer.learning_rate, 0.0001)
         self.model.fit(*data,
                        callbacks=[LossHistory(), LearningRateScheduler(step_decay)],
                        epochs=self.epochs, verbose=1, validation_data=tuple(val_data),
                        sample_weight=data.weights)
 
-    def gradient(self, input, modded_y_test):
+    def gradient(self, input: np.ndarray, modded_y_test: np.ndarray):
         input = tf.convert_to_tensor(input.reshape(1, -1), dtype=tf.float32)
         modded_y_test = tf.convert_to_tensor(modded_y_test.reshape(1, -1), dtype=tf.float32)
 
