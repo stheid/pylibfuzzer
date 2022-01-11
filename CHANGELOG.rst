@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.0.5
+-----
+- removed old "pipe" interface for libfuzzer
+- fixed coverage for fuzzbench (writing generated files to a corpus directory)
+
+
 0.0.4
 -----
 - added sparks inspired algorithm https://doi.org/10.1109/ACSAC.2007.27

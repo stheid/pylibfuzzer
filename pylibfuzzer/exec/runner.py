@@ -6,6 +6,7 @@ from glob import glob
 from os.path import isfile
 from pathlib import Path
 from typing import List
+from uuid import uuid1
 
 import click
 import tensorflow as tf
@@ -14,7 +15,7 @@ import yaml
 import pylibfuzzer.util.dict as dutil
 from pylibfuzzer.exec.dispatcher.base import BaseDispatcher
 from pylibfuzzer.input_generators.base import BaseFuzzer
-from pylibfuzzer.obs_transform import Pipeline, Reward
+from pylibfuzzer.obs_transform import Pipeline, Reward, SocketCoverageTransformer
 from pylibfuzzer.util.timer import timer
 
 logger = logging.getLogger(__name__)
@@ -102,6 +103,8 @@ class Runner:
         self.time_budget = runner_conf.get('time_budget', None)
         self.limit = runner_conf.get('limit', None)
         self.do_warmup = runner_conf.get('warmup', True)
+        self.corpusdir = runner_conf.get('corpusdir', None)
+        self.cov_extractor = SocketCoverageTransformer()
         loglevel = runner_conf.get('loglevel', logging.WARNING)
         logging.basicConfig(level=loglevel)
         logger.debug(config)
@@ -134,8 +137,14 @@ class Runner:
                 for j, data in enumerate(batch):
                     logger.info('Executing input number %d ', self.i + j)
                     with timer() as elapsed:
-                        results.append(self.pipeline.batch_transform(cmd.post(data)))
+                        result = cmd.post(data)
                     tf.summary.scalar('time/exec-put', elapsed(), step=self.i + j)
+
+                    self.cov_extractor(result[0])
+                    if self.corpusdir is not None and self.cov_extractor.coverage_increased:
+                        with open(Path(self.corpusdir) / str(uuid1()), 'wb') as f:
+                            f.write(data)
+                    results.append(self.pipeline.batch_transform(result))
 
                 # send observed result to input generator
                 if self.pipeline.output_type == Reward:

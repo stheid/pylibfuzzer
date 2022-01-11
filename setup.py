@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pylibfuzzer',
-    version='0.0.4',
+    version='0.0.5',
     packages=find_packages(include=['pylibfuzzer', 'pylibfuzzer.*']),
     include_package_data=True,
     author='Stefan Heid',

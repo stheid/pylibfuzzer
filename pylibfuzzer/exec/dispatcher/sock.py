@@ -57,7 +57,7 @@ class SocketMultiDispatcher(SocketDispatcher):
     interfacetype = SocketInput
 
     def __init__(self, runner, cmd, addr, mut_reps):
-        super().__init__(runner, cmd, addr)
+        super().__init__(runner=runner, cmd=cmd, addr=addr)
         self.mut_reps = mut_reps
 
     def post(self, data: bytes) -> List[bytes]:
@@ -68,7 +68,6 @@ class SocketMultiDispatcher(SocketDispatcher):
         # input length and input
         self.sock.sendall(pack('I', datalen) + data)
         logger.debug('Sent file with %dbytes', datalen)
-        # logger.debug(data)
 
         # READ FUZZER OBSERVATIONS
         n_coverages = unpack('I', self.sock.recv(4))[0]
