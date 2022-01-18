@@ -259,6 +259,44 @@
 </dd></dl>
 
 <dl class="py class">
+<dt id="pylibfuzzer.input_generators.NeuzzFuzzer">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.input_generators.</code><code class="sig-name descname">NeuzzFuzzer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">jazzer_cmd</span></em>, <em class="sig-param"><span class="n">initial_dataset_len</span></em>, <em class="sig-param"><span class="n">max_input_len</span><span class="o">=</span><span class="default_value">500</span></em>, <em class="sig-param"><span class="n">n_mutation_candidates</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">n_mutation_positions</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">exp</span><span class="o">=</span><span class="default_value">6</span></em>, <em class="sig-param"><span class="n">network</span><span class="o">=</span><span class="default_value">512</span></em>, <em class="sig-param"><span class="n">epochs</span><span class="o">=</span><span class="default_value">10</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.NeuzzFuzzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.input_generators.base.BaseFuzzer</span></code></p>
+<p>This class implements the Neuzz algorithm.</p>
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.NeuzzFuzzer.create_inputs">
+<code class="sig-name descname">create_inputs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.NeuzzFuzzer.create_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p>uses jazzer to create (input,output),</p></li>
+<li><p>trains model using these input</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.NeuzzFuzzer.observe">
+<code class="sig-name descname">observe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fuzzing_result</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.NeuzzFuzzer.observe" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets execution results of the last input batch passed to the PUT.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fuzzing_result</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt id="pylibfuzzer.input_generators.SparksFuzzer">
 <em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.input_generators.</code><code class="sig-name descname">SparksFuzzer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">grammar_path</span></em>, <em class="sig-param"><span class="n">startword</span></em>, <em class="sig-param"><span class="n">population_size</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">elite_fraction</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">survival_rate</span><span class="o">=</span><span class="default_value">0.3</span></em>, <em class="sig-param"><span class="n">crossover_share</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">resample_share</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.SparksFuzzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.input_generators.base.BaseFuzzer</span></code></p>
