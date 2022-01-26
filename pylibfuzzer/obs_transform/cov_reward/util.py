@@ -1,9 +1,17 @@
 import json
+from os.path import isfile
+from time import sleep
 
 import networkx as nx
 
+from pylibfuzzer.util.timer import timer
 
-def digraph_from_jgrapht(path):
+
+def digraph_from_jgrapht(path, wait_for_file=True):
+    with timer() as elapsed:
+        while wait_for_file and not isfile(path) and elapsed() < 30:
+            sleep(1)
+
     with open(path) as f:
         d = json.load(f)
     G = nx.DiGraph()
