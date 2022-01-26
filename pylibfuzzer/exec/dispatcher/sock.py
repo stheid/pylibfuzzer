@@ -3,7 +3,7 @@ import os
 from os.path import exists
 from socket import socket, AF_UNIX, SOCK_STREAM
 from struct import unpack, pack
-from subprocess import Popen, DEVNULL, STDOUT
+from subprocess import Popen
 from typing import List
 
 from pylibfuzzer.obs_transform import SocketInput
@@ -66,8 +66,6 @@ class SocketDispatcher(BaseDispatcher):
 
 
 class SocketMultiDispatcher(SocketDispatcher):
-    interfacetype = SocketInput
-
     def __init__(self, runner, jazzer_cmd, workdir, sock_addr, mut_reps, log_file=None):
         super().__init__(runner=runner, jazzer_cmd=jazzer_cmd, workdir=workdir, sock_addr=sock_addr, log_file=log_file)
         self.mut_reps = mut_reps
@@ -91,6 +89,49 @@ class SocketMultiDispatcher(SocketDispatcher):
         for i in range(n_coverages):
             len_ = unpack('I', self.conn.recv(4))[0]
             res.append(self.conn.recv(len_))
+            logger.debug('Recieved result of %dbytes', len_)
+            if self.return_size is None:
+                self.return_size = len(res[0])
+
+        if len(res) == 0:
+            if self.return_size is not None:
+                logger.warning(
+                    'return value was emtpy, setting to coverage to 0ed bytes of same length as general return values')
+                logger.debug(f'File that caused the zero coverage:\n{data}')
+                res = [bytes(bytearray(self.return_size))]
+            else:
+                raise RuntimeError(f'PuT did not return any measurements in first iteration.\nFile:\n{data}')
+        return res
+
+
+class SocketInitialMultiDispatcher(SocketDispatcher):
+    def __init__(self, runner, jazzer_cmd, workdir, sock_addr, jazzer_iter, log_file=None):
+        super().__init__(runner=runner, jazzer_cmd=jazzer_cmd,  workdir=workdir, sock_addr=sock_addr, log_file=log_file)
+        self.jazzer_iter = jazzer_iter
+        self.return_size = None
+        self.warmup = True
+
+    def post(self, data: bytes) -> List[bytes]:
+        # SEND INPUT
+        datalen = len(data)
+        if self.warmup == True:
+            self.warmup = False
+            n = self.jazzer_iter
+        else:
+            n = 0
+
+        # mutation repetions
+        self.sock.sendall(pack('I', n))
+        # input length and input
+        self.sock.sendall(pack('I', datalen) + data)
+        logger.debug('Sent file with %dbytes', datalen)
+
+        # READ FUZZER OBSERVATIONS
+        n_coverages = unpack('I', self.sock.recv(4))[0]
+        res = []
+        for i in range(n_coverages):
+            len_ = unpack('I', self.sock.recv(4))[0]
+            res.append(self.sock.recv(len_))
             logger.debug('Recieved result of %dbytes', len_)
             if self.return_size is None:
                 self.return_size = len(res[0])
