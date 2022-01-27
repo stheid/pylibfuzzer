@@ -6,6 +6,7 @@ from time import sleep
 from typing import List
 
 from pylibfuzzer.obs_transform import SocketInput
+from pylibfuzzer.util.timer import timer
 from .base import BaseDispatcher
 
 logger = logging.getLogger(__name__)
@@ -24,17 +25,19 @@ class SocketDispatcher(BaseDispatcher):
         self.proc = Popen(self.cmd, stdout=DEVNULL, stderr=DEVNULL)
         self.sock = socket(AF_UNIX, SOCK_STREAM)
         self.sock.__enter__()
-        while True:
-            try:
-                self.sock.connect(self.addr)
-                logger.info('Starting Fuzzing')
-                return self
-            except ConnectionRefusedError:
-                # wait and retry
-                sleep(.1)
-            except FileNotFoundError:
-                print('Server (libfuzzer) not yet started. Retrying in 1s...')
-                sleep(1)
+        with timer() as elapsed:
+            while True:
+                try:
+                    self.sock.connect(self.addr)
+                    logger.info('Starting Fuzzing')
+                    return self
+                except ConnectionRefusedError:
+                    # wait and retry
+                    print(f'Waiting for {self.addr} to accept connections ({elapsed():.1f}s)', end='\r')
+                    sleep(.1)
+                except FileNotFoundError:
+                    print(f'Waiting for {self.addr} to appear ({elapsed():.1f}s)', end='\r')
+                    sleep(.1)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         return self.sock.__exit__(exc_type, exc_val, exc_tb)
