@@ -107,6 +107,8 @@ class Runner:
         # create fuzzer
         if 'jazzer_cmd' in dispatcher_cfg:
             dispatcher_cfg['jazzer_cmd'] += fuzz_target
+        if 'log_file' in dispatcher_cfg:
+            dispatcher_cfg['log_file'] = Path(self.logdir) / dispatcher_cfg['log_file']
         self.dispatcher = cls(self, **dispatcher_cfg)  # type: BaseDispatcher
         if self.dispatcher.interfacetype != self.pipeline.input_type:
             raise RuntimeError(

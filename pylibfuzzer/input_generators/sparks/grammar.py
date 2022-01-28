@@ -50,6 +50,9 @@ class Grammar:
     @staticmethod
     def parse_symbols(rule: str) -> Tuple[Union[Nonterminal, Terminal]]:
         elements = rule.split()
+        # epsilon rules break things
+        if len(elements) == 0:
+            elements = ['""']
         if len(elements) == 3 and '.' == elements[1]:
             try:
                 expanded = range(ord(elements[0][1:-1]), ord(elements[2][1:-1]) + 1)

@@ -47,9 +47,10 @@ class Individual:
         tree = Tree()
         node = Node(startword)
         tree.add_node(node)
-        NTs = [node.identifier]
+        NTs = {node.identifier}
         nt_refs = defaultdict(list)  # type: Dict[Nonterminal, List[str]]
-        for nt_node in NTs:
+        while NTs:
+            nt_node = NTs.pop()
             nt = tree.get_node(nt_node).tag
             nt_refs[nt].append(nt_node)
 
@@ -71,7 +72,7 @@ class Individual:
             for elem in sub:
                 node = Node(elem)
                 if isinstance(elem, Nonterminal):
-                    NTs.append(node.identifier)
+                    NTs.add(node.identifier)
                 tree.add_node(node, nt_node)
         return tree, nt_refs
 
@@ -94,6 +95,7 @@ class Individual:
         for node in tree.expand_tree(sorting=False):
             node = tree.get_node(node)
             if node.is_leaf():
+            # if type(node.tag) != Nonterminal:
                 pheno += node.tag.encode()
         return pheno
 

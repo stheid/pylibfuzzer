@@ -56,7 +56,7 @@ class SparksFuzzer(BaseFuzzer):
             return [i.to_pheno() for i in self.population]
         fitnesses = np.array(self.fitnesses)
         if np.isnan(fitnesses.sum()):
-            logger.error('fittness contains NaN valuess')
+            logger.error('fittness contains NaN values')
 
         # extract elite
         fitnesses_idx = np.argpartition(fitnesses, self.elite_size)

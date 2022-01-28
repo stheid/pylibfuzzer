@@ -133,6 +133,19 @@ def test_crossover1(grammar, tree1, tree2):
     indiv1.crossover(indiv2)
     assert str(indiv1.tree) == str(tree2)
 
+def test_generatesubtree(grammar):
+    # tree should not have NTs as leaves
+    indiv1 = Individual(grammar=grammar)
+    tree = indiv1.tree
+    for node in tree.expand_tree(sorting=False):
+        node = tree.get_node(node)
+        if node.is_leaf() and isinstance(node.tag, Nonterminal):
+            print(tree)
+            assert False
+    print(tree)
+    assert True
+
+
 
 def test_crossover2(grammar, tree1, tree3):
     indiv1 = Individual(grammar=grammar, tree=tree1)
