@@ -14,14 +14,18 @@ logger = logging.getLogger(__name__)
 class SocketDispatcher(BaseDispatcher):
     interfacetype = SocketInput
 
-    def __init__(self, runner, jazzer_cmd, addr):
+    def __init__(self, runner, jazzer_cmd, addr, log_file=None):
         super().__init__(runner=runner, jazzer_cmd=jazzer_cmd)
         self.i = 0
         self.addr = addr
+        self.log_file = None
+        self.jazzer_log_name = log_file
 
     def __enter__(self):
         logger.info('Starting %s', self.cmd)
-        self.proc = Popen(self.cmd, stdout=DEVNULL, stderr=DEVNULL)
+        if self.jazzer_log_name is not None:
+            self.log_file = open(self.jazzer_log_name, 'w')
+        self.proc = Popen(self.cmd, stdout=self.log_file, stderr=self.log_file)
         self.sock = socket(AF_UNIX, SOCK_STREAM)
         self.sock.__enter__()
         while True:
@@ -37,6 +41,8 @@ class SocketDispatcher(BaseDispatcher):
                 sleep(1)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.jazzer_log_name is not None:
+            self.log_file.close()
         return self.sock.__exit__(exc_type, exc_val, exc_tb)
 
     def post(self, data: bytes) -> List[bytes]:
@@ -55,8 +61,8 @@ class SocketDispatcher(BaseDispatcher):
 class SocketMultiDispatcher(SocketDispatcher):
     interfacetype = SocketInput
 
-    def __init__(self, runner, jazzer_cmd, addr, mut_reps):
-        super().__init__(runner=runner, jazzer_cmd=jazzer_cmd, addr=addr)
+    def __init__(self, runner, jazzer_cmd, addr, mut_reps, log_file=None):
+        super().__init__(runner=runner, jazzer_cmd=jazzer_cmd, addr=addr, log_file=log_file)
         self.mut_reps = mut_reps
         self.return_size = None
 
