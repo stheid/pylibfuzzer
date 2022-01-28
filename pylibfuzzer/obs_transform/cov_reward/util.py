@@ -7,11 +7,12 @@ import networkx as nx
 from pylibfuzzer.util.timer import timer
 
 
-def digraph_from_jgrapht(path, wait_for_file=True):
+def digraph_from_jgrapht(path, onbusy_callback=lambda: None, wait_for_file=True):
     with timer() as elapsed:
-        while wait_for_file and not isfile(path) and elapsed() < 30:
+        while wait_for_file and not isfile(path):
             print(f'Waiting for {path} to appear ({elapsed():.1f}s)', end='\r')
             sleep(.1)
+            onbusy_callback()
 
     with open(path) as f:
         d = json.load(f)

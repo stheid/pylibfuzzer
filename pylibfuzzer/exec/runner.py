@@ -41,10 +41,10 @@ class Runner:
         def read_config(conf):
             with open(conf, 'r') as stream:
                 try:
-                    config = yaml.safe_load(stream)
+                    config_ = yaml.safe_load(stream)
                 except yaml.YAMLError as exc:
                     print(exc)
-            return config
+            return config_
 
         if isinstance(configs, str):
             configs = [configs]
@@ -53,8 +53,8 @@ class Runner:
 
         confname = ';'.join(configs)
         # EXPORTING needs to take place before elements are popd out below
-        self.logdir = f'logs/{datetime.now().strftime("%Y.%m.%d-%H:%M:%S.%f")} ' + (suffix or confname)
-        self.summarywriter = tf.summary.create_file_writer(self.logdir)
+        self.logdir = Path('logs') / f'{datetime.now().strftime("%Y.%m.%d-%H:%M:%S.%f")} {suffix or confname}'
+        self.summarywriter = tf.summary.create_file_writer(str(self.logdir))
         with open(Path(self.logdir) / confname, 'w') as f:
             yaml.dump(config, f)
 
@@ -69,7 +69,7 @@ class Runner:
         logging.basicConfig(level=loglevel)
         logger.debug(config)
         self.rewards = []
-        self.dataset_file_prefix = runner_conf.get('dataset_file_prefix', None)
+        self.export_data = runner_conf.get('export_data', False)
         fuzz_target = runner_conf.get('fuzz_target', [])
 
         # |FUZZER|
@@ -123,6 +123,12 @@ class Runner:
         with self.dispatcher as cmd, self.input_generator, self.summarywriter.as_default(), \
                 TemporaryDirectory() as dataset_dir, tqdm(total=self.limit) as pbar:
             while not (self.input_generator.done() or self.timeout or self.overiter):
+                def poll_jazzer():
+                    if cmd.proc.poll() is not None:
+                        raise RuntimeError("jazzer died")
+
+                self.pipeline.prepare(onbusy_callback=poll_jazzer)
+
                 # create inputs
                 logger.info('Creating input batch starting with number %d ', self.i)
                 with timer() as elapsed:
@@ -161,7 +167,7 @@ class Runner:
                                 f.write(created_input)
                     results.append(self.pipeline.batch_transform(result))
 
-                    if self.dataset_file_prefix is not None:
+                    if self.export_data:
                         logger.debug("Exporting input number %d", idx)
                         with open(Path(dataset_dir) / f"input_{idx}", 'wb') as f:
                             f.write(created_input)
@@ -180,9 +186,9 @@ class Runner:
                 with open('cov.json', 'w') as f:
                     json.dump(list(self.pipeline.total_coverage), f)
 
-            if self.dataset_file_prefix is not None:
+            if self.export_data:
                 logger.info('Compressing the dataset into a zip archive')
-                shutil.make_archive(f'{self.dataset_file_prefix} – {datetime.now()}', 'zip', dataset_dir)
+                shutil.make_archive(str(self.logdir / 'dataset'), 'zip', dataset_dir)
 
     @property
     def seed_files(self):

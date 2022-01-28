@@ -23,6 +23,9 @@ class Transformer:
     def __call__(self, data: Any) -> Any:
         return data
 
+    def prepare(self, onbusy_callback=lambda: None):
+        pass
+
     @property
     def input_type(self):
         # check the input type of the transformer
@@ -44,6 +47,10 @@ class Pipeline:
         self.agg = agg
         self.pipeline = pipeline or [Transformer()]  # if pipeline empty, set a dummy transformer
         self.contained_attr = None
+
+    def prepare(self, onbusy_callback=lambda: None):
+        for trans in self.pipeline:
+            trans.prepare(onbusy_callback)
 
     @staticmethod
     def validate(pipeline):

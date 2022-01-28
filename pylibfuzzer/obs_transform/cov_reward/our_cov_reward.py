@@ -9,8 +9,12 @@ from .util import digraph_from_jgrapht
 class CFGRewardTransformer(Transformer):
     def __init__(self, path='icfg.json'):
         super().__init__()
-        self.G = digraph_from_jgrapht(path)
+        self.path = path
+        self.ranks = None
+        self.G = None
 
+    def prepare(self, onbusy_callback=lambda: None):
+        self.G = digraph_from_jgrapht(self.path, onbusy_callback)
         self.ranks = nx.pagerank(self.G)
 
     def __call__(self, data: CovSet) -> Reward:

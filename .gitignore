@@ -1,8 +1,7 @@
 /.idea/
 /doc/_build/
 .ipynb_checkpoints/
+/.pytest_cache/
 /examples/*/cov.json
 /examples/*/ailibs.log
 /examples/*/logs*
-/.pytest_cache/
-/examples/*/dataset*.zip
