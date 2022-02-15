@@ -83,33 +83,25 @@ class SocketMultiDispatcher(SocketDispatcher):
         logger.debug('Sent file with %dbytes', datalen)
 
         # READ FUZZER OBSERVATIONS
-        try:
-            n_coverages = unpack('I', self.conn.recv(4))[0]
-            if n_coverages != self.mut_reps + 1:
-                logger.debug(
-                    f'Received {n_coverages} coverages, but requested {self.mut_reps} repetitions plus the generated input')
-            res = []
-            for i in range(n_coverages):
-                len_ = unpack('I', self.conn.recv(4))[0]
-                res.append(self.conn.recv(len_))
-                logger.debug('Recieved result of %dbytes', len_)
-                if self.return_size is None:
-                    self.return_size = len(res[0])
+        n_coverages = unpack('I', self.conn.recv(4))[0]
+        if n_coverages != self.mut_reps + 1:
+            logger.debug(
+                f'Received {n_coverages} coverages, but requested {self.mut_reps} repetitions plus the generated input')
+        res = []
+        for i in range(n_coverages):
+            len_ = unpack('I', self.conn.recv(4))[0]
+            res.append(self.conn.recv(len_))
+            logger.debug('Recieved result of %dbytes', len_)
+            if self.return_size is None:
+                self.return_size = len(res[0])
 
-            if len(res) == 0:
-                if self.return_size is not None:
-                    logger.warning(
-                        'return value was emtpy, setting to coverage to 0ed bytes of same length as general return values')
-                    logger.debug(f'File that caused the zero coverage:\n{data}')
-                    res = [bytes(bytearray(self.return_size))]
-                else:
-                    raise RuntimeError(f'PuT did not return any measurements in first iteration.\nFile:\n{data}')
-            return res
-        except ConnectionResetError as e:
-            logger.warning("Connection reset by Peer")
-            self.__exit__(None, None, None)
-            self.__create_socket()
-            # connection reset now, so retrying post
-            return self.post(data)
-
+        if len(res) == 0:
+            if self.return_size is not None:
+                logger.warning(
+                    'return value was emtpy, setting to coverage to 0ed bytes of same length as general return values')
+                logger.debug(f'File that caused the zero coverage:\n{data}')
+                res = [bytes(bytearray(self.return_size))]
+            else:
+                raise RuntimeError(f'PuT did not return any measurements in first iteration.\nFile:\n{data}')
+        return res
 
