@@ -12,7 +12,7 @@ dispatcher:
   # and fuzz results to and from the libfuzzer command
   type: SocketMulti
   # binary created using "./bazelisk-linux-amd64 build //:jazzer_release" in https://github.com/fmeum/jazzer-oracle
-  jazzer_cmd: [ '../../bin/jazzer/jazzer', '-oracle=1', '--keep-going=100000' ]
+  jazzer_cmd: [ '../../bin/jazzer/jazzer', '-oracle=1', '--keep-going=100000', '-timeout=0' ]
   addr: '/tmp/libfuzzer.sock'
   mut_reps: 0
 
