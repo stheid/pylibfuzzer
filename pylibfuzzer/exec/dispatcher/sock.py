@@ -3,7 +3,7 @@ import os
 from os.path import exists
 from socket import socket, AF_UNIX, SOCK_STREAM
 from struct import unpack, pack
-from subprocess import Popen
+from subprocess import Popen, DEVNULL, STDOUT
 from typing import List
 
 from pylibfuzzer.obs_transform import SocketInput
@@ -27,7 +27,7 @@ class SocketDispatcher(BaseDispatcher):
             self.log_file = open(self.jazzer_log_name, 'w')
         self.sock = socket(AF_UNIX, SOCK_STREAM, proto=0)
         if exists(self.addr):
-            logger.info("Address already exists, removing ...")
+            logger.info("Address already exists, removing ... %s", self.addr)
             os.remove(self.addr)
         self.sock.bind(self.addr)
         self.sock.listen(1)

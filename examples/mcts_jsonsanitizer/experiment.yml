@@ -27,3 +27,4 @@ runner:
   # + 6 seed files
   limit: 500000
   fuzz_target: [ '--cp=examples_deploy.jar', '--target_class=com.example.JsonSanitizerDenylistFuzzer' ]
+#  dataset_file_prefix: dataset
