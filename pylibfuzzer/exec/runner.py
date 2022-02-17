@@ -121,14 +121,14 @@ class Runner:
         # execute the main loop
         self.input_generator.load_seed(self.seed_files)
         with self.dispatcher as cmd, self.input_generator, self.summarywriter.as_default(), \
-                TemporaryDirectory() as dataset_dir:
+                TemporaryDirectory() as dataset_dir, tqdm(total=self.limit) as pbar:
             while not (self.input_generator.done() or self.timeout or self.overiter):
-
                 # create inputs
                 logger.info('Creating input batch starting with number %d ', self.i)
                 with timer() as elapsed:
                     batch = self.input_generator.create_inputs()
                 batchsize = len(batch)
+                pbar.update(batchsize)
                 tf.summary.scalar('time/create-input', elapsed() / batchsize, step=self.i)
 
                 file_sizes = np.array([len(file) for file in batch])
@@ -144,7 +144,7 @@ class Runner:
 
                 logger.info('Executing input batch starting with number %d ', self.i)
                 results = []
-                for j, created_input in enumerate(tqdm(batch)):
+                for j, created_input in enumerate(tqdm(batch, disable=len(batch) == 1, leave=False)):
                     idx = self.i + j
                     logger.debug('Executing input number %d ', idx)
                     with timer() as elapsed:
@@ -154,9 +154,11 @@ class Runner:
                     # all the other entries in results are from multi-exec and not under our control.
                     created_input_cov = result[0]
                     self.cov_extractor(created_input_cov)
-                    if self.corpusdir is not None and self.cov_extractor.coverage_increased:
-                        with open(Path(self.corpusdir) / str(uuid1()), 'wb') as f:
-                            f.write(created_input)
+                    if self.cov_extractor.coverage_increased:
+                        tf.summary.scalar('out/coverage', len(self.cov_extractor.total_coverage), step=idx)
+                        if self.corpusdir is not None:
+                            with open(Path(self.corpusdir) / str(uuid1()), 'wb') as f:
+                                f.write(created_input)
                     results.append(self.pipeline.batch_transform(result))
 
                     if self.dataset_file_prefix is not None:

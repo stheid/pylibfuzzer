@@ -22,6 +22,5 @@ obs_transformation:
 
 runner:
   limit: 10000000
-  fuzz_target: [ '--cp=examples_deploy.jar', '--target_class=com.example.JsonSanitizerDenylistFuzzer' ]
-  loglevel: 20
+#  loglevel: 20
 #  dataset_file_prefix: dataset

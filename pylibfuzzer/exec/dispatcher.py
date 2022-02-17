@@ -90,3 +90,46 @@ class MultiDispatcher(Dispatcher):
             else:
                 raise RuntimeError(f'PuT did not return any measurements in first iteration.\nFile:\n{data}')
         return res
+
+
+class InitialMultiDispatcher(Dispatcher):
+    def __init__(self, runner, jazzer_cmd, workdir, sock_addr, jazzer_iter, logfile=None):
+        super().__init__(runner=runner, jazzer_cmd=jazzer_cmd,  workdir=workdir, sock_addr=sock_addr, logfile=logfile)
+        self.jazzer_iter = jazzer_iter
+        self.return_size = None
+        self.warmup = True
+
+    def post(self, data: bytes) -> List[bytes]:
+        # SEND INPUT
+        datalen = len(data)
+        if self.warmup == True:
+            self.warmup = False
+            n = self.jazzer_iter
+        else:
+            n = 0
+
+        # mutation repetions
+        self.sock.sendall(pack('I', n))
+        # input length and input
+        self.sock.sendall(pack('I', datalen) + data)
+        logger.debug('Sent file with %dbytes', datalen)
+
+        # READ FUZZER OBSERVATIONS
+        n_coverages = unpack('I', self.sock.recv(4))[0]
+        res = []
+        for i in range(n_coverages):
+            len_ = unpack('I', self.sock.recv(4))[0]
+            res.append(self.sock.recv(len_))
+            logger.debug('Recieved result of %dbytes', len_)
+            if self.return_size is None:
+                self.return_size = len(res[0])
+
+        if len(res) == 0:
+            if self.return_size is not None:
+                logger.warning(
+                    'return value was emtpy, setting to coverage to 0ed bytes of same length as general return values')
+                logger.debug(f'File that caused the zero coverage:\n{data}')
+                res = [bytes(bytearray(self.return_size))]
+            else:
+                raise RuntimeError(f'PuT did not return any measurements in first iteration.\nFile:\n{data}')
+        return res
