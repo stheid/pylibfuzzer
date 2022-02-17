@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.0.6
+-----
+- allow for dataset export
+- changed build process of the jazzer dependency to get rid of precompiled binaries (examples updated)
+
 0.0.5
 -----
 - removed old "pipe" interface for libfuzzer
