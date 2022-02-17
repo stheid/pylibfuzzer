@@ -3,16 +3,6 @@ from typing import Any, List, Set
 
 import numpy as np
 
-
-# Type aliases for pipeline interfaces
-class PipeInput(bytes):
-    pass  # observations from the old pipe interface with libfuzzer
-
-
-class SocketInput(bytes):
-    pass  # observations from the new socket interface with libfuzzer
-
-
 CovSet = Set[int]  # set of coverage ids
 Reward = float
 
@@ -67,11 +57,6 @@ class Pipeline:
                     f'"{trans1.output_type}" != "{trans2.input_type}"')
 
     @property
-    def input_type(self):
-        # check the input type of the first transformer
-        return self.pipeline[0].input_type
-
-    @property
     def output_type(self):
         # check the output type of the last transformer
         return self.pipeline[-1].output_type
@@ -101,7 +86,3 @@ class Pipeline:
             return self.contained_attr.get(item)
         except KeyError:
             raise AttributeError(f'No element in {self.pipeline} contains the attribute {item}')
-
-
-if __name__ == '__main__':
-    print(Pipeline([]).output_type)

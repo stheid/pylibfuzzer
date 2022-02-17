@@ -1,7 +1,6 @@
 import importlib
 import json
 import logging
-import os
 import shutil
 from datetime import datetime
 from glob import glob
@@ -18,7 +17,7 @@ import yaml
 from tqdm import tqdm
 
 import pylibfuzzer.util.dict as dutil
-from pylibfuzzer.exec.dispatcher.base import BaseDispatcher
+from pylibfuzzer.exec.dispatcher import Dispatcher
 from pylibfuzzer.input_generators.base import BaseFuzzer
 from pylibfuzzer.obs_transform import Pipeline, Reward, SocketCoverageTransformer
 from pylibfuzzer.util.timer import timer
@@ -111,14 +110,9 @@ class Runner:
         # create fuzzer
         if 'jazzer_cmd' in dispatcher_cfg:
             dispatcher_cfg['jazzer_cmd'] += fuzz_target
-        if 'log_file' in dispatcher_cfg:
-            dispatcher_cfg['log_file'] = Path(self.logdir) / dispatcher_cfg['log_file']
-        self.dispatcher = cls(self, **dispatcher_cfg)  # type: BaseDispatcher
-        if self.dispatcher.interfacetype != self.pipeline.input_type:
-            raise RuntimeError(
-                f'{self.dispatcher.__class__} and {self.pipeline.__class__} are not compatible'
-                f' ({self.dispatcher.interfacetype} != {self.pipeline.input_type}).'
-                f' Please check your configuration file.')
+        if 'logfile' in dispatcher_cfg:
+            dispatcher_cfg['logfile'] = Path(self.logdir) / dispatcher_cfg['logfile']
+        self.dispatcher = cls(self, **dispatcher_cfg)  # type: Dispatcher
 
         # |SEED FILES|
         self.seed_files = config.get('seed_files')
@@ -126,7 +120,8 @@ class Runner:
     def run(self):
         # execute the main loop
         self.input_generator.load_seed(self.seed_files)
-        with self.dispatcher as cmd, self.input_generator, self.summarywriter.as_default(), TemporaryDirectory() as dataset_dir:
+        with self.dispatcher as cmd, self.input_generator, self.summarywriter.as_default(), \
+                TemporaryDirectory() as dataset_dir:
             while not (self.input_generator.done() or self.timeout or self.overiter):
 
                 # create inputs

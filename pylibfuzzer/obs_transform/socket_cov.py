@@ -2,7 +2,7 @@ from struct import iter_unpack
 
 import numpy as np
 
-from .pipeline import Transformer, CovSet, SocketInput
+from .pipeline import Transformer, CovSet
 
 
 class SocketCoverageTransformer(Transformer):
@@ -10,7 +10,7 @@ class SocketCoverageTransformer(Transformer):
         self.total_coverage = set()
         self.coverage_increased = False
 
-    def __call__(self, b: SocketInput) -> CovSet:
+    def __call__(self, b) -> CovSet:
         covered_branches = set(
             map(int,
                 np.nonzero(

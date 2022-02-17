@@ -3,24 +3,21 @@ import os
 from os.path import exists
 from socket import socket, AF_UNIX, SOCK_STREAM
 from struct import unpack, pack
-from subprocess import Popen, DEVNULL, STDOUT
+from subprocess import Popen
 from typing import List
-
-from pylibfuzzer.obs_transform import SocketInput
-from .base import BaseDispatcher
 
 logger = logging.getLogger(__name__)
 
 
-class SocketDispatcher(BaseDispatcher):
-    interfacetype = SocketInput
-
-    def __init__(self, runner, jazzer_cmd, workdir, sock_addr, log_file=None):
-        super().__init__(runner=runner, jazzer_cmd=jazzer_cmd, workdir=workdir)
+class Dispatcher:
+    def __init__(self, runner, jazzer_cmd, workdir, sock_addr, logfile=None):
         self.i = 0
+        self.runner = runner
+        self.cmd = jazzer_cmd
+        self.workdir = workdir
         self.addr = sock_addr
         self.log_file = None
-        self.jazzer_log_name = log_file
+        self.jazzer_log_name = logfile
 
     def __create_socket(self):
         if self.jazzer_log_name is not None:
@@ -53,23 +50,12 @@ class SocketDispatcher(BaseDispatcher):
         os.remove(self.addr)
 
     def post(self, data: bytes) -> List[bytes]:
-        self.log_file.flush()
-        datalen = len(data)
-        self.conn.sendall(pack('I', datalen) + data)
-        logger.debug('Sent file with %dbytes', datalen)
-
-        len_ = unpack('I', self.sock.recv(4))[0]
-        res = self.conn.recv(len_)
-        logger.debug('Recieved result of %dbytes', len_)
-        logger.debug(res)
-        return [res]
+        pass
 
 
-class SocketMultiDispatcher(SocketDispatcher):
-    interfacetype = SocketInput
-
-    def __init__(self, runner, jazzer_cmd, workdir, sock_addr, mut_reps, log_file=None):
-        super().__init__(runner=runner, jazzer_cmd=jazzer_cmd, workdir=workdir, sock_addr=sock_addr, log_file=log_file)
+class MultiDispatcher(Dispatcher):
+    def __init__(self, runner, jazzer_cmd, workdir, sock_addr, mut_reps, logfile=None):
+        super().__init__(runner=runner, jazzer_cmd=jazzer_cmd, workdir=workdir, sock_addr=sock_addr, logfile=logfile)
         self.mut_reps = mut_reps
         self.return_size = None
 
