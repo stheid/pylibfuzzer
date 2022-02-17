@@ -1,0 +1,3 @@
+[submodule "jazzer"]
+	path = jazzer
+	url = https://github.com/stheid/jazzer

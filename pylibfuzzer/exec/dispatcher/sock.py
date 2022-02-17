@@ -15,10 +15,10 @@ logger = logging.getLogger(__name__)
 class SocketDispatcher(BaseDispatcher):
     interfacetype = SocketInput
 
-    def __init__(self, runner, jazzer_cmd, addr, log_file=None):
-        super().__init__(runner=runner, jazzer_cmd=jazzer_cmd)
+    def __init__(self, runner, jazzer_cmd, workdir, sock_addr, log_file=None):
+        super().__init__(runner=runner, jazzer_cmd=jazzer_cmd, workdir=workdir)
         self.i = 0
-        self.addr = addr
+        self.addr = sock_addr
         self.log_file = None
         self.jazzer_log_name = log_file
 
@@ -32,7 +32,7 @@ class SocketDispatcher(BaseDispatcher):
         self.sock.bind(self.addr)
         self.sock.listen(1)
         # client connection - jazzer
-        self.proc = Popen(self.cmd, stdout=self.log_file, stderr=self.log_file)
+        self.proc = Popen(self.cmd, cwd=self.workdir, stdout=self.log_file, stderr=self.log_file)
         # accept connection from client
         self.conn, _ = self.sock.accept()
 
@@ -68,8 +68,8 @@ class SocketDispatcher(BaseDispatcher):
 class SocketMultiDispatcher(SocketDispatcher):
     interfacetype = SocketInput
 
-    def __init__(self, runner, jazzer_cmd, addr, mut_reps, log_file=None):
-        super().__init__(runner=runner, jazzer_cmd=jazzer_cmd, addr=addr, log_file=log_file)
+    def __init__(self, runner, jazzer_cmd, workdir, sock_addr, mut_reps, log_file=None):
+        super().__init__(runner=runner, jazzer_cmd=jazzer_cmd, workdir=workdir, sock_addr=sock_addr, log_file=log_file)
         self.mut_reps = mut_reps
         self.return_size = None
 
@@ -104,4 +104,3 @@ class SocketMultiDispatcher(SocketDispatcher):
             else:
                 raise RuntimeError(f'PuT did not return any measurements in first iteration.\nFile:\n{data}')
         return res
-

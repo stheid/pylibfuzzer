@@ -1,3 +1,8 @@
 /.idea/
 /doc/_build/
-/examples/jazzer_fastjson/ailibs.log
+.ipynb_checkpoints/
+/examples/*/cov.json
+/examples/*/ailibs.log
+/examples/*/logs*
+/.pytest_cache/
+/examples/*/dataset*.zip
