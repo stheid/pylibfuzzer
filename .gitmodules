@@ -1,3 +1,6 @@
 [submodule "jazzer"]
 	path = jazzer
 	url = https://github.com/stheid/jazzer
+[submodule "pylibfuzzer/input_generators/MCTS/mcts-fuzzer"]
+	path = pylibfuzzer/input_generators/MCTS/mcts-fuzzer
+	url = https://github.com/stheid/mcts-fuzzer

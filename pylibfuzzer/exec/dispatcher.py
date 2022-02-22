@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class Dispatcher:
-    def __init__(self, runner, jazzer_cmd, workdir, sock_addr, logfile=None):
+    def __init__(self, runner, jazzer_cmd, sock_addr, workdir='.', logfile=None):
         self.i = 0
         self.runner = runner
         self.cmd = jazzer_cmd
@@ -54,7 +54,7 @@ class Dispatcher:
 
 
 class MultiDispatcher(Dispatcher):
-    def __init__(self, runner, jazzer_cmd, workdir, sock_addr, mut_reps, logfile=None):
+    def __init__(self, runner, jazzer_cmd, sock_addr, mut_reps, workdir='.', logfile=None):
         super().__init__(runner=runner, jazzer_cmd=jazzer_cmd, workdir=workdir, sock_addr=sock_addr, logfile=logfile)
         self.mut_reps = mut_reps
         self.return_size = None
@@ -93,8 +93,8 @@ class MultiDispatcher(Dispatcher):
 
 
 class InitialMultiDispatcher(Dispatcher):
-    def __init__(self, runner, jazzer_cmd, workdir, sock_addr, jazzer_iter, logfile=None):
-        super().__init__(runner=runner, jazzer_cmd=jazzer_cmd,  workdir=workdir, sock_addr=sock_addr, logfile=logfile)
+    def __init__(self, runner, jazzer_cmd, sock_addr, jazzer_iter, workdir='.', logfile=None):
+        super().__init__(runner=runner, jazzer_cmd=jazzer_cmd, workdir=workdir, sock_addr=sock_addr, logfile=logfile)
         self.jazzer_iter = jazzer_iter
         self.return_size = None
         self.warmup = True

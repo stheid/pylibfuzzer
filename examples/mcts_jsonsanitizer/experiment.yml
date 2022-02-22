@@ -1,8 +1,8 @@
 fuzzer:
   cls: MCTSFuzzer
-  max_iterations: 500000
+  max_iterations: 50000
   grammar: grammar.yaml
-  path_cutoff_length: 8
+  path_cutoff_length: 12
 
 dispatcher:
   # dispatches libfuzzer command and handles communication of new fuzzing files
@@ -27,5 +27,5 @@ seed_files:
 
 runner:
   # + 6 seed files
-  limit: 500000
-#  export_data: true
+  limit: 50000
+  export_data: true

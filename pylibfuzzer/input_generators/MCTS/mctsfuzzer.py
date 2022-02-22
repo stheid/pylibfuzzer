@@ -1,6 +1,7 @@
 import logging
 from glob import glob
 from pathlib import Path
+from subprocess import run, DEVNULL
 from typing import List
 
 import jpype
@@ -17,12 +18,15 @@ class MCTSFuzzer(BaseFuzzer):
     def __init__(self, max_iterations=2, grammar='grammar.yaml', path_cutoff_length=20):
         super().__init__()
 
-        # noinspection PyUnresolvedReferences
         # startJVM is the right function
-        jars = glob(str(Path(__file__).parent / '*mcts*.jar'))
-        if len(jars) != 1:
-            raise RuntimeWarning('Please provide one and only one mcts backend library for the MCTS fuzzer')
-        jpype.startJVM(classpath=[str(Path(__file__).parent / jars[0])])
+        logger.info('Compiling MCTS-Fuzzer')
+        project_path = Path(__file__).parent / 'mcts-fuzzer'
+        run(['./gradlew', ':shadow'], cwd=project_path, stdout=DEVNULL, stderr=DEVNULL)
+        jar = glob(str(project_path / 'build' / 'libs' / '*all.jar'))[0]  # type:str
+
+        logger.info('Starting JVM')
+        # noinspection PyUnresolvedReferences
+        jpype.startJVM('-Xmx10G', classpath=[jar])
         jpype.imports.registerDomain("isml.aidev")
 
         # noinspection PyUnresolvedReferences
