@@ -53,7 +53,8 @@ class NeuzzFuzzer(BaseFuzzer):
             # generate 10k random inputs
             batch = []
             for i in trange(self.initial_dataset_len):
-                batch.append(np.random.bytes(self.max_input_len))
+                file_len = np.random.randint(self.max_input_len)
+                batch.append(np.random.bytes(file_len) + bytes(bytearray(self.max_input_len - file_len)))
             # create random data -> in observe we will train the model for the first iteration
             self._do_warmup = False
         else:
@@ -78,7 +79,7 @@ class NeuzzFuzzer(BaseFuzzer):
 
         # if there is no data then no need for training again
         if new_data.is_empty:
-            logger.info("dataset empty")
+            logger.info("No newly covered edges: all inputs discarded.")
             return
 
         # split
