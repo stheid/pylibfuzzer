@@ -6,8 +6,15 @@ import numpy as np
 class Dataset:
     def __init__(self, X: np.array = None, y: np.array = None,
                  max_size=10000, new_sw=2, weights=None):
-        self.X = np.array([]) if X is None else X.squeeze()
-        self.y = np.array([]) if y is None else y.squeeze()
+        if X is None and y is None:
+            self.X = np.array([])
+            self.y = np.array([])
+        elif len(X.shape) == 2 and len(y.shape) == 2:
+            self.X = X
+            self.y = y
+        else:
+            raise RuntimeError(f"X and y should be always 2 dimensional, but found: X.shape: {X.shape}, y.shape: "
+                               f"{y.shape}")
         self.max_size = max_size
         self.new_sw = new_sw  # sample weights
         if weights is None and X is not None:
