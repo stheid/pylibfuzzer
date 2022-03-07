@@ -5,11 +5,10 @@ from typing import Optional, List, Tuple, Union
 import numpy as np
 
 from pylibfuzzer.input_generators.base import MutationBasedFuzzer
-from pylibfuzzer.obs_transform import Reward
+from pylibfuzzer.obs_transform import CovSet
 
 
 class AlphaFuzz(MutationBasedFuzzer):
-
     def __init__(self, mutators: List[str] = None, seed=None):
         super().__init__(mutators, seed)
 
@@ -21,9 +20,6 @@ class AlphaFuzz(MutationBasedFuzzer):
     def load_seed(self, seedfiles):
         self._initialized = True
 
-        if not seedfiles:
-            seedfiles = [b'']
-
         self.tree = Node(b' ', None)
         # create seed root and append seed inputs as children
         self.curr = self.tree
@@ -31,6 +27,9 @@ class AlphaFuzz(MutationBasedFuzzer):
             with open(file, 'rb') as f:
                 input = f.read()
             self.batch.append(input)
+
+        if not seedfiles:
+            self.batch.append(b'')
 
     def create_inputs(self) -> List[bytes]:
         self._check_initialization()
@@ -44,7 +43,7 @@ class AlphaFuzz(MutationBasedFuzzer):
         self.batch.append(mutate(bytearray(c.input)))
         return self.batch
 
-    def observe(self, fuzzing_result: List[Reward]):
+    def observe(self, fuzzing_result: List[CovSet]):
         # create new node with input and coverage information
         # add es child of self.curr
         for input, cov_set in zip(self.batch, fuzzing_result):

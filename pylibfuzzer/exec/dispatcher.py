@@ -28,6 +28,7 @@ class Dispatcher:
             os.remove(self.addr)
         self.sock.bind(self.addr)
         self.sock.listen(1)
+        logger.info("starting/compiling jazzer")
         # client connection - jazzer
         self.proc = Popen(self.cmd, cwd=self.workdir, stdout=self.log_file, stderr=self.log_file)
         # accept connection from client
@@ -102,7 +103,7 @@ class InitialMultiDispatcher(Dispatcher):
     def post(self, data: bytes) -> List[bytes]:
         # SEND INPUT
         datalen = len(data)
-        if self.warmup == True:
+        if self.warmup:
             self.warmup = False
             n = self.jazzer_iter
         else:

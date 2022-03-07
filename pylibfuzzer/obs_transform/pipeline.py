@@ -1,3 +1,5 @@
+import operator
+from functools import reduce
 from itertools import tee
 from typing import Any, List, Set
 
@@ -74,8 +76,12 @@ class Pipeline:
         return observation
 
     def batch_transform(self, observations: list):
-        return np.apply_over_axes(self.agg, np.array([self.transform(observation) for observation in observations]),
-                                  axes=[0]).squeeze()
+        if self.output_type == Reward:
+            return np.apply_over_axes(self.agg, np.array([self.transform(observation) for observation in observations]),
+                                      axes=[0]).squeeze()
+        if self.output_type == CovSet:
+            return [reduce(operator.or_, set(self.transform(observation)), set()) for observation in observations]
+        raise RuntimeError('Pipeline can\'t aggregate output datatype')
 
     def __getattr__(self, item):
         if self.contained_attr is None:
