@@ -2,6 +2,7 @@ fuzzer:
   cls: NeuzzFuzzer
   jazzer_cmd: [ '../../bin/jazzer/jazzer', '--keep-going=100000' ]
   max_input_len: 500 # 20 kB
+#  dataset: "./dataset2.zip"
   initial_dataset_len: 2000
   n_mutation_candidates: 10
   n_mutation_positions: 500
@@ -25,6 +26,6 @@ obs_transformation:
   - type: SocketCovArray
 
 runner:
-  limit: 100000000
+  limit: 1000000
   loglevel: 20
 #  export_data: true

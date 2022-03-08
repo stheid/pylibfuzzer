@@ -23,6 +23,12 @@ class BaseFuzzer:
             raise RuntimeError(
                 'please call load_seed() before creating the first input to initialize the internal state')
 
+    def prepare(self):
+        """
+        prepare runner to be able to create inputs before loading seeds.
+        """
+        pass
+
     def load_seed(self, paths: List[str]):
         """
         loads all files in the seed to the model

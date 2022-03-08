@@ -15,7 +15,7 @@ class NeuzzFuzzer(BaseFuzzer):
     This class implements the Neuzz algorithm.
     """
 
-    def __init__(self, jazzer_cmd, initial_dataset_len, max_input_len=500, n_mutation_candidates=10,
+    def __init__(self, jazzer_cmd, initial_dataset_len, dataset=None, max_input_len=500, n_mutation_candidates=10,
                  n_mutation_positions=100, exp=6, network=(512,), epochs=10):
         super().__init__()
         self.exp = exp
@@ -30,10 +30,26 @@ class NeuzzFuzzer(BaseFuzzer):
         self.n_mutation_candidates = n_mutation_candidates
         self.n_mutation_positions = n_mutation_positions
         self.covered_edges = set()
+        self.dataset = dataset
 
         # uint8, float32, samples×width
         self.train_data = Dataset()
         self.val_data = Dataset()
+
+    def prepare(self):
+        """ load already given dataset and pre-train model once."""
+        if self.dataset is not None:
+            self.train_data, self.val_data = Dataset.prepare(self.dataset, self.max_input_len).split()
+            # Initialize model and update train and val data for training
+            if not self.model.is_model_created:
+                self.model.initialize_model(self.train_data.xdim, self.train_data.ydim, network=self.network)
+
+            # train NN
+            logger.info("Begin training on pre-given dataset")
+            self.model.train(self.train_data, self.val_data)
+            logger.info("Finished training on pre-given dataset")
+
+            self._do_warmup = False
 
     def create_inputs(self) -> List[bytes]:
         """
@@ -55,7 +71,7 @@ class NeuzzFuzzer(BaseFuzzer):
             for i in trange(self.initial_dataset_len):
                 file_len = np.random.randint(self.max_input_len)
                 batch.append(np.random.bytes(file_len) + bytes(bytearray(self.max_input_len - file_len)))
-            # create random data -> in observe we will train the model for the first iteration
+
             self._do_warmup = False
         else:
             batch = self._generate_inputs()
@@ -64,6 +80,7 @@ class NeuzzFuzzer(BaseFuzzer):
         return self.batch
 
     def observe(self, fuzzing_result: List[np.ndarray]):
+
         data = Dataset(np.array([np.frombuffer(b, dtype=np.uint8) for b in self.batch]),
                        np.array(fuzzing_result).squeeze())
 
