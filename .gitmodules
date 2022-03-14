@@ -1,6 +1,7 @@
-[submodule "jazzer"]
-	path = jazzer
+[submodule "third_party/jazzer"]
+	path = third_party/jazzer
 	url = https://github.com/stheid/jazzer
-[submodule "pylibfuzzer/input_generators/MCTS/mcts-fuzzer"]
-	path = pylibfuzzer/input_generators/MCTS/mcts-fuzzer
+
+[submodule "third_party/mcts-fuzzer"]
+	path = third_party/mcts-fuzzer
 	url = https://github.com/stheid/mcts-fuzzer

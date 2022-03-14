@@ -122,14 +122,15 @@ class Runner:
         self.input_generator.prepare()
         self.input_generator.load_seed(self.seed_files)
 
-        def poll_jazzer():
-            if cmd.proc.poll() is not None:
-                raise RuntimeError("jazzer died")
-
-        self.pipeline.prepare(onbusy_callback=poll_jazzer)
-
         with self.dispatcher as cmd, self.input_generator, self.summarywriter.as_default(), \
                 TemporaryDirectory() as dataset_dir, tqdm(total=self.limit) as pbar:
+
+            def poll_jazzer():
+                if cmd.proc.poll() is not None:
+                    raise RuntimeError("jazzer died")
+
+            self.pipeline.prepare(onbusy_callback=poll_jazzer)
+
             while not (self.input_generator.done() or self.timeout or self.overiter):
                 # create inputs
                 logger.info('Creating input batch starting with number %d ', self.i)

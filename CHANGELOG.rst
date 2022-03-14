@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.0.7
+-----
+- use dataset import in neuzz for pretraining
+
 0.0.6
 -----
 - allow for dataset export

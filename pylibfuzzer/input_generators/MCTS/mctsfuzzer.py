@@ -1,12 +1,12 @@
 import logging
 from glob import glob
 from pathlib import Path
-from subprocess import run, DEVNULL
 from typing import List
 
 import jpype
 import jpype.imports
 
+import pylibfuzzer
 from pylibfuzzer.input_generators.base import BaseFuzzer
 
 from pylibfuzzer.obs_transform import Reward
@@ -15,18 +15,15 @@ logger = logging.getLogger(__name__)
 
 
 class MCTSFuzzer(BaseFuzzer):
-    def __init__(self, max_iterations=2, grammar='grammar.yaml', path_cutoff_length=20):
+    def __init__(self, mcts_fuzz_jar_pattern, jvm_args='-Xmx10G', max_iterations=2, grammar='grammar.yaml',
+                 path_cutoff_length=20, headless=True):
         super().__init__()
 
-        # startJVM is the right function
-        logger.info('Compiling MCTS-Fuzzer')
-        project_path = Path(__file__).parent / 'mcts-fuzzer'
-        run(['./gradlew', ':shadow'], cwd=project_path, stdout=DEVNULL, stderr=DEVNULL)
-        jar = glob(str(project_path / 'build' / 'libs' / '*all.jar'))[0]  # type:str
-
         logger.info('Starting JVM')
+        mcts_fuzz_jar = glob(mcts_fuzz_jar_pattern)[0]
+        # startJVM is the right function
         # noinspection PyUnresolvedReferences
-        jpype.startJVM('-Xmx10G', classpath=[jar])
+        jpype.startJVM(jvm_args, classpath=[mcts_fuzz_jar])
         jpype.imports.registerDomain("isml.aidev")
 
         # noinspection PyUnresolvedReferences
@@ -38,7 +35,7 @@ class MCTSFuzzer(BaseFuzzer):
         # noinspection PyUnresolvedReferences
         from isml.aidev import Algorithm
 
-        self.algo = Algorithm(max_iterations, grammar, path_cutoff_length)
+        self.algo = Algorithm(max_iterations, grammar, path_cutoff_length, headless)
         self.batch = []
         self.seedfiles_consumed = True
         self._initialized = True
@@ -60,7 +57,7 @@ class MCTSFuzzer(BaseFuzzer):
         if not self.seedfiles_consumed:
             return
 
-        # TODO the MCTS currently aims to minimize loss, hence we have to give it a negative reward
+        # MCTS aims to minimize loss, hence we have to give it a negative reward
         self.algo.observe(-rewards[0])
         # TODO efficiently check logs for errors
         # with open("ailibs.log") as f:

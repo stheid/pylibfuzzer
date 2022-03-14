@@ -5,3 +5,4 @@
 /examples/*/cov.json
 /examples/*/ailibs.log
 /examples/*/logs*
+/build/*

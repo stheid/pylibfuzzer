@@ -22,7 +22,16 @@ Installation
 
 ::
 
-  $ pip install git+git://github.com/stheid/pylibfuzzer.git
+  $ pip install git+https://github.com/stheid/pylibfuzzer.git
+
+Installation of MCTS dependency
+'''''''''''''''''''''''''''''''
+
+::
+  $ git clone https://github.com/stheid/MCTS-Fuzzer.git
+  $ ./gradlew :shadow
+
+Now you can refer to the built shadow jar in the experiment configuration. When developing it is advicable to setup gradle build run configuration in Pycharm and run it before executing the MCTS fuzzer. In this case the git submodule can be leveraged.
 
 
 Getting started
