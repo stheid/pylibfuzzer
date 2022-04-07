@@ -52,6 +52,15 @@ class NeuzzFuzzer(BaseFuzzer):
 
             self._do_warmup = False
 
+    def load_seed(self, seedfiles):
+        self.batch = []
+        for file in seedfiles:
+            with open(file, 'rb') as f:
+                input = f.read()
+            # cut and pad seedfiles to be exact self.max_input_length
+            input = input[:self.max_input_len] + bytes(bytearray(max(0, self.max_input_len - len(input))))
+            self.batch.append(input)
+
     def create_inputs(self) -> List[bytes]:
         """
         - uses jazzer to create (input,output),
@@ -59,21 +68,17 @@ class NeuzzFuzzer(BaseFuzzer):
         :return:
         """
         if self._do_warmup:
-            ## LATER
-            # [optional] collect seedfiles if any
-            # run jazzer with the seedfiles
-            # run jazzer for a defined time to collect training data -> (input,cov)
-            # self._retrain(listOf())
-            # self.model.train(self.train_data, self.val_data)
+            self._do_warmup = False
 
-            ## V0
+            if len(self.batch) > 0:
+                # using seedfiles
+                return self.batch
+
             # generate 10k random inputs
             batch = []
             for i in trange(self.initial_dataset_len):
                 file_len = np.random.randint(self.max_input_len)
                 batch.append(np.random.bytes(file_len) + bytes(bytearray(self.max_input_len - file_len)))
-
-            self._do_warmup = False
         else:
             batch = self._generate_inputs()
 
