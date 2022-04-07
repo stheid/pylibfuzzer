@@ -81,8 +81,6 @@ class Dataset:
                     raise RuntimeError("Problem while loading dataset: can't find related coverage file:", ke)
 
         yy = np.array([np.frombuffer(c, dtype=np.uint8) for c in y]).astype(np.float64)
-        # todo: remember to remove this when coverages use count style (>1.0 also possible)
-        yy[yy > 1.0] = 1.0
         return Dataset(X=np.array([np.frombuffer(b, dtype=np.uint8) for b in X]), y=yy)
 
     def split(self, frac=.8):

@@ -1,3 +1,4 @@
+import math
 from typing import List
 import logging
 import numpy as np
@@ -29,7 +30,7 @@ class NeuzzFuzzer(BaseFuzzer):
         self.initial_dataset_len = initial_dataset_len
         self.n_mutation_candidates = n_mutation_candidates
         self.n_mutation_positions = n_mutation_positions
-        self.covered_edges = set()
+        self.uncovered_bits = None
         self.dataset = dataset
 
         # uint8, float32, samples×width
@@ -79,20 +80,32 @@ class NeuzzFuzzer(BaseFuzzer):
         self.batch = batch
         return self.batch
 
+    @staticmethod
+    def remove_lsb(array: np.ndarray) -> np.ndarray:
+        a = array.astype(np.uint8)
+        mask = a > 0
+        narray = np.floor(np.log2(a[mask])).astype(np.uint8)
+        ones_array = np.ones_like(a[mask])
+        a[mask] = ones_array << narray
+        return a
+
     def observe(self, fuzzing_result: List[np.ndarray]):
-
         data = Dataset(np.array([np.frombuffer(b, dtype=np.uint8) for b in self.batch]),
-                       np.array(fuzzing_result).squeeze())
+                       np.array(fuzzing_result))
 
-        # updating covered edges and prepare a mask to filter the dataset on covered edges
-        not_yet_covered_edges = np.ones(data.ydim)
-        not_yet_covered_edges[list(self.covered_edges)] = 0
-        new_data_view = data.y[:, not_yet_covered_edges.astype(bool)]
-        self.covered_edges = self.covered_edges.union(set(np.nonzero(new_data_view.sum(axis=0))[0]))
-        candidate_indices = np.nonzero(new_data_view.sum(axis=1))[0]
+        if self.uncovered_bits is None:
+            self.uncovered_bits = np.ones_like(fuzzing_result[0]).astype(np.uint8)
+
+        candidate_indices = []
+        for i, result in enumerate(fuzzing_result):
+            rmsb = self.remove_lsb(result)
+
+            if np.any(rmsb & self.uncovered_bits):
+                self.uncovered_bits &= ~rmsb
+                candidate_indices.append(i)
 
         # select only covered edges from indices calculated above
-        new_data = data[candidate_indices]
+        new_data = data[tuple(candidate_indices)]
 
         # if there is no data then no need for training again
         if new_data.is_empty:
