@@ -3,7 +3,7 @@ from typing import List
 import logging
 import numpy as np
 from tqdm import tqdm, trange
-
+from array import remove_lsb
 from pylibfuzzer.input_generators.base import BaseFuzzer
 from .dataset import Dataset
 from .model import NeuzzModel
@@ -85,25 +85,16 @@ class NeuzzFuzzer(BaseFuzzer):
         self.batch = batch
         return self.batch
 
-    @staticmethod
-    def remove_lsb(array: np.ndarray) -> np.ndarray:
-        a = array.astype(np.uint8)
-        mask = a > 0
-        narray = np.floor(np.log2(a[mask])).astype(np.uint8)
-        ones_array = np.ones_like(a[mask])
-        a[mask] = ones_array << narray
-        return a
-
     def observe(self, fuzzing_result: List[np.ndarray]):
         data = Dataset(np.array([np.frombuffer(b, dtype=np.uint8) for b in self.batch]),
                        np.array(fuzzing_result))
 
         if self.uncovered_bits is None:
-            self.uncovered_bits = np.ones_like(fuzzing_result[0]).astype(np.uint8)
+            self.uncovered_bits = np.ones_like(fuzzing_result[0], dtype=np.uint8)
 
         candidate_indices = []
         for i, result in enumerate(fuzzing_result):
-            rmsb = self.remove_lsb(result)
+            rmsb = remove_lsb(result)
 
             if np.any(rmsb & self.uncovered_bits):
                 self.uncovered_bits &= ~rmsb

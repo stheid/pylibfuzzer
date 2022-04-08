@@ -11,17 +11,18 @@ dispatcher:
   # and fuzz results to and from the libfuzzer command
   type: Multi
   # binary created using "./bazelisk-linux-amd64 build //:jazzer_release" in https://github.com/fmeum/jazzer-oracle
-  jazzer_cmd: [ 'bazel', 'run', '//examples:JsonSanitizerDenylistFuzzer','--', '-oracle=1', '--keep-going=100000', '-timeout=0' ]
+  #  jazzer_cmd: [ 'bazel', 'run', '//examples:JsonSanitizerDenylistFuzzer','--', '-oracle=1', '--keep-going=100000', '-timeout=0' ]
+  jazzer_cmd: [ 'bazel', 'run', '//examples:JsonSanitizerValidJsonFuzzer','--', '-oracle=1', '--call_graph_basepath=/tmp/icfg', '--keep-going=100000', '-timeout=0' ]
   workdir: ../../third_party/jazzer
   sock_addr: /tmp/libfuzzer.sock
   mut_reps: 0
-  logfile: jazzer.log
+  #logfile: jazzer.log
 
 
 obs_transformation:
   - type: SocketCoverage
   - type: CFGReward
-    path: icfg.json
+    path: /tmp/icfg.json
 
 
 seed_files:
