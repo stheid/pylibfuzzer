@@ -10,6 +10,8 @@ fuzzer:
   epochs: 5
   exp: 3
 
+#seed_files:
+#  - '/home/ajrox/.cache/bazel/_bazel_ajrox/5d802453a1916c1768ab63926b4e2a2d/execroot/jazzer/bazel-out/k8-opt/bin/examples/JsonSanitizerDenylistFuzzer.runfiles/jazzer/testfolder'
 dispatcher:
   # dispatches libfuzzer command and handles communication of new fuzzing files
   # and fuzz results to and from the libfuzzer command
@@ -21,8 +23,6 @@ dispatcher:
   mut_reps: 0
   logfile: jazzer.log
 
-#seed_files:
-#  -
 
 obs_transformation:
   - type: SocketCovArray

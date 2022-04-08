@@ -3,7 +3,7 @@ from typing import List
 import logging
 import numpy as np
 from tqdm import tqdm, trange
-from array import remove_lsb
+from pylibfuzzer.util.array import remove_lsb
 from pylibfuzzer.input_generators.base import BaseFuzzer
 from .dataset import Dataset
 from .model import NeuzzModel
@@ -71,6 +71,7 @@ class NeuzzFuzzer(BaseFuzzer):
             self._do_warmup = False
 
             if len(self.batch) > 0:
+                logger.info("Using seedfiles")
                 # using seedfiles
                 return self.batch
 
