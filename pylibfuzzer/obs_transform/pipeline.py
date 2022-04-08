@@ -90,6 +90,6 @@ class Pipeline:
                     # only the one closer to the end of the pipeline will be available
                     self.contained_attr[attr] = getattr(trans, attr)
         try:
-            return self.contained_attr.get(item)
+            return self.contained_attr[item]
         except KeyError:
             raise AttributeError(f'No element in {self.pipeline} contains the attribute {item}')

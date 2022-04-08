@@ -4,7 +4,7 @@ import numpy as np
 from tqdm import tqdm, trange
 from pylibfuzzer.util.array import remove_lsb
 from pylibfuzzer.input_generators.base import BaseFuzzer
-from pylibfuzzer.util.dataset import Dataset
+from pylibfuzzer.util.dataset import Dataset, DatasetIO
 from .model import NeuzzModel
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,8 @@ class NeuzzFuzzer(BaseFuzzer):
     def prepare(self):
         """ load already given dataset and pre-train model once."""
         if self.dataset is not None:
-            self.train_data, self.val_data = Dataset.prepare(self.dataset, self.max_input_len).split()
+            self.train_data, self.val_data = \
+                DatasetIO.load(dataset_path=self.dataset, max_input_len=self.max_input_len).split()
             # Initialize model and update train and val data for training
             if not self.model.is_model_created:
                 self.model.initialize_model(self.train_data.xdim, self.train_data.ydim, network=self.network)

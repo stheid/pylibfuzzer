@@ -28,6 +28,6 @@ obs_transformation:
   - type: SocketCovArray
 
 runner:
-  limit: 1000000
+  limit: 10000
   loglevel: 20
 #  export_data: true

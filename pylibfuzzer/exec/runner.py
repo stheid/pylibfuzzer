@@ -1,12 +1,10 @@
 import importlib
 import json
 import logging
-import shutil
 from datetime import datetime
 from glob import glob
 from os.path import isfile
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import List
 from uuid import uuid1
 
@@ -20,6 +18,7 @@ import pylibfuzzer.util.dict as dutil
 from pylibfuzzer.exec.dispatcher import Dispatcher
 from pylibfuzzer.input_generators.base import BaseFuzzer
 from pylibfuzzer.obs_transform import Pipeline, Reward, SocketCoverageTransformer
+from pylibfuzzer.util.dataset.datasetio import DatasetIO
 from pylibfuzzer.util.timer import timer
 
 logger = logging.getLogger(__name__)
@@ -122,8 +121,11 @@ class Runner:
         self.input_generator.prepare()
         self.input_generator.load_seed(self.seed_files)
 
-        with self.dispatcher as cmd, self.input_generator, self.summarywriter.as_default(), \
-                TemporaryDirectory() as dataset_dir, tqdm(total=self.limit) as pbar:
+        with self.dispatcher as cmd, \
+                self.input_generator, \
+                self.summarywriter.as_default(), \
+                tqdm(total=self.limit) as pbar, \
+                DatasetIO(self.logdir, dry_run=not self.export_data) as dataset_collector:
 
             def poll_jazzer():
                 if cmd.proc.poll() is not None:
@@ -170,12 +172,8 @@ class Runner:
                                 f.write(created_input)
                     results.append(self.pipeline.batch_transform(result))
 
-                    if self.export_data:
-                        logger.debug("Exporting input number %d", idx)
-                        with open(Path(dataset_dir) / f"input_{idx}", 'wb') as f:
-                            f.write(created_input)
-                        with open(Path(dataset_dir) / f"cov_{idx}", 'wb') as f:
-                            f.write(created_input_cov)
+                    logger.debug("Exporting input number %d", idx)
+                    dataset_collector.collect(idx, created_input, created_input_cov)
 
                 # send observed result to input generator
                 if self.pipeline.output_type == Reward:
@@ -188,10 +186,6 @@ class Runner:
             if hasattr(self.pipeline, 'total_coverage'):
                 with open('cov.json', 'w') as f:
                     json.dump(list(self.pipeline.total_coverage), f)
-
-            if self.export_data:
-                logger.info('Compressing the dataset into a zip archive')
-                shutil.make_archive(str(self.logdir / 'dataset'), 'zip', dataset_dir)
 
     @property
     def seed_files(self):
