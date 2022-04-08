@@ -19,7 +19,7 @@ class NeuzzFuzzer(BaseFuzzer):
                  n_mutation_positions=100, exp=6, network=(512,), epochs=10):
         super().__init__()
         self.exp = exp
-        self.batch = None
+        self.batch = []
         self.model = NeuzzModel(epochs=epochs)
         self._do_warmup = True
         self.cmd = jazzer_cmd
@@ -53,7 +53,6 @@ class NeuzzFuzzer(BaseFuzzer):
             self._do_warmup = False
 
     def load_seed(self, seedfiles):
-        self.batch = []
         for file in seedfiles:
             with open(file, 'rb') as f:
                 input = f.read()
@@ -70,14 +69,9 @@ class NeuzzFuzzer(BaseFuzzer):
         if self._do_warmup:
             self._do_warmup = False
 
-            if len(self.batch) > 0:
-                logger.info("Using seedfiles")
-                # using seedfiles
-                return self.batch
-
-            # generate 10k random inputs
-            batch = []
-            for i in trange(self.initial_dataset_len):
+            batch = self.batch
+            # fill up with random inputs to match desired size
+            for _ in trange(len(batch), self.initial_dataset_len):
                 file_len = np.random.randint(self.max_input_len)
                 batch.append(np.random.bytes(file_len) + bytes(bytearray(self.max_input_len - file_len)))
         else:
