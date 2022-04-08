@@ -1,11 +1,10 @@
-import math
 from typing import List
 import logging
 import numpy as np
 from tqdm import tqdm, trange
 from pylibfuzzer.util.array import remove_lsb
 from pylibfuzzer.input_generators.base import BaseFuzzer
-from .dataset import Dataset
+from pylibfuzzer.util.dataset import Dataset
 from .model import NeuzzModel
 
 logger = logging.getLogger(__name__)

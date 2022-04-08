@@ -10,7 +10,7 @@ from tensorflow.keras.metrics import MeanIoU
 from tensorflow.keras.losses import BinaryCrossentropy
 from tensorflow.keras.callbacks import LearningRateScheduler
 
-from pylibfuzzer.input_generators.neuzz.dataset import Dataset
+from pylibfuzzer.util.dataset import Dataset
 
 logger = logging.getLogger(__name__)
 

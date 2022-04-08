@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from typing import Tuple
 import logging
 import numpy as np
@@ -62,6 +63,11 @@ class Dataset:
     @property
     def ydim(self):
         return self.y.shape[1]
+
+    @contextmanager
+    def collect_data(self):
+        # TODO
+        pass
 
     @staticmethod
     def prepare(dataset: str, max_input_len=500):
