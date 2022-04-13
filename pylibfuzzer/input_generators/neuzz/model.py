@@ -7,7 +7,6 @@ from tensorflow.keras import Sequential, backend as K
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import MeanIoU
-# from tensorflow.keras.losses import BinaryCrossentropy
 from tensorflow.keras.losses import MeanSquaredError
 from tensorflow.keras.callbacks import LearningRateScheduler
 
@@ -51,7 +50,6 @@ class NeuzzModel:
         model.add(Dense(num_classes, activation='relu'))
 
         self.model = model
-        # todo: validate loss function
         self.model.compile(loss=MeanSquaredError(), optimizer=Adam(learning_rate=self.lr),
                            metrics=[MeanIoU(num_classes=num_classes)])
 
