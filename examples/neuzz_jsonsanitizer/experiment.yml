@@ -1,14 +1,10 @@
-fuzzer:
-  cls: NeuzzFuzzer
-  jazzer_cmd: [ '../../bin/jazzer/jazzer', '--keep-going=100000' ]
-  max_input_len: 500 # 20 kB
-#  dataset: "./dataset2.zip"
-  initial_dataset_len: 2000
-  n_mutation_candidates: 10
-  n_mutation_positions: 500
-  network: [ 128 ] # [64,64]
-  epochs: 5
-  exp: 3
+runner:
+  limit: 10000
+  loglevel: 20
+  # export_data: true
+
+seed_files:
+# path to seedfiles
 
 dispatcher:
   # dispatches libfuzzer command and handles communication of new fuzzing files
@@ -21,11 +17,17 @@ dispatcher:
   mut_reps: 0
   logfile: jazzer.log
 
-
 obs_transformation:
   - type: SocketCovArray
 
-runner:
-  limit: 1000000
-  loglevel: 20
-#  export_data: true
+fuzzer:
+  cls: NeuzzFuzzer
+  jazzer_cmd: [ '../../bin/jazzer/jazzer', '--keep-going=100000' ]
+  max_input_len: 500 # 20 kB
+  # dataset: "./dataset2.zip"
+  initial_dataset_len: 2000
+  n_mutation_candidates: 10
+  n_mutation_positions: 500
+  network: [ 128 ] # [64,64]
+  epochs: 5
+  exp: 3

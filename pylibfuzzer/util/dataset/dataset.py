@@ -63,28 +63,6 @@ class Dataset:
     def ydim(self):
         return self.y.shape[1]
 
-    @staticmethod
-    def prepare(dataset: str, max_input_len=500):
-        """ this method takes dataset.zip and loads the data into this class  """
-        logger.info("loading dataset")
-        dataset = np.load(dataset)
-
-        X, y = [], []
-        for inp in dataset.items():
-            if 'input' in inp[0]:
-                filebytes = inp[1]
-                X.append(filebytes + bytes(bytearray(max_input_len - len(filebytes))))
-                try:
-                    filename = "cov_" + inp[0].split('_')[1]
-                    y.append(dataset[filename])
-                except KeyError as ke:
-                    raise RuntimeError("Problem while loading dataset: can't find related coverage file:", ke)
-
-        yy = np.array([np.frombuffer(c, dtype=np.uint8) for c in y]).astype(np.float64)
-        # todo: remember to remove this when coverages use count style (>1.0 also possible)
-        yy[yy > 1.0] = 1.0
-        return Dataset(X=np.array([np.frombuffer(b, dtype=np.uint8) for b in X]), y=yy)
-
     def split(self, frac=.8):
         if self.is_empty:
             raise RuntimeError('Can\'t split an empty dataset')

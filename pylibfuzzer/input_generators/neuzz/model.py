@@ -7,10 +7,10 @@ from tensorflow.keras import Sequential, backend as K
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import MeanIoU
-from tensorflow.keras.losses import BinaryCrossentropy
+from tensorflow.keras.losses import MeanSquaredError
 from tensorflow.keras.callbacks import LearningRateScheduler
 
-from pylibfuzzer.input_generators.neuzz.dataset import Dataset
+from pylibfuzzer.util.dataset import Dataset
 
 logger = logging.getLogger(__name__)
 
@@ -50,8 +50,7 @@ class NeuzzModel:
         model.add(Dense(num_classes, activation='relu'))
 
         self.model = model
-        # todo: validate loss function
-        self.model.compile(loss=BinaryCrossentropy(from_logits=True), optimizer=Adam(learning_rate=self.lr),
+        self.model.compile(loss=MeanSquaredError(), optimizer=Adam(learning_rate=self.lr),
                            metrics=[MeanIoU(num_classes=num_classes)])
 
         self.model.summary(print_fn=logger.info)

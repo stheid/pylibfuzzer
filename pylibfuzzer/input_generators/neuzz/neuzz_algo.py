@@ -2,9 +2,9 @@ from typing import List
 import logging
 import numpy as np
 from tqdm import tqdm, trange
-
+from pylibfuzzer.util.array import remove_lsb
 from pylibfuzzer.input_generators.base import BaseFuzzer
-from .dataset import Dataset
+from pylibfuzzer.util.dataset import Dataset, DatasetIO
 from .model import NeuzzModel
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ class NeuzzFuzzer(BaseFuzzer):
                  n_mutation_positions=100, exp=6, network=(512,), epochs=10):
         super().__init__()
         self.exp = exp
-        self.batch = None
+        self.batch = []
         self.model = NeuzzModel(epochs=epochs)
         self._do_warmup = True
         self.cmd = jazzer_cmd
@@ -29,7 +29,7 @@ class NeuzzFuzzer(BaseFuzzer):
         self.initial_dataset_len = initial_dataset_len
         self.n_mutation_candidates = n_mutation_candidates
         self.n_mutation_positions = n_mutation_positions
-        self.covered_edges = set()
+        self.uncovered_bits = None
         self.dataset = dataset
 
         # uint8, float32, samples×width
@@ -39,7 +39,8 @@ class NeuzzFuzzer(BaseFuzzer):
     def prepare(self):
         """ load already given dataset and pre-train model once."""
         if self.dataset is not None:
-            self.train_data, self.val_data = Dataset.prepare(self.dataset, self.max_input_len).split()
+            self.train_data, self.val_data = \
+                DatasetIO.load(dataset_path=self.dataset, max_input_len=self.max_input_len).split()
             # Initialize model and update train and val data for training
             if not self.model.is_model_created:
                 self.model.initialize_model(self.train_data.xdim, self.train_data.ydim, network=self.network)
@@ -51,6 +52,14 @@ class NeuzzFuzzer(BaseFuzzer):
 
             self._do_warmup = False
 
+    def load_seed(self, seedfiles):
+        for file in seedfiles:
+            with open(file, 'rb') as f:
+                input = f.read()
+            # cut and pad seedfiles to be exact self.max_input_length
+            input = input[:self.max_input_len] + bytes(bytearray(max(0, self.max_input_len - len(input))))
+            self.batch.append(input)
+
     def create_inputs(self) -> List[bytes]:
         """
         - uses jazzer to create (input,output),
@@ -58,21 +67,13 @@ class NeuzzFuzzer(BaseFuzzer):
         :return:
         """
         if self._do_warmup:
-            ## LATER
-            # [optional] collect seedfiles if any
-            # run jazzer with the seedfiles
-            # run jazzer for a defined time to collect training data -> (input,cov)
-            # self._retrain(listOf())
-            # self.model.train(self.train_data, self.val_data)
+            self._do_warmup = False
 
-            ## V0
-            # generate 10k random inputs
-            batch = []
-            for i in trange(self.initial_dataset_len):
+            batch = self.batch
+            # fill up with random inputs to match desired size
+            for _ in trange(len(batch), self.initial_dataset_len):
                 file_len = np.random.randint(self.max_input_len)
                 batch.append(np.random.bytes(file_len) + bytes(bytearray(self.max_input_len - file_len)))
-
-            self._do_warmup = False
         else:
             batch = self._generate_inputs()
 
@@ -80,19 +81,22 @@ class NeuzzFuzzer(BaseFuzzer):
         return self.batch
 
     def observe(self, fuzzing_result: List[np.ndarray]):
-
         data = Dataset(np.array([np.frombuffer(b, dtype=np.uint8) for b in self.batch]),
-                       np.array(fuzzing_result).squeeze())
+                       np.array(fuzzing_result))
 
-        # updating covered edges and prepare a mask to filter the dataset on covered edges
-        not_yet_covered_edges = np.ones(data.ydim)
-        not_yet_covered_edges[list(self.covered_edges)] = 0
-        new_data_view = data.y[:, not_yet_covered_edges.astype(bool)]
-        self.covered_edges = self.covered_edges.union(set(np.nonzero(new_data_view.sum(axis=0))[0]))
-        candidate_indices = np.nonzero(new_data_view.sum(axis=1))[0]
+        if self.uncovered_bits is None:
+            self.uncovered_bits = np.ones_like(fuzzing_result[0], dtype=np.uint8)
+
+        candidate_indices = []
+        for i, result in enumerate(fuzzing_result):
+            rmsb = remove_lsb(result)
+
+            if np.any(rmsb & self.uncovered_bits):
+                self.uncovered_bits &= ~rmsb
+                candidate_indices.append(i)
 
         # select only covered edges from indices calculated above
-        new_data = data[candidate_indices]
+        new_data = data[tuple(candidate_indices)]
 
         # if there is no data then no need for training again
         if new_data.is_empty:

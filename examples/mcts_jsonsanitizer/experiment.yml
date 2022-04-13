@@ -1,3 +1,27 @@
+runner:
+  limit: 50000
+  # loglevel: 20
+  # export_data: true
+
+seed_files:
+# paths and files used as seed files for the fuzzer
+
+dispatcher:
+  # dispatches libfuzzer command and handles communication of new fuzzing files
+  # and fuzz results to and from the libfuzzer command
+  type: Multi
+  # binary created using "./bazelisk-linux-amd64 build //:jazzer_release" in https://github.com/fmeum/jazzer-oracle
+  jazzer_cmd: [ 'bazel', 'run', '//examples:JsonSanitizerValidJsonFuzzer','--', '-oracle=1', '--call_graph_basepath=/tmp/icfg', '--keep-going=100000', '-timeout=0' ]
+  workdir: ../../third_party/jazzer
+  sock_addr: /tmp/libfuzzer.sock
+  mut_reps: 0
+  # logfile: jazzer.log
+
+obs_transformation:
+  - type: SocketCoverage
+  - type: CFGReward
+    path: /tmp/icfg.json
+
 fuzzer:
   cls: MCTSFuzzer
   max_iterations: 50000
@@ -5,30 +29,3 @@ fuzzer:
   path_cutoff_length: 12
   mcts_fuzz_jar_pattern: ../../third_party/mcts-fuzzer/build/libs/*all.jar
   jvm_args: -Xmx10G
-
-dispatcher:
-  # dispatches libfuzzer command and handles communication of new fuzzing files
-  # and fuzz results to and from the libfuzzer command
-  type: Multi
-  # binary created using "./bazelisk-linux-amd64 build //:jazzer_release" in https://github.com/fmeum/jazzer-oracle
-  jazzer_cmd: [ 'bazel', 'run', '//examples:JsonSanitizerDenylistFuzzer','--', '-oracle=1', '--keep-going=100000', '-timeout=0' ]
-  workdir: ../../third_party/jazzer
-  sock_addr: /tmp/libfuzzer.sock
-  mut_reps: 0
-  logfile: jazzer.log
-
-
-obs_transformation:
-  - type: SocketCoverage
-  - type: CFGReward
-    path: icfg.json
-
-
-seed_files:
-# paths and files used as seed files for the fuzzer
-
-runner:
-  # + 6 seed files
-  limit: 50000
-  #loglevel: 20
-  export_data: true
