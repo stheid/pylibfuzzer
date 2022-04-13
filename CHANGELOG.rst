@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.0.8
+-----
+- many bugfixes in neuzz
+- neuzz can now also use seedfiles for pretraining (compatibility with jazzer and libfuzzer)
+- neuzz will now use non-binary coverage prediction
+- neuzz edge filtering has been adapted to be closer to the reference implementation
+
 0.0.7
 -----
 - use dataset import in neuzz for pretraining
