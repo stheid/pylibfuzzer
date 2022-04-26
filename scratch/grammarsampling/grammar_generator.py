@@ -9,7 +9,7 @@ import yaml
 
 @click.command()
 @click.option('--gram', default='gram.yml', help='file providing the grammar')
-@click.option('--start', default='json', help='non-terminal to start with')
+@click.option('--start', default='element', help='non-terminal to start with')
 def main(gram: str, start: str):
     with open(gram, 'r') as f:
         try:
@@ -89,15 +89,14 @@ def parse_symbols(rule: str) -> Tuple[Union[str, bytes]]:
 
 def export(grammar):
     with open('out.yml', 'w') as f:
-        yaml.dump(dict(startSymbol=dict(value='json'),
-                       prodRules_={k: [
+        yaml.dump(dict(startSymbol=dict(value='element'),
+                       prodRules={k: [
                            dict(substitution=[
                                dict(
                                    type=("terminal" if isinstance(elem, bytes) else 'nonterminal'),
                                    value=(elem if isinstance(elem, str) else str(elem, "utf-8"))) for elem in sub],
                                # the weight
-                               weight=weights[0],
-                               is_extending=not bool(weights[1]))
+                               weight=weights[0])
                            for sub, weights in rule.items()
                        ] for k, rule in grammar.items()}), f)
 
