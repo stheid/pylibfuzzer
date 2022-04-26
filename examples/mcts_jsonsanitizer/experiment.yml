@@ -15,7 +15,7 @@ dispatcher:
   workdir: ../../third_party/jazzer
   sock_addr: /tmp/libfuzzer.sock
   mut_reps: 0
-  # logfile: jazzer.log
+  logfile: jazzer.log
 
 obs_transformation:
   - type: SocketCoverage

@@ -74,6 +74,8 @@ class Pipeline:
         return observation
 
     def batch_transform(self, observations: list):
+        if len(observations) == 1:
+            return self.transform(observations[0])
         return np.apply_over_axes(self.agg, np.array([self.transform(observation) for observation in observations]),
                                   axes=[0]).squeeze()
 

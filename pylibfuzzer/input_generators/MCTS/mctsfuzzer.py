@@ -1,14 +1,12 @@
 import logging
+import os.path
 from glob import glob
-from pathlib import Path
 from typing import List
 
 import jpype
 import jpype.imports
 
-import pylibfuzzer
 from pylibfuzzer.input_generators.base import BaseFuzzer
-
 from pylibfuzzer.obs_transform import Reward
 
 logger = logging.getLogger(__name__)
@@ -20,7 +18,7 @@ class MCTSFuzzer(BaseFuzzer):
         super().__init__()
 
         logger.info('Starting JVM')
-        mcts_fuzz_jar = glob(mcts_fuzz_jar_pattern)[0]
+        mcts_fuzz_jar = max(glob(mcts_fuzz_jar_pattern), key=os.path.getmtime)
         # startJVM is the right function
         # noinspection PyUnresolvedReferences
         jpype.startJVM(jvm_args, classpath=[mcts_fuzz_jar])
@@ -69,7 +67,3 @@ class MCTSFuzzer(BaseFuzzer):
         # noinspection PyUnresolvedReferences
         # shutdownJVM is the right function, according to APIdoc
         jpype.shutdownJVM()
-
-
-if __name__ == '__main__':
-    MCTSFuzzer(grammar="/home/sheid/Project/pylibfuzzer/examples/jazzer_json/grammar.yaml")

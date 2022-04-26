@@ -1,0 +1,426 @@
+# https://www.w3.org/TR/xml/#charsets
+document:
+  - prolog element MiscStar
+#
+prolog:
+  'XMLDecl MiscStar doctypedecl MiscStar': 1
+  'XMLDecl MiscStar': 1
+  'MiscStar doctypedecl MiscStar': 1
+  'MiscStar': 1
+##
+XMLDecl:
+  '"<?xml" VersionInfo EncodingDecl SDDecl S "?>"': 1
+  '"<?xml" VersionInfo EncodingDecl SDDecl "?>"': 1
+  '"<?xml" VersionInfo EncodingDecl S "?>"': 1
+  '"<?xml" VersionInfo EncodingDecl "?>"': 1
+  '"<?xml" VersionInfo SDDecl S "?>"': 1
+  '"<?xml" VersionInfo SDDecl "?>"': 1
+  '"<?xml" VersionInfo S "?>"': 1
+  '"<?xml" VersionInfo "?>"': 1
+
+VersionInfo:
+  #todo: add single quotes
+  'S "version" Eq """ VersionNum """': 1
+  '"version" Eq """ VersionNum """': 1
+S:
+  #  '"\u0020" S': 1
+  #  '"\u000A" S': 1
+  #  '"\u000D" S': 1
+  #  '"\u0009" S': 1
+  '"\u0020"': 1
+#  '"\u000A"': 10
+#  '"\u000D"': 10
+#  '"\u0009"': 10
+#  'S': 1
+Eq:
+  - 'S "=" S'
+VersionNum:
+  '"1." DigitsPlus': 1
+DigitsPlus:
+  'Digits': 1
+  'DigitsPlus': 1
+Digits:
+  '"0" . "9"': 1
+EncodingDecl:
+  - 'S "encoding" Eq """ EncName """' #todo : add single quotes.
+EncName:
+  - 'EncChar EncCDStar'
+# [A-Za-z] ([A-Za-z0-9._] | '-')*
+EncChar:
+  '"A" . "Z"': 1
+  '"a" . "z"': 1
+EncCDStar:
+  'EncCDunder': 1
+  '"-"': 1
+  'EncCDStar': 1
+  '': 1
+EncCDunder:
+  'EncCD': 1
+  '"_"': 1
+#  '"."' : 100 todo: debug error caused while using this.
+EncCD: #encoding char digits
+  'EncChar': 1
+  '"0" . "9"': 1
+SDDecl: #todo add single quotes for yes/no
+  'S "standalone" Eq """ "yes" """': 1
+  'S "standalone" Eq """ "no" """': 1
+##
+##
+MiscStar:
+  '': 1
+  'Misc': 1
+  'MiscStar': 1
+Misc:
+  'Comment': 1
+  'PI': 1
+  'S': 1
+#'<!--' ((Char - '-') | ('-' (Char - '-')))* '-->' #ignoring '-' usage
+Comment:
+  - '"<!--" CommentExpr "-->"'
+CommentExpr:
+  'CommentExpr': 1
+  '': 1
+  'Char': 1
+CharStar:
+  'CharStar': 1
+  '': 1
+  'Char': 1
+Char:
+  '"\u0009"': 1
+  '"\u000A': 1
+  '"\u000D"': 1
+  '"\u0020" . "\uD7FF"': 1
+  '"\uE000" . "\uFFFD"': 1
+#  '"\u10000" . "\u10FFFF"' : 10 #todo how to represent this?
+#'<?' PITarget (S (Char* - (Char* '?>' Char*)))? '?>' #incomplete
+PI: #todo: missing '-' usage.
+  '"<?" PITarget S Char "?>"': 1
+  '"<?" PITarget "?>"': 1
+PITarget:
+  - 'Name'
+##
+##
+#'<!DOCTYPE' S Name (S ExternalID)? S? ('[' intSubset ']' S?)? '>'
+doctypedecl:
+  '"<!DOCTYPE" S Name S ExternalID S "[" intSubset "]" S ">"': 1
+  '"<!DOCTYPE" S Name S ExternalID S "[" intSubset "]" ">"': 1
+  '"<!DOCTYPE" S Name S ExternalID S ">"': 1
+  '"<!DOCTYPE" S Name S ExternalID "[" intSubset "]" S ">"': 1
+  '"<!DOCTYPE" S Name S ExternalID "[" intSubset "]" ">"': 1
+  '"<!DOCTYPE" S Name S "[" intSubset "]" S ">"': 1
+  '"<!DOCTYPE" S Name S "[" intSubset "]" ">"': 1
+  '"<!DOCTYPE" S Name "[" intSubset "]" S ">"': 1
+  '"<!DOCTYPE" S Name "[" intSubset "]" ">"': 1
+  '"<!DOCTYPE" S Name S ExternalID ">"': 1
+  '"<!DOCTYPE" S Name S ">"': 1
+  '"<!DOCTYPE" S Name ">"': 1
+#NameStartChar (NameChar)*
+Name:
+  'NameStartChar NameCharStar': 1
+NameStartChar:
+  ":": 1
+  '"A" . "Z"': 1
+  "_": 1
+  '"a" . "z"': 1
+  '"\u00C0" . "\u00D6"': 1
+  '"\u00D8" . "\u00F6"': 1
+  '"\u00F8" . "\u02FF"': 1
+  '"\u0370" . "\u037D"': 1
+  '"\u037F" . "\u1FFF"': 1
+  '"\u200C" . "\u200D"': 1
+  '"\u2070" . "\u218F"': 1
+  '"\u2C00" . "\u2FEF"': 1
+  '"\u3001" . "\uD7FF"': 1
+  '"\uF900" . "\uFDCF"': 1
+  '"\uFDF0" . "\uFFFD"': 1
+#  '"\u10000" . "\uEFFFF"' : 1 #todo : how to represent this?
+NameCharPlus:
+  'NameChar': 1
+  'NameCharPlus': 1
+NameCharStar:
+  '': 1
+  'NameCharPlus': 1
+NameChar:
+  'NameChar': 1
+  'NameStartChar': 1
+  '"-"': 1
+  '"0" . "9"': 1
+  '"\u00B7"': 1
+  '"\u0300" . "\u036F"': 1
+  '"\u203F" . "\u2040"': 1
+ExternalID:
+  '"SYSTEM" S SystemLiteral': 1
+  '"PUBLIC" S PubidLiteral S SystemLiteral': 1
+#('"' [^"]* '"') | ("'" [^']* "'")
+SystemLiteral: #todo : add single quotes.
+  - '""" SLExpr """'
+SLExpr:
+  'SLExpr': 1
+  '"^"': 1
+  '"""': 1
+  '': 1
+PubidLiteral: #todo: add single quotes.
+  '""" PubidCharStar """': 1
+PubidCharStar:
+  'PubidChar': 1
+  '': 1
+  'PubidCharStar': 1
+PubidChar:
+  '"\u0020"': 1
+  '"\u000D"': 1
+  '"\u000A"': 1
+  'EncCD': 1
+  'PubidSigns': 1
+PubidSigns:
+  '"-"': 1
+  '"("': 1
+  '")"': 1
+  '"+"': 1
+  '","': 1
+  #  '"."' : 1
+  '"/"': 1
+  '":"': 1
+  '"="': 1
+  '"?"': 1
+  '";"': 1
+  '"!"': 1
+  '"*"': 1
+  '"#"': 1
+  '"@"': 1
+  '"$"': 1
+  '"_"': 1
+  '"%"': 1
+intSubset:
+  'markupdecl': 1
+  'DeclSep': 1
+  '': 1
+markupdecl:
+  'markupdecl': 1
+  'elementdecl': 1
+  'AttlistDecl': 1
+  'EntityDecl': 1
+  'NotationDecl': 1
+  'PI': 1
+  'Comment': 1
+elementdecl:
+  '"<!ELEMENT" S Name S contentspec S ">"': 1
+  '"<!ELEMENT" S Name S contentspec ">"': 1
+contentspec:
+  '"EMPTY"': 1
+  '"ANY"': 1
+  'Mixed': 1
+  'children': 1
+#'(' S? '#PCDATA' (S? '|' S? Name)* S? ')*' | '(' S? '#PCDATA' S? ')'
+Mixed:
+  '""(" S "#PCDATA" MixedExpr S ")*"': 1
+  '""(" S "#PCDATA" MixedExpr ")*"': 1
+  '""(" "#PCDATA" MixedExpr S ")*"': 1
+  '""(" "#PCDATA" MixedExpr ")*"': 1
+  '"(" S "#PCDATA" S ")"': 1
+  '"(" S "#PCDATA" ")"': 1
+  '"(" "#PCDATA" S ")"': 1
+  '"(" "#PCDATA" ")"': 1
+MixedExpr:
+  'S "|" S Name': 1
+  'S "|" Name': 1
+  '"|" S Name': 1
+  '"|" Name': 1
+  '""': 1
+#(choice | seq) ('?' | '*' | '+')?
+children:
+  'choice': 1
+  'seq': 1
+  'choice childExpr': 1
+  'seq childExpr': 1
+choice:
+  '"(" S cp S "|" S cp S ")"': 1
+  '"(" S cp cp S ")"': 1
+  '"(" S cp S "|" cp S ")"': 1
+  '"(" S cp S "|" cp ")"': 1
+cp:
+  'Name': 1
+  'choice': 1
+  'seq': 1
+  'Name childExpr': 1
+  'choice childExpr': 1
+  'seq childExpr': 1
+seq:
+  '"(" S cp S "," S cp S ")"': 1
+  '"(" S cp S ")"': 1
+  '"(" cp S "," S cp S ")"': 1
+  '"(" cp S "," cp S ")"': 1
+  '"(" cp S "," S cp ")"': 1
+childExpr:
+  '"?"': 1
+  '"*"': 1
+  '"+"': 1
+AttlistDecl:
+  '"<!ATTLIST" S Name AttDefStar S ">"': 1
+  '"<!ATTLIST" S Name AttDefStar ">"': 1
+  '"<!ATTLIST" S Name S ">"': 1
+  '"<!ATTLIST" S Name ">"': 1
+AttDefStar:
+  'AttDef': 1
+  'AttDefStar': 1
+  '': 1
+AttDef:
+  'S Name S AttType S DefaultDecl': 1
+AttType:
+  'StringType': 1
+  'TokenizedType': 1
+  'EnumeratedType': 1
+StringType:
+  - '"CDATA"'
+TokenizedType:
+  '"ID"': 1
+  '"IDREF"': 1
+  '"IDREFS"': 1
+  '"ENTITY"': 1
+  '"ENTITIES"': 1
+  '"NMTOKEN"': 1
+  '"NMTOKENS"': 1
+EnumeratedType:
+  'NotationType': 1
+  'Enumeration': 1
+
+NotationType:
+  '"NOTATION" S "(" S Name Expr10 S ")"': 1
+  '"NOTATION" S "(" Name Expr10 S ")"': 1
+  '"NOTATION" S "(" S Name Expr10 ")"': 1
+  '"NOTATION" S "(" Name Expr10 ")"': 1
+Expr10:
+  'Expr10': 1
+  'S "|" S Name': 1
+  '"|" S Name': 1
+  'S "|" Name': 1
+  '"|" Name': 1
+  '': 1
+Expr11:
+  '': 1
+  'Expr11': 1
+  'S "|" S Nmtoken': 1
+  'S "|" Nmtoken': 1
+  '"|" Nmtoken': 1
+Nmtoken:
+  'NameCharPlus': 1
+Enumeration:
+  '"(" S Nmtoken Expr11 S ")"': 1
+  '"(" S Nmtoken Expr11 ")"': 1
+  '"(" Nmtoken Expr11 ")"': 1
+DefaultDecl:
+  '"#REQUIRED"': 1
+  '"#IMPLIED"': 1
+  '"#FIXED" S AttValue': 1
+  'AttValue': 1
+AttValue:
+  - 'Reference ")" """'
+Reference:
+  'EntityRef': 1
+  'CharRef': 1
+EntityRef:
+  - '""&" Name ";"'
+CharRef:
+  '"&#x" Expr12 ";"': 1
+  '"&#" Expr13 ";"': 1
+Expr12:
+  '"0" . "9"': 1
+  '"a" . "f"': 1
+  '"A" . "F"': 1
+Expr13:
+  '"0" . "9"': 1
+EntityDecl:
+  'GEDecl': 1
+  'PEDecl': 1
+GEDecl:
+  '"<!ENTITY" S Name S EntityDef S ">"': 1
+  '"<!ENTITY" S Name S EntityDef ">"': 1
+EntityDef:
+  'EntityValue': 1
+  'ExternalID NDataDecl': 1
+  'ExternalID': 1
+EntityValue:
+  'PEReference': 1
+  'Reference ")" """': 1
+PEReference:
+  - '""%" Name ";"'
+NDataDecl:
+  - 'S "NDATA" S Name'
+PEDecl:
+  '"<!ENTITY" S "%" S Name S PEDef S ">"': 1
+  '"<!ENTITY" S "%" S Name S PEDef ">"': 1
+PEDef:
+  'EntityValue': 1
+  'ExternalID': 1
+NotationDecl:
+  '"<!NOTATION" S Name S ExternalPublic S ">"': 1
+  '"<!NOTATION" S Name S ExternalPublic ">"': 1
+ExternalPublic:
+  ExternalID: 1
+  PublicID: 1
+PublicID:
+  - '"PUBLIC" S PubidLiteral'
+DeclSep:
+  'DeclSep': 1
+  'PEReference': 1
+  'S': 1
+##
+#
+#
+#elementPlus:
+#  'elementPlus': 100
+#  'element': 1
+element:
+  'EmptyElemTag': 1
+  'STag content ETag': 10
+EmptyElemTag:
+  '"<" Name Expr7 S "/>"': 1
+  '"<" Name Expr7 "/>"': 1
+Expr7:
+  'S Attribute': 1
+  'Expr7': 1
+Attribute:
+  - 'Name Eq AttValue'
+STag:
+  '"<" Name SAttrStar S ">"': 1
+  '"<" Name SAttrStar ">"': 1
+SAttrStar:
+  'S Attribute': 1
+  '': 1
+  'SAttrStar': 1
+content:
+  'CharData contentstarExpr': 1
+  'contentstarExpr': 1
+contentstarExpr:
+  'contentstarExpr': 10
+  '': 1
+  'contentExpr': 1
+contentExpr:
+  'contentexpr2 CharData': 1
+  'contentexpr2': 1
+contentexpr2:
+  'Comment': 1
+  'PI': 1
+  'element': 10
+  'Reference': 1
+  'CDSect': 1
+CDSect:
+  'CDStart CData CDEnd': 1
+CDStart:
+  '"<![CDATA["': 1
+CData:
+  'CharStar': 1
+CDEnd:
+  '"]]>"': 1
+CharData: #todo: add '-' usage.
+  #[^<&]* - ([^<&]* ']]>' [^<&]*)
+  'charDataExpr1': 1
+charDataExpr1:
+  'charDataExpr1': 1
+  '': 1
+  '"^"': 1
+  '"<"': 1
+  '"&"': 1
+ETag:
+  '"</" Name S ">"': 1
+  '"</" Name ">"': 1
+#

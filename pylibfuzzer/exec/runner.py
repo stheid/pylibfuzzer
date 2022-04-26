@@ -187,6 +187,9 @@ class Runner:
                 with open('cov.json', 'w') as f:
                     json.dump(list(self.pipeline.total_coverage), f)
 
+            if count := getattr(self.dispatcher, 'empty_coverages_count', 0):
+                logger.warning(f'Number of empty coverages: {count}')
+
     @property
     def seed_files(self):
         return self._seed_files
