@@ -24,7 +24,6 @@ class NeuzzFuzzer(BaseFuzzer):
         self._do_warmup = True
         self.cmd = jazzer_cmd
         self.network = network
-        self.network = network
         self.max_input_len = max_input_len
         self.initial_dataset_len = initial_dataset_len
         self.n_mutation_candidates = n_mutation_candidates
