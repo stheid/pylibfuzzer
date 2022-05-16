@@ -20,7 +20,7 @@ def main(gram: str, start: str, steps: str):
 
     grammar = {k: parse_rules(rules) for k, rules in grammar.items()}
 
-    # export(grammar)
+    export(grammar)
 
     n = steps
     while n > 0:
