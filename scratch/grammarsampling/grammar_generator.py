@@ -8,9 +8,10 @@ import yaml
 
 
 @click.command()
-@click.option('--gram', default='gram.yml', help='file providing the grammar')
-@click.option('--start', default='element', help='non-terminal to start with')
-def main(gram: str, start: str):
+@click.option('--gram', default='gram.yml', help='file providing the grammar.')
+@click.option('--start', default='element', help='non-terminal to start with.')
+@click.option('--steps', default=1, help='number of texts to be generated.')
+def main(gram: str, start: str, steps: str):
     with open(gram, 'r') as f:
         try:
             grammar = yaml.safe_load(f)
@@ -19,33 +20,43 @@ def main(gram: str, start: str):
 
     grammar = {k: parse_rules(rules) for k, rules in grammar.items()}
 
-    export(grammar)
+    # export(grammar)
 
-    symbols = list(parse_symbols(start))[-1]
-    # TODO: counting the number of non-terminals and so on is very inefficient.
-    while any([isinstance(symb, str) for symb in symbols]):
-        # select first non-terminal
-        idx, nt = choice([(i, x) for i, x in enumerate(symbols) if isinstance(x, str)])
+    n = steps
+    while n > 0:
+        n = n - 1
 
-        # select random rule to expand
-        rules, weights = zip(*grammar[nt].items())
-        weights = np.array(weights) + 1e-7
+        symbols = list(parse_symbols(start))[-1]
+        # TODO: counting the number of non-terminals and so on is very inefficient.
+        while any([isinstance(symb, str) for symb in symbols]):
+            # select first non-terminal
+            idx, nt = choice([(i, x) for i, x in enumerate(symbols) if isinstance(x, str)])
 
-        # the soft mask is a weighted mixture between a uniform random distribution
-        # and a hard mask that will only allow certain rules (the ones that do not have more than one non-terminal)
-        # alpha may be any value between 0 and 1 to mix between the masked and unmasked distribution
-        alpha = 1 if len(symbols) < 1000 else 0
-        soft_mask = (alpha, 1 - alpha) @ \
-                    np.hstack((np.ones_like(weights[:, 1]), weights[:, 1] + 1e-7)).reshape((-1, 2)).T
+            # select random rule to expand
+            try:
+                rules, weights = zip(*grammar[nt].items())
+                weights = np.array(weights) + 1e-7
 
-        weights = weights[:, 0] * soft_mask
-        weights = weights / weights.sum(axis=0)
-        sub = choices(rules, weights)[-1]
+                # the soft mask is a weighted mixture between a uniform random distribution
+                # and a hard mask that will only allow certain rules (the ones that do not have more than one non-terminal)
+                # alpha may be any value between 0 and 1 to mix between the masked and unmasked distribution
+                alpha = 1 if len(symbols) < 1000 else 0
+                soft_mask = (alpha, 1 - alpha) @ \
+                            np.hstack((np.ones_like(weights[:, 1]), weights[:, 1] + 1e-7)).reshape((-1, 2)).T
 
-        # calculate
-        symbols = symbols[:idx] + sub + symbols[idx + 1:]
+                weights = weights[:, 0] * soft_mask
+                weights = weights / weights.sum(axis=0)
+                sub = choices(rules, weights)[-1]
 
-    print(b''.join(symbols).decode())
+                # calculate
+                symbols = symbols[:idx] + sub + symbols[idx + 1:]
+            except Exception as e:
+                print("Exception occured : ", e)
+                print(nt)
+                quit()
+
+        print(b''.join(symbols).decode())
+        print('\n')
 
 
 def parse_rules(rules: Union[dict, list]) -> Dict[Tuple, Tuple[float, float]]:
