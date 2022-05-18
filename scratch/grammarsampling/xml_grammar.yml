@@ -1,31 +1,37 @@
 # https://www.w3.org/TR/xml/#charsets
 document:
-  - prolog elementPlus MiscStar
-#  - prolog elementPlus MiscStar
+  - prolog element MiscStar
 #
 prolog:
-  'XMLDecl MiscStar doctypedecl MiscStar': 10
+  'XMLDecl MiscStar doctypedecl MiscStar': 1
   'XMLDecl MiscStar': 1
-  'MiscStar doctypedecl MiscStar': 10
+  'MiscStar doctypedecl MiscStar': 1
   'MiscStar': 1
 ##
 XMLDecl:
   '"<?xml" VersionInfo EncodingDecl SDDecl S "?>"': 1
+  '"<?xml" VersionInfo EncodingDecl SDDecl "?>"': 1
+  '"<?xml" VersionInfo EncodingDecl S "?>"': 1
+  '"<?xml" VersionInfo EncodingDecl "?>"': 1
   '"<?xml" VersionInfo SDDecl S "?>"': 1
+  '"<?xml" VersionInfo SDDecl "?>"': 1
   '"<?xml" VersionInfo S "?>"': 1
   '"<?xml" VersionInfo "?>"': 1
+
 VersionInfo:
-  - 'S "version" Eq """ VersionNum """' #todo: add single quotes
+  #todo: add single quotes
+  'S "version" Eq """ VersionNum """': 1
+  '"version" Eq """ VersionNum """': 1
 S:
-  '"\u0020" S': 1
+  #  '"\u0020" S': 1
   #  '"\u000A" S': 1
   #  '"\u000D" S': 1
-  '"\u0009" S': 1
-  '"\u0020"': 10
-  #  '"\u000A"': 10
-  #  '"\u000D"': 10
-  '"\u0009"': 10
-  'S': 1
+  #  '"\u0009" S': 1
+  '"\u0020"': 1
+#  '"\u000A"': 10
+#  '"\u000D"': 10
+#  '"\u0009"': 10
+#  'S': 1
 Eq:
   - 'S "=" S'
 VersionNum:
@@ -360,12 +366,12 @@ DeclSep:
 ##
 #
 #
-elementPlus:
-  'elementPlus': 100
-  'element': 1
+#elementPlus:
+#  'elementPlus': 100
+#  'element': 1
 element:
-  'EmptyElemTag': 0
-  'STag content ETag': 100
+  'EmptyElemTag': 1
+  'STag content ETag': 10
 EmptyElemTag:
   '"<" Name Expr7 S "/>"': 1
   '"<" Name Expr7 "/>"': 1
@@ -385,7 +391,7 @@ content:
   'CharData contentstarExpr': 1
   'contentstarExpr': 1
 contentstarExpr:
-  'contentstarExpr': 1
+  'contentstarExpr': 10
   '': 1
   'contentExpr': 1
 contentExpr:
@@ -394,7 +400,7 @@ contentExpr:
 contentexpr2:
   'Comment': 1
   'PI': 1
-  'element': 1
+  'element': 10
   'Reference': 1
   'CDSect': 1
 CDSect:
