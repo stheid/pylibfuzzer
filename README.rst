@@ -28,6 +28,7 @@ Installation of MCTS dependency
 '''''''''''''''''''''''''''''''
 
 ::
+
   $ git clone https://github.com/stheid/MCTS-Fuzzer.git
   $ ./gradlew :shadow
 

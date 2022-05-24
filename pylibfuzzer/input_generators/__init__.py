@@ -4,5 +4,7 @@ from .gen_fuzzer import DummyPCFGGenFuzzer
 from .hill_climb_fuzzer import HillClimbFuzzer
 from .sparks import SparksFuzzer
 from .neuzz import NeuzzFuzzer
+from .dummyfuzz import DummyFuzzer
 
-__all__ = ['AlphaFuzz', 'HillClimbFuzzer', 'DummyPCFGGenFuzzer', 'MCTSFuzzer', 'SparksFuzzer', 'NeuzzFuzzer']
+__all__ = ['AlphaFuzz', 'HillClimbFuzzer', 'DummyPCFGGenFuzzer', 'MCTSFuzzer', 'SparksFuzzer', 'NeuzzFuzzer',
+           'DummyFuzzer']

@@ -6,3 +6,4 @@
 /examples/*/ailibs.log
 /examples/*/logs*
 /build/*
+/examples/dummy_jsonsanitizer/dataset/
