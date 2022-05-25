@@ -12,13 +12,11 @@ class DummyFuzzer(BaseFuzzer):
     This class implements a dummy fuzzer that uses seedfiles to calculate coverage.
     """
 
-    def __init__(self, initial_dataset_len, max_input_len=500):
+    def __init__(self, max_input_len=500):
         super().__init__()
         self._do_warmup = True
         self.batch = []
         self.max_input_len = max_input_len
-        self.initial_dataset_len = initial_dataset_len
-        self.uncovered_bits = None
 
     def load_seed(self, seedfiles):
         for file in seedfiles:
@@ -35,13 +33,4 @@ class DummyFuzzer(BaseFuzzer):
         """
         if self._do_warmup:
             self._do_warmup = False
-
-            batch = self.batch
-            for _ in trange(len(batch), self.initial_dataset_len):
-                file_len = np.random.randint(self.max_input_len)
-                batch.append(np.random.bytes(file_len) + bytes(bytearray(self.max_input_len - file_len)))
-            self.batch = batch
-        return self.batch
-
-    def observe(self, fuzzing_result: List[np.ndarray]):
-        pass
+            return self.batch

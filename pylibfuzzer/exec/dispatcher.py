@@ -58,6 +58,7 @@ class MultiDispatcher(Dispatcher):
         super().__init__(runner=runner, jazzer_cmd=jazzer_cmd, workdir=workdir, sock_addr=sock_addr, logfile=logfile)
         self.mut_reps = mut_reps
         self.return_size = None
+        self.empty_coverages_count = 0
 
     def post(self, data: bytes) -> List[bytes]:
         # SEND INPUT
@@ -82,6 +83,7 @@ class MultiDispatcher(Dispatcher):
                 self.return_size = len(res[0])
 
         if len(res) == 0:
+            self.empty_coverages_count += 1
             if self.return_size is not None:
                 logger.warning(
                     'return value was emtpy, setting to coverage to 0ed bytes of same length as general return values')
@@ -98,6 +100,7 @@ class InitialMultiDispatcher(Dispatcher):
         self.jazzer_iter = jazzer_iter
         self.return_size = None
         self.warmup = True
+        self.empty_coverages_count = 0
 
     def post(self, data: bytes) -> List[bytes]:
         # SEND INPUT
@@ -125,6 +128,7 @@ class InitialMultiDispatcher(Dispatcher):
                 self.return_size = len(res[0])
 
         if len(res) == 0:
+            self.empty_coverages_count += 1
             if self.return_size is not None:
                 logger.warning(
                     'return value was emtpy, setting to coverage to 0ed bytes of same length as general return values')

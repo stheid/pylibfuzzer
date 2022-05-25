@@ -1,5 +1,5 @@
 runner:
-  limit: 50000
+  limit: 1
   # loglevel: 20
   # export_data: true
 
@@ -18,9 +18,8 @@ dispatcher:
   logfile: jazzer.log
 
 obs_transformation:
-  - type: SocketCovArray
+  - type: SocketCovDummy
 
 fuzzer:
   cls: DummyFuzzer
   max_input_len: 500 # 20 kB
-  initial_dataset_len: 2000

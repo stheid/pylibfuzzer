@@ -1,6 +1,6 @@
 runner:
-  limit: 50000
-  # loglevel: 20
+  limit: 1000000
+  #  loglevel: 20
   # export_data: true
 
 seed_files:
@@ -15,7 +15,7 @@ dispatcher:
   workdir: ../../third_party/jazzer
   sock_addr: /tmp/libfuzzer.sock
   mut_reps: 0
-  # logfile: jazzer.log
+  logfile: jazzer.log
 
 obs_transformation:
   - type: SocketCoverage
@@ -24,8 +24,8 @@ obs_transformation:
 
 fuzzer:
   cls: MCTSFuzzer
-  max_iterations: 50000
-  grammar: grammar.yaml
+  max_iterations: 1000000
+  grammar: old_gram.yml
   path_cutoff_length: 12
   mcts_fuzz_jar_pattern: ../../third_party/mcts-fuzzer/build/libs/*all.jar
-  jvm_args: -Xmx10G
+  jvm_args: -Xmx2G
