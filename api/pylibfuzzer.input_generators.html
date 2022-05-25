@@ -121,6 +121,43 @@
 </dd></dl>
 
 <dl class="py class">
+<dt id="pylibfuzzer.input_generators.DummyFuzzer">
+<em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.input_generators.</code><code class="sig-name descname">DummyFuzzer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">max_input_len</span><span class="o">=</span><span class="default_value">500</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.DummyFuzzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.input_generators.base.BaseFuzzer</span></code></p>
+<p>This class implements a dummy fuzzer that uses seedfiles to calculate coverage.</p>
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.DummyFuzzer.create_inputs">
+<code class="sig-name descname">create_inputs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.DummyFuzzer.create_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p>fill up with random inputs to match desired size</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pylibfuzzer.input_generators.DummyFuzzer.load_seed">
+<code class="sig-name descname">load_seed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seedfiles</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.DummyFuzzer.load_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads all files in the seed to the model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>paths</strong> – this is actually a list of strings that refers to a file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt id="pylibfuzzer.input_generators.DummyPCFGGenFuzzer">
 <em class="property">class </em><code class="sig-prename descclassname">pylibfuzzer.input_generators.</code><code class="sig-name descname">DummyPCFGGenFuzzer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pcfg_file</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pylibfuzzer.input_generators.DummyPCFGGenFuzzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pylibfuzzer.input_generators.base.BaseFuzzer</span></code></p>
