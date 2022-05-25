@@ -1,4 +1,5 @@
 import logging
+import os.path
 from glob import glob
 from pathlib import Path
 from typing import List
@@ -20,7 +21,7 @@ class MCTSFuzzer(BaseFuzzer):
         super().__init__()
 
         logger.info('Starting JVM')
-        mcts_fuzz_jar = glob(mcts_fuzz_jar_pattern)[0]
+        mcts_fuzz_jar = max(glob(mcts_fuzz_jar_pattern), key=os.path.getmtime)
         # startJVM is the right function
         # noinspection PyUnresolvedReferences
         jpype.startJVM(jvm_args, classpath=[mcts_fuzz_jar])
