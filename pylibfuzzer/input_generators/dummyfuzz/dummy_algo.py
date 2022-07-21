@@ -1,7 +1,5 @@
 from typing import List
 import logging
-import numpy as np
-from tqdm import trange
 from pylibfuzzer.input_generators.base import BaseFuzzer
 
 logger = logging.getLogger(__name__)
