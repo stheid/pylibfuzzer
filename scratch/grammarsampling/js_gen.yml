@@ -1,0 +1,180 @@
+gen:
+  - genStmt[i=0]
+
+# generateStatement
+# true is || with stmtDepth>=maxStmtDepth
+genStmt[i<6]:
+  - true zero genExpr [del i]
+  - true one [del i] # break
+  - true two [del i] # continue
+  - true three genReturn [del i]
+  - true four genExpr [del i] # throw
+  - true five genIdent [del i] # var
+  - true six [del i] # empty
+  - false zero genIf[i++]
+  - false one genFor[i++]
+  - false two genExpr genBlock[i++] # while
+  - false three genNameFunc[i++]
+  - false four genExpr genCases[i++] # switch
+  - false five genBlock[i++] genIdent genBlock[i++] # try catch
+  - false six genBlock[i++]
+
+genStmt[i==6]:
+  - true zero genExpr [del i]
+  - true one [del i] # break
+  - true two [del i] # continue
+  - true three genReturn [del i]
+  - true four genExpr [del i] # throw
+  - true five genIdent [del i] # var
+  - true six [del i] # empty
+
+# generateExpression
+# true is || with exprDepth>=maxExprDepth
+genExpr[j<10]:
+  'true zero genLit [del j]': 8
+  'true one genIdent [del j]': 8
+  'false zero int genExpr[j++] genExpr[j++]': 2 # binary
+  'false one int genExpr[j++]': 2 # unary
+  'false two genExpr[j++] genExpr[j++] genExpr[j++]': 2 # ternary
+  'false three genExpr[j++] mean3Expr[j++] bool': 2 # call
+  'false four genFunc[j++]': 2
+  'false five genExpr[j++] genIdent[j++]': 2 # prop
+  'false six genExpr[j++] genExpr[j++]': 2 # idx
+  'false seven mean3Ident[j++] true genBlock': 1 # arrowfunc
+  'false seven mean3Ident[j++] false genExpr': 1 # arrowfunc
+
+genExpr[j==10]:
+  - zero genLit [del j]
+  - one genIdent [del j]
+
+genReturn:
+  - true
+  - false genExpr
+
+genIdent[global k<100]:
+  - true int [k++]
+  - false int
+
+genIdent[global k==100]:
+  - int
+
+genIf:
+  - genExpr genBlock true genBlock
+  - genExpr genBlock false
+
+genFor:
+  - genForExpr genForExpr genForExpr genBlock
+
+genForExpr:
+  - true genExpr
+  - false
+
+genNameFunc:
+  - genIdent genFunc
+
+# from scipy.stats import geom
+# from itertools import repeat
+# def gen(nts, mean=10, offset=0):
+#    for i in range(1, mean*2+1):
+#        print(f'\'_{i}geo{mean} {" ".join(repeat(nts,i+offset))}\': {geom(1/mean).pmf(i):.4f}')
+# gen('genIdent',5)
+genFunc:
+  '_1geo5 genIdent': 0.2000
+  '_2geo5 genIdent genIdent': 0.1600
+  '_3geo5 genIdent genIdent genIdent': 0.1280
+  '_4geo5 genIdent genIdent genIdent genIdent': 0.1024
+  '_5geo5 genIdent genIdent genIdent genIdent genIdent': 0.0819
+  '_6geo5 genIdent genIdent genIdent genIdent genIdent genIdent': 0.0655
+  '_7geo5 genIdent genIdent genIdent genIdent genIdent genIdent genIdent': 0.0524
+  '_8geo5 genIdent genIdent genIdent genIdent genIdent genIdent genIdent genIdent': 0.0419
+  '_9geo5 genIdent genIdent genIdent genIdent genIdent genIdent genIdent genIdent genIdent': 0.0336
+  '_10geo5 genIdent genIdent genIdent genIdent genIdent genIdent genIdent genIdent genIdent genIdent': 0.0268
+
+# gen('genExpr genBlock',2)
+genCases:
+  '_1geo2 genExpr genBlock': 0.5000
+  '_2geo2 genExpr genBlock genExpr genBlock': 0.2500
+  '_3geo2 genExpr genBlock genExpr genBlock genExpr genBlock': 0.1250
+  '_4geo2 genExpr genBlock genExpr genBlock genExpr genBlock genExpr genBlock': 0.0625
+
+genLit[j<10]:
+  'true true mean3Expr[j]': 1
+  'true false mean3Object[j]': 1
+  'false nonNestingLit': 2
+
+genLit[j==10]:
+  - nonNestingLit
+
+nonNestingLit:
+  - zero int
+  - one bool
+  - two asciiStr
+  - three
+  - four
+  - five
+
+# gen('byte',10)
+asciiStr:
+  '_1geo10 byte': 0.1000
+  '_2geo10 byte byte': 0.0900
+  '_3geo10 byte byte byte': 0.0810
+  '_4geo10 byte byte byte byte': 0.0729
+  '_5geo10 byte byte byte byte byte': 0.0656
+  '_6geo10 byte byte byte byte byte byte': 0.0590
+  '_7geo10 byte byte byte byte byte byte byte': 0.0531
+  '_8geo10 byte byte byte byte byte byte byte byte': 0.0478
+  '_9geo10 byte byte byte byte byte byte byte byte byte': 0.0430
+  '_10geo10 byte byte byte byte byte byte byte byte byte byte': 0.0387
+  '_11geo10 byte byte byte byte byte byte byte byte byte byte byte': 0.0349
+  '_12geo10 byte byte byte byte byte byte byte byte byte byte byte byte': 0.0314
+  '_13geo10 byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.0282
+  '_14geo10 byte byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.0254
+  '_15geo10 byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.0229
+  '_16geo10 byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.0206
+  '_17geo10 byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.0185
+  '_18geo10 byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.0167
+  '_19geo10 byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.0150
+  '_20geo10 byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.0135
+
+
+mean3Expr:
+  '_1geo3 genExpr': 0.3333
+  '_2geo3 genExpr genExpr': 0.2222
+  '_3geo3 genExpr genExpr genExpr': 0.1481
+  '_4geo3 genExpr genExpr genExpr genExpr': 0.0988
+  '_5geo3 genExpr genExpr genExpr genExpr genExpr': 0.0658
+  '_6geo3 genExpr genExpr genExpr genExpr genExpr genExpr': 0.0439
+
+mean3Ident:
+  '_1geo3 genIdent': 0.3333
+  '_2geo3 genIdent genIdent': 0.2222
+  '_3geo3 genIdent genIdent genIdent': 0.1481
+  '_4geo3 genIdent genIdent genIdent genIdent': 0.0988
+  '_5geo3 genIdent genIdent genIdent genIdent genIdent': 0.0658
+  '_6geo3 genIdent genIdent genIdent genIdent genIdent genIdent': 0.0439
+
+mean3Object:
+  '_1geo3 genIdent genExpr': 0.3333
+  '_2geo3 genIdent genExpr genIdent genExpr': 0.2222
+  '_3geo3 genIdent genExpr genIdent genExpr genIdent genExpr': 0.1481
+  '_4geo3 genIdent genExpr genIdent genExpr genIdent genExpr genIdent genExpr': 0.0988
+  '_5geo3 genIdent genExpr genIdent genExpr genIdent genExpr genIdent genExpr genIdent genExpr': 0.0658
+  '_6geo3 genIdent genExpr genIdent genExpr genIdent genExpr genIdent genExpr genIdent genExpr genIdent genExpr': 0.0439
+
+  _1geo2
+  
+  _1geo3
+  
+  _1geo5
+  
+  _1geo10
+  
+  bool
+  
+  true false
+  
+  byte
+  
+  int
+  
+  one two three

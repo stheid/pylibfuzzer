@@ -1,0 +1,182 @@
+# startword
+elem:
+  - 'makeAlphaString attributes maybeChildren'
+elem2:
+  - 'makeAlphaString attributes maybeChildren2'
+elem3:
+  - 'makeAlphaString attributes maybeChildren3'
+elem4:
+  - 'makeAlphaString attributes boolFalse boolFalse boolFalse'
+
+# geom(2) - constant 1
+attributes:
+  '_1_from2Geo': 0.5
+  '_2_from2Geo attr': 0.25
+  '_3_from2Geo attr attr': 0.125
+  '_4_from2Geo attr attr attr': 0.0625
+
+attr:
+  - 'makeAlphaString makeAlphaString'
+
+maybeChildren:
+  - 'boolTrue children'
+  - 'boolFalse maybeText'
+
+# geom(4) - constant 1
+children:
+  '_1_from4Geo': 0.25
+  '_2_from4Geo elem2': 0.1875
+  '_3_from4Geo elem2 elem2': 0.140625
+  '_4_from4Geo elem2 elem2 elem2': 0.10546875
+  '_5_from4Geo elem2 elem2 elem2 elem2': 0.0791015625
+  '_6_from4Geo elem2 elem2 elem2 elem2 elem2': 0.059326171875
+  '_7_from4Geo elem2 elem2 elem2 elem2 elem2 elem2': 0.04449462890625
+  '_8_from4Geo elem2 elem2 elem2 elem2 elem2 elem2 elem2': 0.0333709716796875
+
+maybeChildren2:
+  - 'boolTrue children2'
+  - 'boolFalse maybeText'
+
+children2:
+  '_1_from4Geo': 0.25
+  '_2_from4Geo elem3': 0.1875
+  '_3_from4Geo elem3 elem3': 0.140625
+  '_4_from4Geo elem3 elem3 elem3': 0.10546875
+  '_5_from4Geo elem3 elem3 elem3 elem3': 0.0791015625
+  '_6_from4Geo elem3 elem3 elem3 elem3 elem3': 0.059326171875
+  '_7_from4Geo elem3 elem3 elem3 elem3 elem3 elem3': 0.04449462890625
+  '_8_from4Geo elem3 elem3 elem3 elem3 elem3 elem3 elem3': 0.0333709716796875
+
+maybeChildren3:
+  - 'boolTrue children3'
+  - 'boolFalse maybeText'
+
+children3:
+  '_1_from4Geo': 0.25
+  '_2_from4Geo elem4': 0.1875
+  '_3_from4Geo elem4 elem4': 0.140625
+  '_4_from4Geo elem4 elem4 elem4': 0.10546875
+  '_5_from4Geo elem4 elem4 elem4 elem4': 0.0791015625
+  '_6_from4Geo elem4 elem4 elem4 elem4 elem4': 0.059326171875
+  '_7_from4Geo elem4 elem4 elem4 elem4 elem4 elem4': 0.04449462890625
+  '_8_from4Geo elem4 elem4 elem4 elem4 elem4 elem4 elem4': 0.0333709716796875
+
+maybeText:
+  - 'boolTrue text'
+  - 'boolFalse maybeCdata'
+
+text:
+  - 'makeAlphaString'
+
+maybeCdata:
+  - 'boolTrue cdata'
+  - 'boolFalse'
+
+cdata:
+  - 'makeAlphaString'
+
+# from scipy.stats import geom; geom(1/10).pmf(i)
+makeAlphaString:
+  ## mean 10.0
+  '_1_from10Geo byte': 0.1
+  '_2_from10Geo byte byte': 0.09000000000000001
+  '_3_from10Geo byte byte byte': 0.08100000000000002
+  '_4_from10Geo byte byte byte byte': 0.0729
+  '_5_from10Geo byte byte byte byte byte': 0.06561
+  '_6_from10Geo byte byte byte byte byte byte': 0.05904900000000001
+  '_7_from10Geo byte byte byte byte byte byte byte': 0.05314410000000001
+  '_8_from10Geo byte byte byte byte byte byte byte byte': 0.04782969000000001
+  '_9_from10Geo byte byte byte byte byte byte byte byte byte': 0.04304672100000001
+  '_10_from10Geo byte byte byte byte byte byte byte byte byte byte': 0.03874204890000001
+  '_11_from10Geo byte byte byte byte byte byte byte byte byte byte byte': 0.03486784401000001
+  '_12_from10Geo byte byte byte byte byte byte byte byte byte byte byte byte': 0.031381059609000006
+  '_13_from10Geo byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.028242953648100012
+  '_14_from10Geo byte byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.02541865828329001
+  '_15_from10Geo byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.02287679245496101
+  '_16_from10Geo byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.02058911320946491
+  '_17_from10Geo byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.018530201888518418
+  '_18_from10Geo byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.016677181699666577
+  '_19_from10Geo byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.015009463529699918
+  '_20_from10Geo byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte byte': 0.013508517176729929
+
+makeDictString:
+  # For the ant.dict
+  - '"\x00" . "\x74"'
+  # for the mvn.dict
+  # '"\x00" . "\x8c"': 1
+
+byte:
+  - '"\x00" . "\xFF"'
+
+boolTrue:
+  - '"\x01"'
+
+boolFalse:
+  - '"\x00"'
+
+_1_from2Geo:
+  - '"\x9a\x0a\x52\x88\x60\x5d\xd3\x9c"'
+_2_from2Geo:
+  - '"\x70\xc0\x21\xce\x58\x92\x5e\x3d"'
+_3_from2Geo:
+  - '"\x43\x46\x49\xf3\x38\x3e\x15\x40"'
+_4_from2Geo:
+  - '"\x7c\xe3\xa1\xfb\x05\x17\xd5\x23"'
+
+_1_from4Geo:
+  - '"\x29\xcb\x7c\xc4\xca\x82\xc8\xd7"'
+_2_from4Geo:
+  - '"\xc8\x52\x40\x5d\x85\x40\x15\xef"'
+_3_from4Geo:
+  - '"\xba\xeb\x12\xe6\x35\xe2\x3a\x8d"'
+_4_from4Geo:
+  - '"\xb6\xa1\x79\x0e\x4b\x04\x4e\x9f"'
+_5_from4Geo:
+  - '"\x07\xf7\xe2\xce\x91\xfa\x72\x54"'
+_6_from4Geo:
+  - '"\xed\x2f\x22\x67\x4c\xf7\xed\x36"'
+_7_from4Geo:
+  - '"\xab\x58\x52\xa7\x6a\x7f\x05\xb1"'
+_8_from4Geo:
+  - '"\x92\xc7\x91\x2f\x9b\xb7\xac\xa9"'
+
+_1_from10Geo:
+  - '"\x65\xd0\x4a\xf0\xbf\xf5\xe1\xab"'
+_2_from10Geo:
+  - '"\xc3\xda\x67\x14\x54\x81\xaa\xb5"'
+_3_from10Geo:
+  - '"\xf6\x0a\xd0\xd0\xcb\xbc\xc8\x61"'
+_4_from10Geo:
+  - '"\x9f\xe7\x17\xd9\x4a\x13\x47\xaf"'
+_5_from10Geo:
+  - '"\x6f\x20\x99\xe1\x72\x81\xc2\x02"'
+_6_from10Geo:
+  - '"\x0f\x15\xc1\x81\xb5\x36\xef\xca"'
+_7_from10Geo:
+  - '"\x39\x8f\x0c\x86\x2e\xc5\xe1\x71"'
+_8_from10Geo:
+  - '"\x70\x27\x45\xda\x60\x19\x8c\x60"'
+_9_from10Geo:
+  - '"\xe0\x03\x68\x82\xa7\x96\x86\x98"'
+_10_from10Geo:
+  - '"\xe4\xda\x87\xc2\x94\x33\x6b\xd2"'
+_11_from10Geo:
+  - '"\xd3\xdd\xb0\x72\x42\x9a\x1e\x9b"'
+_12_from10Geo:
+  - '"\x29\xa7\xdb\x52\x46\x71\x49\xa8"'
+_13_from10Geo:
+  - '"\x19\x00\xef\x1e\x36\xd5\xe0\x1d"'
+_14_from10Geo:
+  - '"\x79\xe1\x00\xd3\xcf\xd4\xe4\x0c"'
+_15_from10Geo:
+  - '"\x94\xdc\x20\xc7\x44\xb9\xca\xe4"'
+_16_from10Geo:
+  - '"\xf6\xd0\x34\x8f\x47\x00\x23\xa7"'
+_17_from10Geo:
+  - '"\xf2\x76\x4e\x2b\x6c\xad\x78\x4c"'
+_18_from10Geo:
+  - '"\xad\xb3\x57\x07\x8a\x80\xe5\x03"'
+_19_from10Geo:
+  - '"\x8f\x65\x71\xef\x2f\x3d\x92\xc7"'
+_20_from10Geo:
+  - '"\x5e\x00\x82\x3b\x40\x48\x27\x06"'
