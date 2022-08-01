@@ -10,7 +10,7 @@ class DummyFuzzer(BaseFuzzer):
     This class implements a dummy fuzzer that uses seedfiles to calculate coverage.
     """
 
-    def __init__(self, max_input_len=500):
+    def __init__(self, max_input_len=None):
         super().__init__()
         self._do_warmup = True
         self.batch = []
@@ -21,7 +21,8 @@ class DummyFuzzer(BaseFuzzer):
             with open(file, 'rb') as f:
                 input = f.read()
             # cut and pad seedfiles to be exact self.max_input_length
-            input = input[:self.max_input_len] + bytes(bytearray(max(0, self.max_input_len - len(input))))
+            if self.max_input_len is not None:
+                input = input[:self.max_input_len] + bytes(bytearray(max(0, self.max_input_len - len(input))))
             self.batch.append(input)
 
     def create_inputs(self) -> List[bytes]:
