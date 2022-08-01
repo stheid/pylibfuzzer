@@ -28,8 +28,11 @@ class Dispatcher:
             os.remove(self.addr)
         self.sock.bind(self.addr)
         self.sock.listen(1)
+        logger.debug("Created Socket and listening for connection")
+        logger.debug("Starting up jazzer...")
         # client connection - jazzer
         self.proc = Popen(self.cmd, cwd=self.workdir, stdout=self.log_file, stderr=self.log_file)
+        logger.debug('Accepting connections from Jazzer')
         # accept connection from client
         self.conn, _ = self.sock.accept()
 
