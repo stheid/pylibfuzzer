@@ -4,7 +4,7 @@ from os.path import exists
 from socket import socket, AF_UNIX, SOCK_STREAM
 from struct import unpack, pack
 from subprocess import Popen
-from typing import List
+from typing import List, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,13 @@ class Dispatcher:
         self.sock.close()
         os.remove(self.addr)
 
-    def post(self, data: bytes) -> List[bytes]:
+    def post(self, data: bytes) -> Tuple[List[bytes], List[bool]]:
+        """
+        Posts the byte to the jazzer oracle and returns the oracles results in a synchronous manner
+
+        :param data: The file to test in the oracle
+        :return: a list of pairs of Coverages and IsNotCrashed boolean
+        """
         pass
 
 
@@ -63,10 +69,10 @@ class MultiDispatcher(Dispatcher):
         self.return_size = None
         self.empty_coverages_count = 0
 
-    def post(self, data: bytes) -> List[bytes]:
+    def post(self, data: bytes) -> Tuple[List[bytes], List[bool]]:
         # SEND INPUT
         datalen = len(data)
-        # mutation repetions
+        # mutation repetitions
         self.conn.sendall(pack('I', self.mut_reps))
         # input length and input
         self.conn.sendall(pack('I', datalen) + data)
@@ -77,15 +83,17 @@ class MultiDispatcher(Dispatcher):
         if n_coverages != self.mut_reps + 1:
             logger.debug(
                 f'Received {n_coverages} coverages, but requested {self.mut_reps} repetitions plus the generated input')
-        res = []
+        cov, succ = [], []
         for i in range(n_coverages):
             len_ = unpack('I', self.conn.recv(4))[0]
-            res.append(self.conn.recv(len_))
-            logger.debug('Recieved result of %dbytes', len_)
-            if self.return_size is None:
-                self.return_size = len(res[0])
+            cov.append(self.conn.recv(len_))
+            succ.append(unpack('?', self.conn.recv(1))[0])
+            logger.debug('Received result of %dbytes', len_)
 
-        if len(res) == 0:
+            if self.return_size is None:
+                self.return_size = len(cov[0])
+
+        if len(cov) == 0:
             self.empty_coverages_count += 1
             if self.return_size is not None:
                 logger.warning(
@@ -94,7 +102,7 @@ class MultiDispatcher(Dispatcher):
                 res = [bytes(bytearray(self.return_size))]
             else:
                 raise RuntimeError(f'PuT did not return any measurements in first iteration.\nFile:\n{data}')
-        return res
+        return cov, succ
 
 
 class InitialMultiDispatcher(Dispatcher):
@@ -105,7 +113,7 @@ class InitialMultiDispatcher(Dispatcher):
         self.warmup = True
         self.empty_coverages_count = 0
 
-    def post(self, data: bytes) -> List[bytes]:
+    def post(self, data: bytes) -> Tuple[List[bytes], List[bool]]:
         # SEND INPUT
         datalen = len(data)
         if self.warmup == True:
@@ -114,7 +122,7 @@ class InitialMultiDispatcher(Dispatcher):
         else:
             n = 0
 
-        # mutation repetions
+        # mutation repetitions
         self.sock.sendall(pack('I', n))
         # input length and input
         self.sock.sendall(pack('I', datalen) + data)
@@ -122,15 +130,16 @@ class InitialMultiDispatcher(Dispatcher):
 
         # READ FUZZER OBSERVATIONS
         n_coverages = unpack('I', self.sock.recv(4))[0]
-        res = []
+        cov, succ = [], []
         for i in range(n_coverages):
             len_ = unpack('I', self.sock.recv(4))[0]
-            res.append(self.sock.recv(len_))
-            logger.debug('Recieved result of %dbytes', len_)
+            cov.append(self.conn.recv(len_))
+            succ.append(unpack('?', self.conn.recv(1))[0])
+            logger.debug('Received result of %dbytes', len_)
             if self.return_size is None:
-                self.return_size = len(res[0])
+                self.return_size = len(cov[0])
 
-        if len(res) == 0:
+        if len(cov) == 0:
             self.empty_coverages_count += 1
             if self.return_size is not None:
                 logger.warning(
@@ -139,4 +148,4 @@ class InitialMultiDispatcher(Dispatcher):
                 res = [bytes(bytearray(self.return_size))]
             else:
                 raise RuntimeError(f'PuT did not return any measurements in first iteration.\nFile:\n{data}')
-        return res
+        return cov, succ

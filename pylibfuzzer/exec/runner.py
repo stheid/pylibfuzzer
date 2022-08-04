@@ -64,6 +64,7 @@ class Runner:
         self.do_warmup = runner_conf.get('warmup', True)
         loglevel = runner_conf.get('loglevel', logging.WARNING)
         self.corpusdir = runner_conf.get('corpusdir', None)
+        self.crashdir = runner_conf.get('crashdir', None)
         self.cov_extractor = SocketCoverageTransformer()
         logging.basicConfig(level=loglevel)
         logger.debug(config)
@@ -159,18 +160,27 @@ class Runner:
                     idx = self.i + j
                     logger.debug('Executing input number %d ', idx)
                     with timer() as elapsed:
-                        result = cmd.post(created_input)
+                        covs, is_not_crashed = cmd.post(created_input)
                     tf.summary.scalar('time/exec-put', elapsed(), step=idx)
 
                     # all the other entries in results are from multi-exec and not under our control.
-                    created_input_cov = result[0]
+                    created_input_cov = covs[0]
+                    is_input_crash = not is_not_crashed[0]
                     self.cov_extractor(created_input_cov)
                     if self.cov_extractor.coverage_increased:
                         tf.summary.scalar('out/coverage', len(self.cov_extractor.total_coverage), step=idx)
+
+                        # write corpus
                         if self.corpusdir is not None:
                             with open(Path(self.corpusdir) / str(uuid1()), 'wb') as f:
                                 f.write(created_input)
-                    results.append(self.pipeline.batch_transform(result))
+
+                        # write crash
+                        if self.crashdir is not None and is_input_crash:
+                            with open(Path(self.corpusdir) / str(uuid1()), 'wb') as f:
+                                f.write(created_input)
+                    # using only the list of coverages and discarding the
+                    results.append(self.pipeline.batch_transform(covs))
 
                     logger.debug("Exporting input number %d", idx)
                     dataset_collector.collect(idx, created_input, created_input_cov)
