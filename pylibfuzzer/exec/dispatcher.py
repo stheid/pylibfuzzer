@@ -76,7 +76,7 @@ class MultiDispatcher(Dispatcher):
         self.conn.sendall(pack('I', self.mut_reps))
         # input length and input
         self.conn.sendall(pack('I', datalen) + data)
-        logger.debug('Sent file with %dbytes', datalen)
+        logger.debug(f'Sent file with {datalen}bytes')
 
         # READ FUZZER OBSERVATIONS
         n_coverages = unpack('I', self.conn.recv(4))[0]
@@ -96,7 +96,7 @@ class MultiDispatcher(Dispatcher):
         if len(cov) == 0:
             self.empty_coverages_count += 1
             if self.return_size is not None:
-                logger.warning(
+                logger.error(
                     'return value was emtpy, setting to coverage to 0ed bytes of same length as general return values')
                 logger.debug(f'File that caused the zero coverage:\n{data}')
                 res = [bytes(bytearray(self.return_size))]

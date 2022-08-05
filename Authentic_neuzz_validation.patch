@@ -1,0 +1,85 @@
+Index: pylibfuzzer/exec/runner.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pylibfuzzer/exec/runner.py b/pylibfuzzer/exec/runner.py
+--- a/pylibfuzzer/exec/runner.py	(revision ae92da3fbbc275bae453ab722176b4c94c55b6cc)
++++ b/pylibfuzzer/exec/runner.py	(date 1654762261890)
+@@ -1,6 +1,7 @@
+ import importlib
+ import json
+ import logging
++import os.path
+ from datetime import datetime
+ from glob import glob
+ from os.path import isfile
+@@ -33,6 +34,7 @@
+ 
+ class Runner:
+     def __init__(self, configs, suffix='', **kwargs):
++        self.coverage_terminate = False
+         self.__start_time = datetime.now()
+         self._seed_files = []
+         self.i = 0
+@@ -64,11 +66,16 @@
+         self.do_warmup = runner_conf.get('warmup', True)
+         loglevel = runner_conf.get('loglevel', logging.WARNING)
+         self.corpusdir = runner_conf.get('corpusdir', None)
++        if self.corpusdir and not os.path.exists(Path(self.corpusdir)):
++            os.mkdir(Path(self.corpusdir))
++
+         self.cov_extractor = SocketCoverageTransformer()
+         logging.basicConfig(level=loglevel)
+         logger.debug(config)
+         self.rewards = []
+         self.export_data = runner_conf.get('export_data', False)
++        self.eval_coverage = runner_conf.get('eval_coverage', False)
++        self.achieved_coverage = runner_conf.get('achieved_cov', 0)
+         fuzz_target = runner_conf.get('fuzz_target', [])
+ 
+         # |FUZZER|
+@@ -120,6 +127,7 @@
+         # execute the main loop
+         self.input_generator.prepare()
+         self.input_generator.load_seed(self.seed_files)
++        self.coverage_terminate = False
+ 
+         with self.dispatcher as cmd, \
+                 self.input_generator, \
+@@ -155,6 +163,7 @@
+ 
+                 logger.info('Executing input batch starting with number %d ', self.i)
+                 results = []
++                temp_batch = []
+                 for j, created_input in enumerate(tqdm(batch, disable=len(batch) == 1, leave=False)):
+                     idx = self.i + j
+                     logger.debug('Executing input number %d ', idx)
+@@ -169,9 +178,17 @@
+                         tf.summary.scalar('out/coverage', len(self.cov_extractor.total_coverage), step=idx)
+                         if self.corpusdir is not None:
+                             with open(Path(self.corpusdir) / str(uuid1()), 'wb') as f:
++                                # export input to be used later for coverage measurement in fuzzbench.
+                                 f.write(created_input)
++                    if self.eval_coverage:
++                        if len(self.cov_extractor.total_coverage) > self.achieved_coverage:
++                            logger.debug(
++                                f'total coverage of {len(self.cov_extractor.total_coverage)} achieved. quitting...')
++                            self.coverage_terminate = True
++                            self.input_generator.batch = temp_batch
++                            break
+                     results.append(self.pipeline.batch_transform(result))
+-
++                    temp_batch.append(created_input)
+                     logger.debug("Exporting input number %d", idx)
+                     dataset_collector.collect(idx, created_input, created_input_cov)
+ 
+@@ -183,6 +200,8 @@
+                 self.i += batchsize
+                 self.input_generator.observe(results)
+ 
++                if self.coverage_terminate:
++                    break
+             if hasattr(self.pipeline, 'total_coverage'):
+                 with open('cov.json', 'w') as f:
+                     json.dump(list(self.pipeline.total_coverage), f)

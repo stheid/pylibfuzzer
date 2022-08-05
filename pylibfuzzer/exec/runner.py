@@ -81,8 +81,6 @@ class Runner:
         cls = getattr(module, clsname)
 
         # create fuzzer
-        if 'jazzer_cmd' in fuzzer_conf:
-            fuzzer_conf['jazzer_cmd'] += fuzz_target
         self.input_generator = cls(**fuzzer_conf)  # type: BaseFuzzer
 
         # |DISPATCHER|

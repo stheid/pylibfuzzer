@@ -4,6 +4,7 @@ runner:
   # export_data: true
 
 seed_files:
+  dataset
 # path to seedfiles
 
 dispatcher:
@@ -11,7 +12,7 @@ dispatcher:
   # and fuzz results to and from the libfuzzer command
   type: Multi
   # binary created using "./bazelisk-linux-amd64 build //:jazzer_release" in https://github.com/fmeum/jazzer-oracle
-  jazzer_cmd: [ 'bazel', 'run', '//examples:JsonSanitizerDenylistFuzzer','--', '-oracle=1', '--keep-going=100000', '-timeout=0' ]
+  jazzer_cmd: [ 'bazel', 'run', '//examples:JsonSanitizerValidJsonFuzzer','--', '-oracle=1', '--keep-going=100000', '-timeout=0' ]
   workdir: ../../third_party/jazzer
   sock_addr: /tmp/libfuzzer.sock
   mut_reps: 0
@@ -22,9 +23,7 @@ obs_transformation:
 
 fuzzer:
   cls: NeuzzFuzzer
-  jazzer_cmd: [ '../../bin/jazzer/jazzer', '--keep-going=100000' ]
   max_input_len: 500 # 20 kB
-  # dataset: "./dataset2.zip"
   initial_dataset_len: 2000
   n_mutation_candidates: 10
   n_mutation_positions: 500

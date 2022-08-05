@@ -3,7 +3,7 @@ runner:
   loglevel: 20
 
 seed_files:
-  dataset/
+  dataset
 # paths and files used as seed files for the fuzzer
 
 dispatcher:

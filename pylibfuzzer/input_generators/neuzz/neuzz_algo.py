@@ -15,14 +15,13 @@ class NeuzzFuzzer(BaseFuzzer):
     This class implements the Neuzz algorithm.
     """
 
-    def __init__(self, jazzer_cmd, initial_dataset_len, dataset=None, max_input_len=500, n_mutation_candidates=10,
+    def __init__(self, initial_dataset_len, dataset=None, max_input_len=500, n_mutation_candidates=10,
                  n_mutation_positions=100, exp=6, network=(512,), epochs=10):
         super().__init__()
         self.exp = exp
         self.batch = []
         self.model = NeuzzModel(epochs=epochs)
         self._do_warmup = True
-        self.cmd = jazzer_cmd
         self.network = network
         self.network = network
         self.max_input_len = max_input_len
