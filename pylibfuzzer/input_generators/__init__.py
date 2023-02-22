@@ -5,6 +5,7 @@ from .hill_climb_fuzzer import HillClimbFuzzer
 from .sparks import SparksFuzzer
 from .neuzz import NeuzzFuzzer
 from .dummyfuzz import DummyFuzzer
+from .randFuzz import RandFuzzer
 
 __all__ = ['AlphaFuzz', 'HillClimbFuzzer', 'DummyPCFGGenFuzzer', 'MCTSFuzzer', 'SparksFuzzer', 'NeuzzFuzzer',
-           'DummyFuzzer']
+           'DummyFuzzer', 'RandFuzzer']
