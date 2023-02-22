@@ -1,5 +1,5 @@
 runner:
-  limit: 1
+  limit: 20
   loglevel: 20
 
 seed_files:
@@ -11,7 +11,7 @@ dispatcher:
   # and fuzz results to and from the libfuzzer command
   type: Multi
   # binary created using "./bazelisk-linux-amd64 build //:jazzer_release" in https://github.com/fmeum/jazzer-oracle
-  jazzer_cmd: [ 'bazel', 'run', '//:jazzer','--', '-oracle=1', '--keep-going=100000', '-timeout=0', '--cp=/home/ajrox/Programs/pylibfuzzer/examples/random_jqf/ant_gen.jar', '--target_class=AntGenFuzzer' ]
+  jazzer_cmd: [ 'bazel', 'run', '//:jazzer','--', '-oracle=1', '--keep-going=100000', '-timeout=0', '--cp=/home/ajrox/Programs/pylibfuzzer/examples/random_jqf/ant_gen.jar', '--target_class=AntFuzzer' ]
   workdir: ../../third_party/jazzer
   sock_addr: /tmp/libfuzzer.sock
   mut_reps: 0
@@ -23,4 +23,3 @@ obs_transformation:
 fuzzer:
   cls: RandFuzzer
   max_input_len: 500 # 20 kB
-  initial_dataset_len: 500
