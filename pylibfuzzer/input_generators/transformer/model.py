@@ -18,6 +18,7 @@ class TransformerModel:
         self.latent_dim = latent_dim
         self.num_heads = num_heads
 
+    # todo: add dimension information as argument
     def initialize_model(self):
         encoder_inputs = keras.Input(shape=(None,), dtype="int64", name="encoder_inputs")
         x = PositionalEmbedding(self.sequence_length, self.vocab_size, self.embed_dim)(encoder_inputs)

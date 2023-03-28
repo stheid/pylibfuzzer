@@ -6,6 +6,7 @@ from .sparks import SparksFuzzer
 from .neuzz import NeuzzFuzzer
 from .dummyfuzz import DummyFuzzer
 from .randFuzz import RandFuzzer
+from .transformer import TransformerFuzzer
 
 __all__ = ['AlphaFuzz', 'HillClimbFuzzer', 'DummyPCFGGenFuzzer', 'MCTSFuzzer', 'SparksFuzzer', 'NeuzzFuzzer',
-           'DummyFuzzer', 'RandFuzzer']
+           'DummyFuzzer', 'RandFuzzer', 'TransformerFuzzer']

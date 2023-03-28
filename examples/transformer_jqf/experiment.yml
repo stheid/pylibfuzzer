@@ -1,0 +1,38 @@
+runner:
+  limit: 10000
+  loglevel: 20
+  # export_data: true
+
+# path to seed files
+seed_files:
+  data/fuzz-results/events.bin
+
+dispatcher:
+  # dispatches libfuzzer command and handles communication of new fuzzing files
+  # and fuzz results to and from the libfuzzer command
+  type: Multi
+  # binary created using "./bazelisk-linux-amd64 build //:jazzer_release" in https://github.com/fmeum/jazzer-oracle
+  jazzer_cmd: [ 'bazel', 'run', '//examples:JsonSanitizerValidJsonFuzzer','--', '-oracle=1', '--keep-going=100000', '-timeout=0' ]
+  workdir: ../../third_party/jazzer
+  sock_addr: /tmp/libfuzzer.sock
+  mut_reps: 0
+  logfile: jazzer.log
+
+obs_transformation:
+  - type: SocketCovArray
+
+fuzzer:
+  dataset: data/fuzz-results
+  cls: TransformerFuzzer
+  vocab_size: 100
+  sequence_length: 20
+  batch_size: 64
+  embed_dim: 256
+  latent_dim: 2048
+  num_heads: 8
+  max_input_len: 500 # 20 kB
+  initial_dataset_len: 2000
+  n_mutation_candidates: 10
+  n_mutation_positions: 500
+  epochs: 1
+  exp: 3

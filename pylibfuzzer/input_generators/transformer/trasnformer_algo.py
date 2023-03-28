@@ -1,9 +1,18 @@
-from typing import List
+import logging
+import os
+import struct
 
 import numpy as np
+from typing import List
+
+from more_itertools import flatten
+from tqdm import trange, tqdm
 
 from pylibfuzzer.input_generators.base import BaseFuzzer
 from pylibfuzzer.input_generators.transformer.model import TransformerModel
+from pylibfuzzer.util.dataset import DatasetIO, Dataset
+
+logger = logging.getLogger(__name__)
 
 
 class TransformerFuzzer(BaseFuzzer):
@@ -11,28 +20,89 @@ class TransformerFuzzer(BaseFuzzer):
     This class implements a fuzzer using Transformer
     """
 
-    def __init__(self, dataset=None):
+    def __init__(self, initial_dataset_len, dataset=None, max_input_len=500, n_mutation_candidates=10,
+                 n_mutation_positions=100, epochs=10, exp=6, vocab_size=100, sequence_length=20, batch_size=64,
+                 embed_dim=256, latent_dim=2048, num_heads=8):
         super().__init__()
-        self.n_mutation_positions = None
-        self.dataset = dataset
+        self.exp = exp
         self.batch = []
-        self.model = TransformerModel()
+        self.epochs = epochs
+        self._do_warmup = True
+        self.dataset = dataset
+        self.initial_dataset_len = initial_dataset_len
+        self.max_input_len = max_input_len
+        self.n_mutation_positions = n_mutation_positions
+        self.n_mutation_candidates = n_mutation_candidates
 
-        self.n_mutation_candidates = None
-        self.train_data = None
+        self.model = TransformerModel(epochs=epochs, vocab_size=vocab_size, sequence_length=sequence_length,
+                                      batch_size=batch_size, embed_dim=embed_dim, latent_dim=latent_dim,
+                                      num_heads=num_heads)
+
+        # uint8, float32, samples×width
+        self.train_data = Dataset()
+        self.val_data = Dataset()
 
     def prepare(self):
-        pass
+        """ prepare Runner to be able to create inputs before loading seeds.
+            - takes care of things like: initialize model and pre-train model if dataset exists """
+
+        if self.dataset is not None:
+            zip_pairs = DatasetIO.load_jqf(dataset_path=self.dataset)
+            self.train_data, self.val_data = DatasetIO.preprocess_data_transformer(zip_pairs)
+
+        # Initialize model and update train and val data for training
+        if not self.model.is_model_created:
+            # todo: add dimension information as argument
+            self.model.initialize_model()
+
+        # train NN
+        logger.info("Begin training on pre-given dataset")
+        self.model.train(self.train_data, self.val_data)
+        logger.info("Finished training on pre-given dataset")
+
+        self._do_warmup = False
 
     def load_seed(self, seedfiles):
         pass
+        # inputs = []
+        # # todo: remove hard-coding below
+        # pbar = tqdm(total=50000)
+        # with open(os.path.join(seedfiles, "events.bin"), "rb") as f:
+        #     while length := f.read(4):
+        #         n = struct.unpack(">i", length)[0]
+        #         pbar.update(1)
+        #         # todo: missing padding part because the seeds are loaded differently than neuzz
+        #         inputs.append(" ".join(map(str, flatten(struct.iter_unpack(">h", f.read(n * 2))))))
+        # pbar.close()
+        #
+        # # cut and pad seedfiles to be exact self.max_input_length
+        # # input = input[:self.max_input_len] + bytes(bytearray(max(0, self.max_input_len - len(input))))
+        #
+        # self.batch.append(inputs)
 
     def create_inputs(self) -> List[bytes]:
-        pass
+        """
+        - use JQF to create (input, output)
+        """
+        if self._do_warmup:
+            self._do_warmup = False
+
+            batch = self.batch
+            # fill up with random inputs to match desired size
+            for _ in trange(len(batch), self.initial_dataset_len):
+                file_len = np.random.randint(self.max_input_len)
+                batch.append(np.random.bytes(file_len) + bytes(bytearray(self.max_input_len - file_len)))
+        else:
+            # todo: pending
+            batch = self._generate_inputs()
+
+        self.batch = batch
+        return self.batch
 
     def observe(self, fuzzing_result: List[bytes]):
         pass
 
+    # todo: pending
     @staticmethod
     def _gen_mutations(candidate, grad, exp=6) -> List[np.array]:
         candidate = candidate.squeeze()
@@ -53,6 +123,7 @@ class TransformerFuzzer(BaseFuzzer):
                     break
         return successors
 
+    # todo: pending
     def _generate_inputs(self) -> List[bytes]:
         # select collection of parent files
         mask = np.random.choice(len(self.train_data), self.n_mutation_candidates, replace=False)
@@ -71,7 +142,7 @@ class TransformerFuzzer(BaseFuzzer):
             gradient = self.model.gradient(x, y)
 
             # generate new mutated inputs using the gradient and exhaustive search (Algo 1 from the paper)
-            mutations = NeuzzFuzzer._gen_mutations(x, gradient, exp=self.exp)
+            mutations = TransformerFuzzer._gen_mutations(x, gradient, exp=self.exp)
             bytes_mutations = [x.tobytes() for x in mutations]
             inputs.extend(bytes_mutations)
 
